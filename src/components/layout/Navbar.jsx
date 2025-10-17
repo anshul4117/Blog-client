@@ -15,21 +15,21 @@ export default function Navbar() {
         </Link>
 
         {/* desktop menu */}
-        <div className="hidden md:flex gap-6 items-center">
+        <div className="hidden md:flex gap-10 items-center">
           <NavLink to="/" className={({isActive}) => isActive ? 'text-primary text-blue-400' : 'hover:text-primary'}>Home</NavLink>
           <NavLink to="/about" className={({isActive}) => isActive ? 'text-primary text-blue-400' : 'hover:text-primary'}>About</NavLink>
 
           {isLoggedIn ? (
             <>
-              <Link to="/dashboard" className="hover:text-primary">Dashboard</Link>
+              <NavLink to="/dashboard" className={({isActive}) => isActive ? 'text-primary text-blue-400' : 'hover:text-primary'}>Dashboard</NavLink>
               <Button variant="outline" size="sm">Logout</Button>
             </>
           ) : (
             <>
-              <Link to="/login" className="hover:text-primary">Login</Link>
-              <Link to="/register">
-                <Button size="sm">Sign up</Button>
-              </Link>
+              <NavLink to="/login" className={({isActive}) => isActive ? 'text-primary text-blue-400' : 'hover:text-primary'}>Login</NavLink>
+              <NavLink to="/register" className={({isActive}) => isActive ? 'text-primary text-blue-400' : 'hover:text-primary'}>
+                <Button className="-p-5">Sign up</Button>
+              </NavLink>
             </>
           )}
         </div>
@@ -49,15 +49,15 @@ export default function Navbar() {
           <NavLink to="/about" className={({isActive})=> isActive ? 'text-primary font-semibold' : ''}>About</NavLink>
           {isLoggedIn ? (
             <>
-              <Link to="/dashboard">Dashboard</Link>
+              <NavLink to="/dashboard" className={({isActive})=> isActive ? 'text-primary font-semibold' : ''}>Dashboard</NavLink>
               <Button variant="outline" size="sm">Logout</Button>
             </>
           ) : (
             <>
-              <Link to="/login">Login</Link>
-              <Link to="/register">
-                <Button size="sm">Sign up</Button>
-              </Link>
+              <NavLink to="/login" className={({isActive})=> isActive ? 'text-primary font-semibold' : ''}>Login</NavLink>
+              <NavLink to="/register" className={({isActive})=> isActive ? 'text-primary font-semibold' : ''}>
+                <Button >Sign up</Button>
+              </NavLink>
             </>
           )}
         </div>
