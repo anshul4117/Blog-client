@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/* Set the site-wide font to Rubik (loaded from Google Fonts in index.html) */
+html, body {
+  font-family: 'Rubik', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  /* Uncomment the next line if you're using Tailwind's utility base class reset */
+  /* @apply bg-background text-foreground min-h-screen; */
+}
