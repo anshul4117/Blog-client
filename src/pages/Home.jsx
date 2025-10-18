@@ -74,8 +74,6 @@ export default function Home() {
                     </g>
                   </svg>
                 </div>
-
-                
               </div>
             </div>
           </div>
