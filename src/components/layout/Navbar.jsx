@@ -45,7 +45,7 @@ export default function Navbar() {
             <>
               <NavLink to="/login" className={({isActive})=> isActive ? 'text-primary font-semibold' : 'hover:text-primary'}>Login</NavLink>
               <NavLink to="/register" className={({isActive})=> isActive ? 'text-primary font-semibold' : ''}>
-                <Button size="sm">Sign up</Button>
+                <span size="sm">Sign up</span>
               </NavLink>
             </>
           )}
@@ -80,7 +80,7 @@ export default function Navbar() {
             <>
               <NavLink to="/login" className={({isActive})=> isActive ? 'font-semibold' : ''}>Login</NavLink>
               <NavLink to="/register" className={({isActive})=> isActive ? 'font-semibold' : ''}>
-                <Button size="sm">Sign up</Button>
+                <span size="sm">Sign up</span>
               </NavLink>
             </>
           )}

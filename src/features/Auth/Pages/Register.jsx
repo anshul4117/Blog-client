@@ -55,7 +55,7 @@ export default function Register() {
         </div>
 
         <div>
-          <Label >Password</Label>
+          <Label className="mb-2" >Password</Label>
           <Input type="password" {...register("password")} placeholder="••••••••" />
           {errors.password && (
             <p className="text-red-500 text-sm mt-1">
