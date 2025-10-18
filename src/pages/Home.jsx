@@ -1,24 +1,24 @@
 import MainLayout from "../components/layout/MainLayout.jsx";
 import PostCard from "../components/blog/PostCard.jsx";
 
-// const posts = [
-//   {
-//     id: 1,
-//     title: "Building a MERN Blog App",
-//     excerpt: "Learn how to build a production-ready MERN stack application step by step.",
-//     author: "Anshul Kumar",
-//     date: "Oct 2025",
-//     image: "https://source.unsplash.com/800x400/?coding,developer",
-//   },
-//   {
-//     id: 2,
-//     title: "Clean Architecture in Node.js",
-//     excerpt: "Understanding service layers, repositories, and modular structures.",
-//     author: "John Doe",
-//     date: "Oct 2025",
-//     image: "https://source.unsplash.com/800x400/?javascript,backend",
-//   },
-// ];
+const posts = [
+  {
+    id: 1,
+    title: "Building a MERN Blog App",
+    excerpt: "Learn how to build a production-ready MERN stack application step by step.",
+    author: "Anshul Kumar",
+    date: "Oct 2025",
+    image: "https://source.unsplash.com/800x400/?coding,developer",
+  },
+  {
+    id: 2,
+    title: "Clean Architecture in Node.js",
+    excerpt: "Understanding service layers, repositories, and modular structures.",
+    author: "John Doe",
+    date: "Oct 2025",
+    image: "https://source.unsplash.com/800x400/?javascript,backend",
+  },
+];
 
 export default function Home() {
   return (
@@ -81,19 +81,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Optional posts grid (kept commented for now) */}
-      {/*
-      <section id="posts" className="py-12">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map((p) => (
-              <PostCard key={p.id} post={p} />
-            ))}
-          </div>
-        </div>
-      </section>
-      */}
     </MainLayout>
   );
 }

@@ -7,14 +7,17 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import AuthLayout from "../Components/AuthLayout.jsx";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext.jsx";
 
 const loginSchema = z.object({
   email: z.string().email("Enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 chars"),
 });
 
+
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const {
     register,
     handleSubmit,
@@ -28,7 +31,7 @@ export default function Login() {
     );
 
     if (user) {
-      localStorage.setItem("currentUser", JSON.stringify(user));
+      login(user); // ✅ updates global state
       alert("Login successful ✅");
       navigate("/");
     } else {
@@ -57,7 +60,7 @@ export default function Login() {
           )}
         </div>
 
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full border-black hover:bg-black hover:text-white">
           Login
         </Button>
 

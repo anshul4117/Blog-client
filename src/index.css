@@ -1,8 +1,35 @@
 @import "tailwindcss";
 
-/* Set the site-wide font to Rubik (loaded from Google Fonts in index.html) */
+/* Color variables (use these in components or as fallbacks). */
+:root {
+  --color-text: #0f172a; /* slate-900 */
+  --color-muted: #6b7280; /* gray-500 */
+  --color-primary: #7c3aed; /* purple-500 */
+  --color-background: #ffffff;
+  --color-foreground: var(--color-text);
+}
+
+.dark {
+  --color-text: #e6eef8; /* light foreground */
+  --color-muted: #9aa6b2;
+  --color-primary: #8b5cf6;
+  --color-background: #0b1220;
+  --color-foreground: var(--color-text);
+}
+
 html, body {
   font-family: 'Rubik', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  /* Uncomment the next line if you're using Tailwind's utility base class reset */
-  /* @apply bg-background text-foreground min-h-screen; */
+  background: var(--color-background);
+  color: var(--color-foreground);
+  min-height: 100vh;
 }
+
+/* Useful small utilities */
+.text-primary { color: var(--color-primary); }
+.text-muted-foreground { color: var(--color-muted); }
+.bg-background { background: var(--color-background); }
+.text-foreground { color: var(--color-foreground); }
+.transition-default { transition: all 200ms ease; }
+
+/* Keep original tailwind directives commented for compatibility with older setups */
+/* @tailwind base; @tailwind components; @tailwind utilities; */

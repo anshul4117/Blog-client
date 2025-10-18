@@ -39,7 +39,7 @@ export default function Register() {
     <AuthLayout title="Create Account 📝" subtitle="Join our blogging community">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div>
-          <Label>Full Name</Label>
+          <Label className="mb-2">Full Name</Label>
           <Input type="text" {...register("name")} placeholder="Anshul Kumar" />
           {errors.name && (
             <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
@@ -47,7 +47,7 @@ export default function Register() {
         </div>
 
         <div>
-          <Label>Email</Label>
+          <Label className="mb-2">Email</Label>
           <Input type="email" {...register("email")} placeholder="you@example.com" />
           {errors.email && (
             <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
@@ -55,7 +55,7 @@ export default function Register() {
         </div>
 
         <div>
-          <Label>Password</Label>
+          <Label >Password</Label>
           <Input type="password" {...register("password")} placeholder="••••••••" />
           {errors.password && (
             <p className="text-red-500 text-sm mt-1">
@@ -64,13 +64,13 @@ export default function Register() {
           )}
         </div>
 
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full border-black hover:bg-black hover:text-white">
           Register
         </Button>
 
         <p className="text-sm text-center text-muted-foreground">
           Already have an account?{" "}
-          <Link to="/login" className="text-primary hover:underline">
+          <Link to="/login" className="text-primary font-bold hover:underline">
             Login
           </Link>
         </p>
