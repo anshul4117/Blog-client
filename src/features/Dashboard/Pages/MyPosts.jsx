@@ -8,7 +8,7 @@ export default function MyPosts() {
     excerpt: "Learn how to build a production-ready MERN stack application step by step.",
     author: "Anshul Kumar",
     date: "Oct 2025",
-    image: "https://www.google.com/imgres?q=developer%20image&imgurl=https%3A%2F%2Fimg.freepik.com%2Fpremium-photo%2Fit-developer-online-software-information-looking-camera-gusher_31965-656121.jpg%3Fsemt%3Dais_hybrid%26w%3D740%26q%3D80&imgrefurl=https%3A%2F%2Fwww.freepik.com%2Ffree-photos-vectors%2Ffront-end-developer&docid=W2I1GgeBlVP9qM&tbnid=jr8KAaZCCm8pkM&vet=12ahUKEwjYpKnYl66QAxXqxjgGHcGeM28QM3oECBkQAA..i&w=740&h=494&hcb=2&ved=2ahUKEwjYpKnYl66QAxXqxjgGHcGeM28QM3oECBkQAA",
+    image: "../../public/Woman.jpeg",
   },
   {
     id: 2,
@@ -16,7 +16,7 @@ export default function MyPosts() {
     excerpt: "Understanding service layers, repositories, and modular structures.",
     author: "John Doe",
     date: "Oct 2025",
-    image: "https://source.unsplash.com/800x400/?javascript,backend",
+    image: "../../public/Woman.jpeg",
   },
 ];
 

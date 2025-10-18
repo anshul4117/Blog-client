@@ -68,12 +68,15 @@ export default function Home() {
                         <path d="M421.5 299.5c33.2 41 56.6 93.5 49.8 131.9-6.8 38.3-46.6 61.4-86.9 73.1-40.3 11.7-81.2 12.9-122.6 4.3-41.4-8.6-83.3-27.6-111.2-58.1-27.9-30.5-42.9-74.5-39.8-114.5 3.1-40 23.1-76 49.1-106.1C137 184 177.5 158 219.7 145.9c42.2-12.1 86.9-11.8 128.8 1.8 41.9 13.6 80 39.9 72.9 78.9z" transform="translate(-50 70) scale(1)" />
                       </clipPath>
                     </defs>
+                    {/* <image href="././public/Woman.jpeg" x="0" y="0" width="600" height="600" preserveAspectRatio="xMidYMid slice" clipPath="url(#blobClip)" /> */}
 
                     <g clipPath="url(#blobClip)">
-                      <image href="/Woman.jpeg" x="0" y="0" width="600" height="600" preserveAspectRatio="xMidYMid slice" />
+                      <image href="../public/Woman.jpeg" x="0" y="0" width="600" height="600" preserveAspectRatio="xMidYMid slice" />
                     </g>
                   </svg>
                 </div>
+
+                
               </div>
             </div>
           </div>
