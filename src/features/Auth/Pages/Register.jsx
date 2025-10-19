@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import AuthLayout from "../Components/AuthLayout.jsx";
 import { useNavigate, Link } from "react-router-dom";
+import API from "../../../lib/api.js";
 
 const registerSchema = z.object({
   name: z.string().min(3, "Name is required"),
@@ -21,18 +22,14 @@ export default function Register() {
     formState: { errors },
   } = useForm({ resolver: zodResolver(registerSchema) });
 
-  const onSubmit = (data) => {
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    const exists = users.find((u) => u.email === data.email);
-    if (exists) {
-      alert("User already exists ❌");
-      return;
-    }
-
-    users.push(data);
-    localStorage.setItem("users", JSON.stringify(users));
+  const onSubmit = async(data) => {
+    try {
+    const res = await API.post("/users/create", data);
     alert("Registration successful ✅");
     navigate("/login");
+  } catch (err) {
+    alert(err.response?.data?.message || "Registration failed ❌");
+  }
   };
 
   return (
