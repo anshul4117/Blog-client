@@ -8,7 +8,7 @@ export default function MyPosts() {
   useEffect(() => {
     API.get("/blogs/allblogs")
       .then((res) => {
-        console.log("API response:", res.data);
+        // console.log("API response:", res.data);
         setPosts(res.data.blogs || []); // ✅ extract blogs array
       })
       .catch((err) => console.error(err));

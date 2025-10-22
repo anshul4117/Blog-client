@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import API from '../../../lib/api.js';
 
 
 export default function CreatePost() {
@@ -12,9 +13,12 @@ export default function CreatePost() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("New Post:", form);
-    alert("Post created (mock) ✅");
-    setForm({ title: "", content: "" });
+    API.post("/blogs/create", form)
+      .then((res) => {
+        alert("Post created ✅");
+        setForm({ title: "", content: "" });
+      })
+      .catch((err) => alert(err.response?.data?.message || "Failed to create post ❌"));
   };
 
   return (
