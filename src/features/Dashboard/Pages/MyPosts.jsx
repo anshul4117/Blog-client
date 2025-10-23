@@ -6,7 +6,7 @@ export default function MyPosts() {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    API.get("/blogs/allblogs")
+    API.get("/blogs/myblogs")
       .then((res) => {
         // console.log("API response:", res.data);
         setPosts(res.data.blogs || []); // ✅ extract blogs array

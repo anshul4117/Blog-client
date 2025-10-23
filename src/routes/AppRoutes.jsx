@@ -10,6 +10,7 @@ import CreatePost from "../features/Dashboard/Pages/CreatePost.jsx";
 import PrivateRoute from "./PrivateRoute.jsx";
 import PostDetails from "../features/Dashboard/Pages/PostDetails.jsx";
 import PublicRoute from "./PublicRoute.jsx";
+import Feed from "../pages/Feed.jsx";
 
 
 export default function AppRoutes() {
@@ -17,6 +18,8 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
+      <Route path="/feed" element={<Feed />} />
+
 
 
       {/* 🔒 Auth routes (PublicRoute prevents logged-in users) */}
@@ -25,10 +28,10 @@ export default function AppRoutes() {
         <Route path="/register" element={<Register />} />
       </Route>
 
-      <Route path="/post/:id" element={<PostDetails />} />
 
       {/* 🔐 Dashboard (Protected Layout) */}
       <Route element={<PrivateRoute />}>
+        <Route path="/post/:id" element={<PostDetails />} />
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<DashboardHome />} />
           <Route path="posts" element={<MyPosts />} />

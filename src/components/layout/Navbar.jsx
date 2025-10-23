@@ -27,6 +27,7 @@ export default function Navbar() {
         <div className="hidden md:flex gap-6 items-center">
           <NavLink to="/" className={({isActive})=> isActive ? 'text-primary font-semibold' : 'hover:text-primary'}>Home</NavLink>
           <NavLink to="/about" className={({isActive})=> isActive ? 'text-primary font-semibold' : 'hover:text-primary'}>About</NavLink>
+          <NavLink to="/feed" className={({isActive})=> isActive ? 'text-primary font-semibold' : 'hover:text-primary'}>Explore</NavLink>
 
           {isLoggedIn ? (
             <>
@@ -64,6 +65,7 @@ export default function Navbar() {
         <div className="md:hidden border-t p-4 flex flex-col gap-3">
           <NavLink to="/" className={({isActive})=> isActive ? 'font-semibold' : ''}>Home</NavLink>
           <NavLink to="/about" className={({isActive})=> isActive ? 'font-semibold' : ''}>About</NavLink>
+          <NavLink to="/feed" className={({isActive})=> isActive ? 'font-semibold' : ''}>Explore</NavLink>
           {isLoggedIn ? (
             <>
               <NavLink to="/dashboard" className={({isActive})=> isActive ? 'font-semibold' : ''}>Dashboard</NavLink>
