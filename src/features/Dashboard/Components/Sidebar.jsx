@@ -11,7 +11,7 @@ export default function Sidebar() {
   const { pathname } = useLocation();
 
   return (
-    <aside className="w-60 bg-muted/40 border-r min-h-screen p-4 space-y-2">
+    <aside className="w-30 bg-muted/40 border-r min-h-screen sm:w-60 p-4 space-y-2">
       <h2 className="text-lg font-bold mb-4">Dashboard</h2>
       {links.map(({ to, label, icon: Icon }) => {
         const active = pathname === to;
