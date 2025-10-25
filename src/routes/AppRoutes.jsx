@@ -11,6 +11,8 @@ import PrivateRoute from "./PrivateRoute.jsx";
 import PostDetails from "../features/Dashboard/Pages/PostDetails.jsx";
 import PublicRoute from "./PublicRoute.jsx";
 import Feed from "../pages/Feed.jsx";
+import Profile from "../features/Profile/Pages/Profile.jsx";
+import Settings from "../features/Profile/Pages/Setting.jsx";
 
 
 export default function AppRoutes() {
@@ -37,6 +39,8 @@ export default function AppRoutes() {
           <Route path="posts" element={<MyPosts />} />
           <Route path="create" element={<CreatePost />} />
         </Route>
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/settings" element={<Settings />} />
       </Route>
 
     </Routes>
