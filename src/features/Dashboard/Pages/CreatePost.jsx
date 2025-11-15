@@ -3,10 +3,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import API from '../../../lib/api.js';
+import { useNavigate } from "react-router-dom";
 
 
 export default function CreatePost() {
   const [form, setForm] = useState({ title: "", content: "" });
+  const navigate = useNavigate();
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,6 +19,7 @@ export default function CreatePost() {
       .then((res) => {
         alert("Post created ✅");
         setForm({ title: "", content: "" });
+        navigate("/dashboard/posts");
       })
       .catch((err) => alert(err.response?.data?.message || "Failed to create post ❌"));
   };
