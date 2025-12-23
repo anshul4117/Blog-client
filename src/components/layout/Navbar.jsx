@@ -1,8 +1,10 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sun, Moon, Laptop } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext.jsx";
+import { ModeToggle } from "@/components/mode-toggle";
+import { useTheme } from "@/components/theme-provider";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -14,6 +16,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { setTheme } = useTheme();
   const isLoggedIn = !!user;
 
   const handleLogout = () => {
@@ -28,7 +31,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+    <nav className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50 transition-colors duration-300">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="text-xl font-bold">
@@ -73,6 +76,8 @@ export default function Navbar() {
                 Dashboard
               </NavLink>
 
+              <ModeToggle />
+
               {/* Avatar Dropdown Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -84,7 +89,7 @@ export default function Navbar() {
                         className="w-9 h-9 rounded-full object-cover border border-gray-200 hover:opacity-80"
                       />
                     ) : (
-                      <div className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-sm font-medium hover:bg-slate-300">
+                      <div className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-sm font-medium hover:bg-slate-300 text-slate-700">
                         {(user?.user?.name || "U")
                           .split(" ")
                           .map((n) => n[0])
@@ -95,8 +100,8 @@ export default function Navbar() {
                   </button>
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="end" className="w-48 mt-2 bg-white">
-                  <div className="px-3 py-2 text-sm border-b">
+                <DropdownMenuContent align="end" className="w-48 mt-2 bg-popover text-popover-foreground">
+                  <div className="px-3 py-2 text-sm border-b border-border">
                     <p className="font-medium">{user?.user?.name || "User"}</p>
                     <p className="text-xs text-muted-foreground truncate">
                       {user?.email}
@@ -125,6 +130,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
+              <ModeToggle />
               <NavLink
                 to="/login"
                 className={({ isActive }) =>
@@ -148,7 +154,7 @@ export default function Navbar() {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setOpen(!open)}
-          className="md:hidden p-2 rounded-lg hover:bg-accent"
+          className="md:hidden p-2 rounded-lg hover:bg-accent text-foreground"
         >
           {open ? <X /> : <Menu />}
         </button>
@@ -156,51 +162,65 @@ export default function Navbar() {
 
       {/* Mobile Dropdown */}
       {open && (
-        <div className="md:hidden border-t p-4 flex flex-col gap-3 bg-background">
+        <div className="md:hidden border-t border-border p-4 flex flex-col gap-3 bg-background animate-in slide-in-from-top-2">
           <NavLink
             to="/"
             onClick={() => setOpen(false)}
-            className={({ isActive }) => (isActive ? "font-semibold" : "")}
+            className={({ isActive }) => (isActive ? "font-semibold text-primary" : "text-foreground")}
           >
             Home
           </NavLink>
           <NavLink
             to="/about"
             onClick={() => setOpen(false)}
-            className={({ isActive }) => (isActive ? "font-semibold" : "")}
+            className={({ isActive }) => (isActive ? "font-semibold text-primary" : "text-foreground")}
           >
             About
           </NavLink>
           <NavLink
             to="/feed"
             onClick={() => setOpen(false)}
-            className={({ isActive }) => (isActive ? "font-semibold" : "")}
+            className={({ isActive }) => (isActive ? "font-semibold text-primary" : "text-foreground")}
           >
             Explore
           </NavLink>
+
+          <div className="flex items-center justify-between py-2 border-y border-border">
+            <span className="text-sm font-medium text-muted-foreground">Theme</span>
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setTheme("light")} className="h-8 w-8 p-0">
+                <Sun className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setTheme("dark")} className="h-8 w-8 p-0">
+                <Moon className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setTheme("system")} className="h-8 w-8 p-0">
+                <Laptop className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
 
           {isLoggedIn ? (
             <>
               <NavLink
                 to="/dashboard"
                 onClick={() => setOpen(false)}
-                className={({ isActive }) => (isActive ? "font-semibold" : "")}
+                className={({ isActive }) => (isActive ? "font-semibold text-primary" : "text-foreground")}
               >
                 Dashboard
               </NavLink>
 
-              {/* ✅ Profile + Settings added here */}
               <NavLink
                 to="/profile"
                 onClick={() => setOpen(false)}
-                className={({ isActive }) => (isActive ? "font-semibold" : "")}
+                className={({ isActive }) => (isActive ? "font-semibold text-primary" : "text-foreground")}
               >
                 Profile
               </NavLink>
               <NavLink
                 to="/settings"
                 onClick={() => setOpen(false)}
-                className={({ isActive }) => (isActive ? "font-semibold" : "")}
+                className={({ isActive }) => (isActive ? "font-semibold text-primary" : "text-foreground")}
               >
                 Settings
               </NavLink>
@@ -209,7 +229,7 @@ export default function Navbar() {
                 variant="outline"
                 size="sm"
                 onClick={handleLogout}
-                className="mt-2"
+                className="mt-2 w-full justify-start text-red-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20"
               >
                 Logout
               </Button>
@@ -219,14 +239,14 @@ export default function Navbar() {
               <NavLink
                 to="/login"
                 onClick={() => setOpen(false)}
-                className={({ isActive }) => (isActive ? "font-semibold" : "")}
+                className={({ isActive }) => (isActive ? "font-semibold text-primary" : "text-foreground")}
               >
                 Login
               </NavLink>
               <NavLink
                 to="/register"
                 onClick={() => setOpen(false)}
-                className={({ isActive }) => (isActive ? "font-semibold" : "")}
+                className={({ isActive }) => (isActive ? "font-semibold text-primary" : "text-foreground")}
               >
                 Sign up
               </NavLink>
