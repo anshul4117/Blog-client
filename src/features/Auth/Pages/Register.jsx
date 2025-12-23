@@ -26,7 +26,7 @@ export default function Register() {
   const onSubmit = async (data) => {
     try {
       const res = await API.post("/users/create", data);
-      alert("Registration successful ✅");
+      // alert("Registration successful ✅");
       navigate("/login");
     } catch (err) {
       alert(err.response?.data?.message || "Registration failed ❌");
@@ -34,42 +34,59 @@ export default function Register() {
   };
 
   return (
-    <AuthLayout title="Create Account 📝" subtitle="Join our blogging community">
+    <AuthLayout title="Create Account 📝" subtitle="Join our community of writers today">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div>
-          <Label className="mb-2">Full Name</Label>
-          <Input type="text" {...register("name")} placeholder="Anshul Kumar" />
+        <div className="space-y-2">
+          <Label className="text-base">Full Name</Label>
+          <Input
+            type="text"
+            {...register("name")}
+            placeholder="John Doe"
+            className="h-12 bg-muted/30 border-border/60 focus:ring-primary/20 transition-all rounded-xl"
+          />
           {errors.name && (
-            <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+            <p className="text-red-500 text-sm font-medium">{errors.name.message}</p>
           )}
         </div>
 
-        <div>
-          <Label className="mb-2">Email</Label>
-          <Input type="email" {...register("email")} placeholder="you@example.com" />
+        <div className="space-y-2">
+          <Label className="text-base">Email</Label>
+          <Input
+            type="email"
+            {...register("email")}
+            placeholder="name@example.com"
+            className="h-12 bg-muted/30 border-border/60 focus:ring-primary/20 transition-all rounded-xl"
+          />
           {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+            <p className="text-red-500 text-sm font-medium">{errors.email.message}</p>
           )}
         </div>
 
-        <div>
-          <Label className="mb-2" >Password</Label>
-          <PasswordInput {...register("password")} placeholder="••••••••" />
+        <div className="space-y-2">
+          <Label className="text-base" >Password</Label>
+          <PasswordInput
+            {...register("password")}
+            placeholder="••••••••"
+            className="h-12 bg-muted/30 border-border/60 focus:ring-primary/20 transition-all rounded-xl"
+          />
           {errors.password && (
-            <p className="text-red-500 text-sm mt-1">
+            <p className="text-red-500 text-sm font-medium">
               {errors.password.message}
             </p>
           )}
         </div>
 
-        <Button type="submit" className="w-full border-black hover:bg-black hover:text-white">
-          Register
+        <Button
+          type="submit"
+          className="w-full h-12 text-base font-bold rounded-xl shadow-lg hover:shadow-primary/25 transition-all bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+        >
+          Get Started
         </Button>
 
-        <p className="text-sm text-center text-muted-foreground">
+        <p className="text-center text-muted-foreground">
           Already have an account?{" "}
-          <Link to="/login" className="text-primary font-bold hover:underline">
-            Login
+          <Link to="/login" className="text-primary font-bold hover:underline transition-all">
+            Sign in
           </Link>
         </p>
       </form>

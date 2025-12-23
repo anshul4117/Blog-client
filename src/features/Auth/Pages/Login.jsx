@@ -32,7 +32,7 @@ export default function Login() {
       const userData = res.data;
       console.log(userData)
       login(userData); // context function
-      alert("Login successful ✅");
+      // alert("Login successful ✅"); // Removed alert for smoother flow
       navigate("/feed");
     } catch (err) {
       alert(err.response?.data?.message || "Login failed ❌")
@@ -40,34 +40,62 @@ export default function Login() {
   };
 
   return (
-    <AuthLayout title="Welcome Back 👋" subtitle="Login to your account">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div>
-          <Label>Email</Label>
-          <Input type="email" {...register("email")} placeholder="you@example.com" />
+    <AuthLayout title="Welcome Back 👋" subtitle="Enter your credentials to access your account">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-2">
+          <Label className="text-base">Email</Label>
+          <Input
+            type="email"
+            {...register("email")}
+            placeholder="name@example.com"
+            className="h-12 bg-muted/30 border-border/60 focus:ring-primary/20 transition-all rounded-xl"
+          />
           {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+            <p className="text-red-500 text-sm font-medium">{errors.email.message}</p>
           )}
         </div>
 
-        <div>
-          <Label>Password</Label>
-          <PasswordInput {...register("password")} placeholder="••••••••" />
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-base">Password</Label>
+            <Link to="/forgot-password" className="text-sm font-medium text-primary hover:underline">
+              Forgot password?
+            </Link>
+          </div>
+          <PasswordInput
+            {...register("password")}
+            placeholder="••••••••"
+            className="h-12 bg-muted/30 border-border/60 focus:ring-primary/20 transition-all rounded-xl"
+          />
           {errors.password && (
-            <p className="text-red-500 text-sm mt-1">
+            <p className="text-red-500 text-sm font-medium">
               {errors.password.message}
             </p>
           )}
         </div>
 
-        <Button type="submit" className="w-full border-black hover:bg-black hover:text-white">
-          Login
+        <Button
+          type="submit"
+          className="w-full h-12 text-base font-bold rounded-xl shadow-lg hover:shadow-primary/25 transition-all"
+        >
+          Sign In
         </Button>
 
-        <p className="text-sm text-center text-muted-foreground">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-muted" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with
+            </span>
+          </div>
+        </div>
+
+        <p className="text-center text-muted-foreground">
           Don’t have an account?{" "}
-          <Link to="/register" className="text-primary hover:underline">
-            Register
+          <Link to="/register" className="text-primary font-bold hover:underline transition-all">
+            Create an account
           </Link>
         </p>
       </form>
