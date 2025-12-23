@@ -2,11 +2,12 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import AuthLayout from "../Components/AuthLayout.jsx";
 import { useNavigate, Link } from "react-router-dom";
-import API from "../../../lib/api.js";
+import API from "../../../lib/secureApi.js";
 
 const registerSchema = z.object({
   name: z.string().min(3, "Name is required"),
@@ -22,14 +23,14 @@ export default function Register() {
     formState: { errors },
   } = useForm({ resolver: zodResolver(registerSchema) });
 
-  const onSubmit = async(data) => {
+  const onSubmit = async (data) => {
     try {
-    const res = await API.post("/users/create", data);
-    alert("Registration successful ✅");
-    navigate("/login");
-  } catch (err) {
-    alert(err.response?.data?.message || "Registration failed ❌");
-  }
+      const res = await API.post("/users/create", data);
+      alert("Registration successful ✅");
+      navigate("/login");
+    } catch (err) {
+      alert(err.response?.data?.message || "Registration failed ❌");
+    }
   };
 
   return (
@@ -53,7 +54,7 @@ export default function Register() {
 
         <div>
           <Label className="mb-2" >Password</Label>
-          <Input type="password" {...register("password")} placeholder="••••••••" />
+          <PasswordInput {...register("password")} placeholder="••••••••" />
           {errors.password && (
             <p className="text-red-500 text-sm mt-1">
               {errors.password.message}

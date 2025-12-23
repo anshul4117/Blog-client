@@ -1,5 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, FilePlus, FileText } from "lucide-react";
+import { LayoutDashboard, FilePlus, FileText, User, Settings, LogOut } from "lucide-react";
+import { motion } from "framer-motion";
+import { useAuth } from "../../../context/AuthContext";
 
 const links = [
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -7,27 +9,66 @@ const links = [
   { to: "/dashboard/create", label: "Create Post", icon: FilePlus },
 ];
 
+const bottomLinks = [
+  { to: "/profile", label: "Profile", icon: User },
+  { to: "/settings", label: "Settings", icon: Settings },
+];
+
 export default function Sidebar() {
   const { pathname } = useLocation();
+  const { logout } = useAuth(); // Assuming logout exists in context
 
   return (
-    <aside className="w-30 bg-muted/40 border-r min-h-screen sm:w-60 p-4 space-y-2">
-      <h2 className="text-lg font-bold mb-4">Dashboard</h2>
-      {links.map(({ to, label, icon: Icon }) => {
-        const active = pathname === to;
-        return (
-          <Link
-            key={to}
-            to={to}
-            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent transition ${
-              active ? "bg-accent text-primary" : "text-muted-foreground"
-            }`}
-          >
-            <Icon size={18} />
-            {label}
-          </Link>
-        );
-      })}
+    <aside className="hidden sm:flex flex-col w-64 min-h-screen bg-background border-r border-border/40 sticky top-0">
+      <div className="p-6 border-b border-border/40">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+          Dashboard
+        </h2>
+      </div>
+
+      <div className="flex-1 py-6 px-4 space-y-6">
+        <div className="space-y-1">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Menu</p>
+          {links.map((link) => (
+            <SidebarItem key={link.to} link={link} active={pathname === link.to} />
+          ))}
+        </div>
+
+        <div className="space-y-1">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Account</p>
+          {bottomLinks.map((link) => (
+            <SidebarItem key={link.to} link={link} active={pathname === link.to} />
+          ))}
+        </div>
+      </div>
+
+      <div className="p-4 border-t border-border/40">
+        <button
+          onClick={logout}
+          className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all"
+        >
+          <LogOut size={18} />
+          <span>Logout</span>
+        </button>
+      </div>
     </aside>
+  );
+}
+
+function SidebarItem({ link, active }) {
+  return (
+    <Link to={link.to} className="block relative group">
+      {active && (
+        <motion.div
+          layoutId="sidebar-active"
+          className="absolute inset-0 bg-primary/10 rounded-xl"
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        />
+      )}
+      <div className={`relative flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`}>
+        <link.icon size={20} />
+        {link.label}
+      </div>
+    </Link>
   );
 }

@@ -2,13 +2,14 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import AuthLayout from "../Components/AuthLayout.jsx";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext.jsx";
-import API from "../../../lib/api.js"
+import API from "../../../lib/secureApi.js"
 
 const loginSchema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -25,17 +26,17 @@ export default function Login() {
     formState: { errors },
   } = useForm({ resolver: zodResolver(loginSchema) });
 
-  const onSubmit = async(data) => {
-     try {
-    const res = await API.post("/users/login", data);
-    const userData = res.data;
-    console.log(userData)
-    login(userData); // context function
-    alert("Login successful ✅");
-    navigate("/");
-  } catch (err) {
-    alert(err.response?.data?.message || "Login failed ❌")
-  }
+  const onSubmit = async (data) => {
+    try {
+      const res = await API.post("/users/login", data);
+      const userData = res.data;
+      console.log(userData)
+      login(userData); // context function
+      alert("Login successful ✅");
+      navigate("/feed");
+    } catch (err) {
+      alert(err.response?.data?.message || "Login failed ❌")
+    }
   };
 
   return (
@@ -51,7 +52,7 @@ export default function Login() {
 
         <div>
           <Label>Password</Label>
-          <Input type="password" {...register("password")} placeholder="••••••••" />
+          <PasswordInput {...register("password")} placeholder="••••••••" />
           {errors.password && (
             <p className="text-red-500 text-sm mt-1">
               {errors.password.message}

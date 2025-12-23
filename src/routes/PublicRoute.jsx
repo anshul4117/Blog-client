@@ -7,7 +7,7 @@ export default function PublicRoute() {
 
   // If user is logged in, redirect to dashboard or home
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/feed" replace />;
   }
 
   // Otherwise, render the public route (login/register)

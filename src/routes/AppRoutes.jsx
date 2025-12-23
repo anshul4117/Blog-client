@@ -1,48 +1,60 @@
+import React, { Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
-import Home from "../pages/Home.jsx";
-import About from "../pages/About.jsx";
-import Login from "../features/Auth/Pages/Login.jsx";
-import Register from "../features/Auth/pages/Register.jsx";
-import DashboardLayout from "../features/Dashboard/Components/DashboardLayout.jsx"
-import DashboardHome from "../features/Dashboard/Pages/DashboardHome.jsx";
-import MyPosts from "../features/Dashboard/Pages/MyPosts.jsx";
-import CreatePost from "../features/Dashboard/Pages/CreatePost.jsx";
 import PrivateRoute from "./PrivateRoute.jsx";
-import PostDetails from "../features/Dashboard/Pages/PostDetails.jsx";
 import PublicRoute from "./PublicRoute.jsx";
-import Feed from "../pages/Feed.jsx";
-import Profile from "../features/Profile/Pages/Profile.jsx";
-import Settings from "../features/Profile/Pages/Setting.jsx";
+import DashboardLayout from "../features/Dashboard/Components/DashboardLayout.jsx";
 
+// Lazy load pages
+const Home = lazy(() => import("../pages/Home.jsx"));
+const About = lazy(() => import("../pages/About.jsx"));
+const Feed = lazy(() => import("../pages/Feed.jsx"));
+
+// Auth
+const Login = lazy(() => import("../features/Auth/Pages/Login.jsx"));
+const Register = lazy(() => import("../features/Auth/Pages/Register.jsx"));
+
+// Dashboard / Features
+const DashboardHome = lazy(() => import("../features/Dashboard/Pages/DashboardHome.jsx"));
+const MyPosts = lazy(() => import("../features/Dashboard/Pages/MyPosts.jsx"));
+const CreatePost = lazy(() => import("../features/Dashboard/Pages/CreatePost.jsx"));
+const PostDetails = lazy(() => import("../features/Dashboard/Pages/PostDetails.jsx"));
+
+// Profile
+const Profile = lazy(() => import("../features/Profile/Pages/Profile.jsx"));
+const Settings = lazy(() => import("../features/Profile/Pages/Setting.jsx"));
+
+const Loading = () => (
+  <div className="flex h-screen w-full items-center justify-center">
+    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+  </div>
+);
 
 export default function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/feed" element={<Feed />} />
+    <Suspense fallback={<Loading />}>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/feed" element={<Feed />} />
 
-
-
-      {/* 🔒 Auth routes (PublicRoute prevents logged-in users) */}
-      <Route element={<PublicRoute />}>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-      </Route>
-
-
-      {/* 🔐 Dashboard (Protected Layout) */}
-      <Route element={<PrivateRoute />}>
-        <Route path="/post/:id" element={<PostDetails />} />
-        <Route path="/dashboard" element={<DashboardLayout />}>
-          <Route index element={<DashboardHome />} />
-          <Route path="posts" element={<MyPosts />} />
-          <Route path="create" element={<CreatePost />} />
+        {/* 🔒 Auth routes (PublicRoute prevents logged-in users) */}
+        <Route element={<PublicRoute />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Route>
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/settings" element={<Settings />} />
-      </Route>
 
-    </Routes>
+        {/* 🔐 Dashboard (Protected Layout) */}
+        <Route element={<PrivateRoute />}>
+          <Route path="/post/:id" element={<PostDetails />} />
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<DashboardHome />} />
+            <Route path="posts" element={<MyPosts />} />
+            <Route path="create" element={<CreatePost />} />
+          </Route>
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
+        </Route>
+      </Routes>
+    </Suspense>
   );
 }
