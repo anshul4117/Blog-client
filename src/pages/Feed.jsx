@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import PageTransition from "@/components/layout/PageTransition.jsx";
 import PostCard from "../components/blog/PostCard.jsx";
 import API from "../lib/secureApi.js";
-import { Search, Loader2, Menu } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Sidebar from "../features/Dashboard/Components/Sidebar.jsx"; // Import Sidebar
+import MobileBottomBar from "../features/Dashboard/Components/MobileBottomBar.jsx";
 
 export default function Feed() {
     const [posts, setPosts] = useState([]);
@@ -24,14 +25,12 @@ export default function Feed() {
     }, []);
 
     return (
-        // <MainLayout> 
-        // We remove MainLayout to control the full viewport with the 3 independent columns
-        <PageTransition>
-            <div className="min-h-screen bg-background flex justify-center">
-
+        <div className="min-h-screen bg-background flex justify-center pb-20 sm:pb-0">
+            <MobileBottomBar variant="feed" />
+            <PageTransition className="w-full flex justify-center">
                 <div className="flex w-full max-w-7xl gap-0 lg:gap-6">
 
-                    {/* Left Sidebar (Navigation) */}
+                    {/* Left Sidebar (Navigation) - Desktop/Tablet */}
                     <div className="hidden sm:block w-auto lg:w-64 border-r border-border min-h-screen sticky top-0 h-screen overflow-y-auto">
                         <Sidebar />
                     </div>
@@ -39,7 +38,7 @@ export default function Feed() {
                     {/* Main Feed Column (Center) */}
                     <main className="flex-1 max-w-2xl border-r border-border min-h-screen pb-20">
                         {/* Sticky Header */}
-                        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border px-4 py-3">
+                        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border px-4 py-3 flex items-center gap-3">
                             <h1 className="text-xl font-bold">Home</h1>
                         </div>
 
@@ -106,8 +105,8 @@ export default function Feed() {
                     </aside>
 
                 </div>
-            </div>
-        </PageTransition>
+            </PageTransition>
+        </div>
     );
 }
 

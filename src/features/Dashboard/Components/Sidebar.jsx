@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, FilePlus, FileText, User, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, FilePlus, FileText, User, Settings, LogOut, LogIn, UserPlus, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "../../../context/AuthContext";
 
@@ -14,43 +14,84 @@ const bottomLinks = [
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
-export default function Sidebar() {
+const publicLinks = [
+  { to: "/login", label: "Login", icon: LogIn },
+  { to: "/register", label: "Register", icon: UserPlus },
+]
+
+export default function Sidebar({ className = "", mobile = false, onClose }) {
   const { pathname } = useLocation();
-  const { logout } = useAuth(); // Assuming logout exists in context
+  const { logout, user } = useAuth(); // Assuming logout exists in context
+
+  const baseClasses = mobile
+    ? "flex flex-col w-[85vw] max-w-[300px] h-full bg-background/95 backdrop-blur-xl border-r border-border shadow-2xl"
+    : "hidden sm:flex flex-col w-64 min-h-screen bg-background border-r border-border/40 sticky top-0";
+
+  // Content wrapper to avoid duplicating logic
+  const content = (
+    <>
+      <div className="p-6 border-b border-border/40 flex justify-between items-center">
+        {!user ? (
+          <Link to="/" className="text-xl font-bold">
+            <span className="text-primary">My</span>Blog
+          </Link>
+        ) : (
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+            Dashboard
+          </h2>
+        )}
+        {/* Close Button for Mobile */}
+        {mobile && (
+          <button onClick={onClose} className="p-1 rounded-full hover:bg-accent text-foreground/70">
+            <X size={20} />
+          </button>
+        )}
+      </div>
+
+      <div className="flex-1 py-6 px-4 space-y-6 overflow-y-auto">
+        {!user ? (
+          <div className="space-y-1">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Join Us</p>
+            {publicLinks.map((link) => (
+              <SidebarItem key={link.to} link={link} active={pathname === link.to} />
+            ))}
+          </div>
+        ) : (
+          <>
+            <div className="space-y-1">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Menu</p>
+              {links.map((link) => (
+                <SidebarItem key={link.to} link={link} active={pathname === link.to} />
+              ))}
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Account</p>
+              {bottomLinks.map((link) => (
+                <SidebarItem key={link.to} link={link} active={pathname === link.to} />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {user && (
+        <div className="p-4 border-t border-border/40">
+          <button
+            onClick={logout}
+            className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all"
+          >
+            <LogOut size={18} />
+            <span>Logout</span>
+          </button>
+        </div>
+      )}
+    </>
+  );
 
   return (
-    <aside className="hidden sm:flex flex-col w-64 min-h-screen bg-background border-r border-border/40 sticky top-0">
-      <div className="p-6 border-b border-border/40">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-          Dashboard
-        </h2>
-      </div>
-
-      <div className="flex-1 py-6 px-4 space-y-6">
-        <div className="space-y-1">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Menu</p>
-          {links.map((link) => (
-            <SidebarItem key={link.to} link={link} active={pathname === link.to} />
-          ))}
-        </div>
-
-        <div className="space-y-1">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Account</p>
-          {bottomLinks.map((link) => (
-            <SidebarItem key={link.to} link={link} active={pathname === link.to} />
-          ))}
-        </div>
-      </div>
-
-      <div className="p-4 border-t border-border/40">
-        <button
-          onClick={logout}
-          className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all"
-        >
-          <LogOut size={18} />
-          <span>Logout</span>
-        </button>
-      </div>
+    <aside className={`${baseClasses} ${className}`}>
+      {content}
     </aside>
   );
 }

@@ -3,7 +3,7 @@ import PageTransition from "../components/layout/PageTransition.jsx";
 import { Link } from "react-router-dom";
 import { ArrowRight, PenTool, Zap, Users, Shield, BookOpen, Quote } from "lucide-react";
 import { motion } from "framer-motion";
-import Particles from "@/components/ui/Particles.jsx";
+import ParticleBackground from "../components/ui/ParticleBackground.jsx";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 60 },
@@ -26,55 +26,49 @@ export default function Home() {
         <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
           {/* Animated Background */}
           <div className="absolute inset-0 -z-10 bg-background">
-            <Particles
-              className="absolute inset-0"
-              quantity={100}
-              ease={80}
-              color="#8b5cf6" // Purple-ish to match theme
-              refresh
-            />
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03]"></div>
+            <ParticleBackground />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80 pointer-events-none" />
           </div>
 
-          <div className="container px-6 relative z-10 text-center">
+          <div className="container px-4 sm:px-6 relative z-10 text-center">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/30 text-accent-foreground text-sm font-medium mb-8 border border-white/10 shadow-lg">
-                <Zap size={16} className="text-yellow-400 fill-yellow-400" />
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/30 text-accent-foreground text-xs sm:text-sm font-medium mb-6 sm:mb-8 border border-white/10 shadow-lg">
+                <Zap size={14} className="text-yellow-400 fill-yellow-400" />
                 <span className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent font-bold">New:</span>
-                Dark mode is now live!
+                Dark mode is live!
               </div>
 
-              <h1 className="text-5xl md:text-7xl lg:text-9xl font-black tracking-tighter mb-8 leading-[1.1]">
+              <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-6 md:mb-8 leading-[1.1]">
                 Craft Your <br className="hidden md:block" />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-blue-600">
                   Digital Legacy
                 </span>
               </h1>
 
-              <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed">
+              <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-8 md:mb-12 leading-relaxed px-2">
                 Connect with a global community of writers. Share your stories,
                 tutorials, and ideas on a platform designed for <span className="text-foreground font-semibold">clarity</span> and <span className="text-foreground font-semibold">impact</span>.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                <Link to="/register">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 w-full px-4 sm:px-0">
+                <Link to="/register" className="w-full sm:w-auto">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="px-8 py-4 bg-primary text-primary-foreground text-lg font-bold rounded-full shadow-[0_0_40px_-10px_rgba(var(--primary),0.5)] hover:shadow-[0_0_60px_-15px_rgba(var(--primary),0.6)] transition-all flex items-center gap-3"
+                    className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 bg-primary text-primary-foreground text-base md:text-lg font-bold rounded-full shadow-[0_0_40px_-10px_rgba(var(--primary),0.5)] hover:shadow-[0_0_60px_-15px_rgba(var(--primary),0.6)] transition-all flex items-center justify-center gap-3"
                   >
-                    Start Writing Now <ArrowRight size={20} />
+                    Start Writing <ArrowRight size={20} />
                   </motion.button>
                 </Link>
-                <Link to="/feed">
+                <Link to="/feed" className="w-full sm:w-auto">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="px-8 py-4 bg-background border border-border text-lg font-medium rounded-full hover:bg-accent/50 transition-colors"
+                    className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 bg-background border border-border text-base md:text-lg font-medium rounded-full hover:bg-accent/50 transition-colors"
                   >
                     Read Stories
                   </motion.button>
@@ -85,14 +79,14 @@ export default function Home() {
         </section>
 
         {/* FEATURES GRID SECTION */}
-        <section className="py-24 md:py-32 bg-muted/20 relative">
-          <div className="container px-6">
+        <section className="py-20 md:py-32 bg-muted/20 relative">
+          <div className="container px-4 sm:px-6">
             <motion.div
               {...fadeInUp}
-              className="text-center mb-20"
+              className="text-center mb-12 sm:mb-20"
             >
-              <h2 className="text-3xl md:text-5xl font-bold mb-6">Built for Modern Writers</h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4 sm:mb-6">Built for Modern Writers</h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto px-2">
                 We've stripped away the clutter to focus on what matters most: your content and your audience.
               </p>
             </motion.div>
@@ -102,7 +96,7 @@ export default function Home() {
               initial="initial"
               whileInView="whileInView"
               viewport={{ once: true }}
-              className="grid md:grid-cols-3 gap-8"
+              className="grid md:grid-cols-3 gap-6 sm:gap-8"
             >
               <FeatureCard
                 icon={PenTool}
@@ -127,18 +121,18 @@ export default function Home() {
         </section>
 
         {/* IMMERSIVE IMAGE SPLIT SECTION */}
-        <section className="py-24 overflow-hidden">
-          <div className="container px-6">
-            <div className="flex flex-col lg:flex-row items-center gap-16">
+        <section className="py-20 md:py-24 overflow-hidden">
+          <div className="container px-4 sm:px-6">
+            <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
               <motion.div
                 {...fadeInUp}
-                className="flex-1 space-y-8"
+                className="flex-1 space-y-6 sm:space-y-8"
               >
-                <h2 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight">
-                  Share ideas that <br />
+                <h2 className="text-3xl md:text-6xl font-bold tracking-tight leading-tight text-center lg:text-left">
+                  Share ideas that <br className="hidden md:block" />
                   <span className="text-primary">change the world.</span>
                 </h2>
-                <div className="space-y-6 text-lg text-muted-foreground">
+                <div className="space-y-4 sm:space-y-6 text-lg text-muted-foreground">
                   <p>
                     Whether you're sharing code snippets, personal essays, or industry analysis, our platform adapts to your voice.
                   </p>
@@ -157,9 +151,11 @@ export default function Home() {
                     </li>
                   </ul>
                 </div>
-                <Link to="/about">
-                  <Button variant="outline" size="lg" className="mt-4">Learn more about us</Button>
-                </Link>
+                <div className="text-center lg:text-left">
+                  <Link to="/about">
+                    <Button variant="outline" size="lg" className="mt-4">Learn more about us</Button>
+                  </Link>
+                </div>
               </motion.div>
 
               <motion.div
@@ -167,9 +163,9 @@ export default function Home() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8 }}
                 viewport={{ once: true }}
-                className="flex-1 relative"
+                className="flex-1 relative w-full"
               >
-                <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl skew-y-3 hover:skew-y-0 transition-transform duration-700">
+                <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl skew-y-3 hover:skew-y-0 transition-transform duration-700 w-full aspect-video lg:aspect-auto lg:h-[600px]">
                   <img
                     src="/Woman.jpeg"
                     alt="Writing workspace"
@@ -185,10 +181,10 @@ export default function Home() {
         </section>
 
         {/* TESTIMONIALS */}
-        <section className="py-24 bg-card border-y border-border/40">
-          <div className="container px-6 text-center">
-            <h2 className="text-3xl font-bold mb-16">Loved by Developers & Writers</h2>
-            <div className="grid md:grid-cols-3 gap-8">
+        <section className="py-20 md:py-24 bg-card border-y border-border/40">
+          <div className="container px-4 sm:px-6 text-center">
+            <h2 className="text-3xl font-bold mb-12 sm:mb-16">Loved by Developers & Writers</h2>
+            <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
               <TestimonialCard
                 quote="The cleanest writing experience I've found on the web. It just gets out of the way."
                 author="Sarah J."
@@ -212,23 +208,23 @@ export default function Home() {
         </section>
 
         {/* CTA */}
-        <section className="py-32 relative overflow-hidden">
+        <section className="py-24 md:py-32 relative overflow-hidden">
           <div className="absolute inset-0 bg-primary/90">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
           </div>
-          <div className="container px-6 relative z-10 text-center text-primary-foreground">
+          <div className="container px-4 sm:px-6 relative z-10 text-center text-primary-foreground">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-4xl md:text-6xl font-bold mb-8">Ready to tell your story?</h2>
-              <p className="text-xl opacity-90 mb-10 max-w-2xl mx-auto">
+              <h2 className="text-3xl md:text-6xl font-bold mb-6 sm:mb-8">Ready to tell your story?</h2>
+              <p className="text-lg sm:text-xl opacity-90 mb-8 sm:mb-10 max-w-2xl mx-auto px-2">
                 Join thousands of writers who found their voice on our platform.
                 It's free to start.
               </p>
               <Link to="/register">
-                <button className="px-10 py-5 bg-white text-primary text-xl font-bold rounded-full shadow-2xl hover:scale-105 transition-transform">
+                <button className="px-8 py-4 sm:px-10 sm:py-5 bg-white text-primary text-lg sm:text-xl font-bold rounded-full shadow-2xl hover:scale-105 transition-transform">
                   Get Started for Free
                 </button>
               </Link>
@@ -251,13 +247,13 @@ function FeatureCard({ icon: Icon, title, desc, color }) {
   return (
     <motion.div
       variants={fadeInUp}
-      className="p-8 rounded-3xl bg-background border border-border/50 shadow-lg hover:shadow-xl transition-shadow flex flex-col items-center text-center group"
+      className="p-6 sm:p-8 rounded-3xl bg-background border border-border/50 shadow-lg hover:shadow-xl transition-shadow flex flex-col items-center text-center group"
     >
-      <div className={`p-4 rounded-2xl bg-muted group-hover:bg-primary/10 transition-colors mb-6 ${color}`}>
-        <Icon size={32} />
+      <div className={`p-4 rounded-2xl bg-muted group-hover:bg-primary/10 transition-colors mb-4 sm:mb-6 ${color}`}>
+        <Icon size={28} className="sm:w-8 sm:h-8" />
       </div>
-      <h3 className="text-xl font-bold mb-3">{title}</h3>
-      <p className="text-muted-foreground leading-relaxed">{desc}</p>
+      <h3 className="text-xl font-bold mb-2 sm:mb-3">{title}</h3>
+      <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">{desc}</p>
     </motion.div>
   )
 }
@@ -268,12 +264,12 @@ function TestimonialCard({ quote, author, role, img }) {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="text-left p-6"
+      className="text-left p-4 sm:p-6 bg-background rounded-2xl border border-border/30 shadow-sm"
     >
-      <Quote className="text-primary/20 mb-4" size={40} />
-      <p className="text-lg font-medium leading-relaxed mb-6">"{quote}"</p>
+      <Quote className="text-primary/20 mb-4" size={32} />
+      <p className="text-base sm:text-lg font-medium leading-relaxed mb-6">"{quote}"</p>
       <div className="flex items-center gap-4">
-        <img src={img} alt={author} className="w-12 h-12 rounded-full object-cover" />
+        <img src={img} alt={author} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover" />
         <div>
           <h4 className="font-bold text-sm">{author}</h4>
           <p className="text-xs text-muted-foreground">{role}</p>
