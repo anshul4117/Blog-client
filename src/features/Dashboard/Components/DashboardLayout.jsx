@@ -8,7 +8,7 @@ export default function DashboardLayout() {
     <MainLayout>
       <div className="flex min-h-screen relative">
         {/* Desktop Sidebar */}
-        <Sidebar />
+        <Sidebar showDesktopBrand={false} />
 
         {/* Mobile Bottom Navigation */}
         <MobileBottomBar variant="dashboard" />

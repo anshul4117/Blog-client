@@ -19,7 +19,7 @@ const publicLinks = [
   { to: "/register", label: "Register", icon: UserPlus },
 ]
 
-export default function Sidebar({ className = "", mobile = false, onClose }) {
+export default function Sidebar({ className = "", mobile = false, onClose, showDesktopBrand = true }) {
   const { pathname } = useLocation();
   const { logout, user } = useAuth(); // Assuming logout exists in context
 
@@ -30,23 +30,21 @@ export default function Sidebar({ className = "", mobile = false, onClose }) {
   // Content wrapper to avoid duplicating logic
   const content = (
     <>
-      <div className="p-6 border-b border-border/40 flex justify-between items-center">
-        {!user ? (
+      {/* Mobile Header with Logo and Close Button - OR Desktop Header if explicitly requested */}
+      {(mobile || showDesktopBrand) && (
+        <div className="p-6 border-b border-border/40 flex justify-between items-center">
           <Link to="/" className="text-xl font-bold">
             <span className="text-primary">My</span>Blog
           </Link>
-        ) : (
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-            Dashboard
-          </h2>
-        )}
-        {/* Close Button for Mobile */}
-        {mobile && (
-          <button onClick={onClose} className="p-1 rounded-full hover:bg-accent text-foreground/70">
-            <X size={20} />
-          </button>
-        )}
-      </div>
+
+          {/* Close Button only for Mobile */}
+          {mobile && (
+            <button onClick={onClose} className="p-1 rounded-full hover:bg-accent text-foreground/70">
+              <X size={20} />
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="flex-1 py-6 px-4 space-y-6 overflow-y-auto">
         {!user ? (

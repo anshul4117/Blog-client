@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 // import MainLayout from "../components/layout/MainLayout.jsx"; // Removed MainLayout to use custom full-width layout
 import PageTransition from "@/components/layout/PageTransition.jsx";
 import PostCard from "../components/blog/PostCard.jsx";
@@ -32,14 +33,16 @@ export default function Feed() {
 
                     {/* Left Sidebar (Navigation) - Desktop/Tablet */}
                     <div className="hidden sm:block w-auto lg:w-64 border-r border-border min-h-screen sticky top-0 h-screen overflow-y-auto">
-                        <Sidebar />
+                        <Sidebar showDesktopBrand={true} />
                     </div>
 
                     {/* Main Feed Column (Center) */}
                     <main className="flex-1 max-w-2xl border-r border-border min-h-screen pb-20">
                         {/* Sticky Header */}
                         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border px-4 py-3 flex items-center gap-3">
-                            <h1 className="text-xl font-bold">Home</h1>
+                            <Link to="/" className="text-xl font-bold">
+                                <span className="text-primary">My</span>Blog
+                            </Link>
                         </div>
 
                         {/* Create Post Input Placeholder (Twitter-style) */}
