@@ -23,9 +23,13 @@ export default function Sidebar({ className = "", mobile = false, onClose, showD
   const { pathname } = useLocation();
   const { logout, user } = useAuth(); // Assuming logout exists in context
 
+  const positionClasses = showDesktopBrand
+    ? "h-screen sticky top-0"
+    : "h-[calc(100vh-4rem)] sticky top-16";
+
   const baseClasses = mobile
     ? "flex flex-col w-[85vw] max-w-[300px] h-full bg-background/95 backdrop-blur-xl border-r border-border shadow-2xl"
-    : "hidden sm:flex flex-col w-64 min-h-screen bg-background border-r border-border/40 sticky top-0";
+    : `hidden sm:flex flex-col w-64 bg-background border-r border-border/40 ${positionClasses}`;
 
   // Content wrapper to avoid duplicating logic
   const content = (
@@ -46,7 +50,7 @@ export default function Sidebar({ className = "", mobile = false, onClose, showD
         </div>
       )}
 
-      <div className="flex-1 py-6 px-4 space-y-6 overflow-y-auto">
+      <div className="flex-1 py-6 px-4 space-y-6 overflow-y-auto no-scrollbar overflow-x-hidden">
         {!user ? (
           <div className="space-y-1">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Join Us</p>

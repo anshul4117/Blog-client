@@ -32,7 +32,7 @@ export default function Feed() {
                 <div className="flex w-full max-w-7xl gap-0 lg:gap-6">
 
                     {/* Left Sidebar (Navigation) - Desktop/Tablet */}
-                    <div className="hidden sm:block w-auto lg:w-64 border-r border-border min-h-screen sticky top-0 h-screen overflow-y-auto">
+                    <div className="hidden sm:block w-auto lg:w-64">
                         <Sidebar showDesktopBrand={true} />
                     </div>
 
