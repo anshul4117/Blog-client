@@ -23,6 +23,7 @@ const PostDetails = lazy(() => import("../features/Dashboard/Pages/PostDetails.j
 // Profile
 const Profile = lazy(() => import("../features/Profile/Pages/Profile.jsx"));
 const Settings = lazy(() => import("../features/Profile/Pages/Setting.jsx"));
+const SettingsPlaceholder = lazy(() => import("../features/Dashboard/Pages/SettingsPlaceholder.jsx"));
 
 const Loading = () => (
   <div className="flex h-screen w-full items-center justify-center">
@@ -52,9 +53,10 @@ export default function AppRoutes() {
             <Route path="posts" element={<MyPosts />} />
             <Route path="saved" element={<SavedPosts />} />
             <Route path="create" element={<CreatePost />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="settings/:category" element={<SettingsPlaceholder />} />
           </Route>
           <Route path="/profile" element={<Profile />} />
-          <Route path="/settings" element={<Settings />} />
         </Route>
       </Routes>
     </Suspense>

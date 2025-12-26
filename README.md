@@ -24,6 +24,7 @@ A premium, high-performance social media application built for the modern web. S
 ### 👤 User Experience
 - **Profile Management**: Customizable user profiles with avatars and bios.
 - **Dashboard**: Personalized activity feed and analytics (views, likes).
+- **Settings Hub**: Comprehensive control over account security, privacy, and preferences with an organized settings center.
 - **Seamless Navigation**: Intuitive routing with React Router v7.
 
 ## 🛠️ Tech Stack
