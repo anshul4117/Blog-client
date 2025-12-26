@@ -1,11 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, FilePlus, FileText, User, Settings, LogOut, LogIn, UserPlus, X } from "lucide-react";
+import { LayoutDashboard, FilePlus, FileText, User, Settings, LogOut, LogIn, UserPlus, X, Bookmark } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "../../../context/AuthContext";
 
 const links = [
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { to: "/dashboard/posts", label: "My Posts", icon: FileText },
+  { to: "/dashboard/saved", label: "Saved", icon: Bookmark },
   { to: "/dashboard/create", label: "Create Post", icon: FilePlus },
 ];
 

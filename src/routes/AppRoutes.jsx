@@ -17,6 +17,7 @@ const Register = lazy(() => import("../features/Auth/Pages/Register.jsx"));
 const DashboardHome = lazy(() => import("../features/Dashboard/Pages/DashboardHome.jsx"));
 const MyPosts = lazy(() => import("../features/Dashboard/Pages/MyPosts.jsx"));
 const CreatePost = lazy(() => import("../features/Dashboard/Pages/CreatePost.jsx"));
+const SavedPosts = lazy(() => import("../features/Dashboard/Pages/SavedPosts.jsx"));
 const PostDetails = lazy(() => import("../features/Dashboard/Pages/PostDetails.jsx"));
 
 // Profile
@@ -49,6 +50,7 @@ export default function AppRoutes() {
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<DashboardHome />} />
             <Route path="posts" element={<MyPosts />} />
+            <Route path="saved" element={<SavedPosts />} />
             <Route path="create" element={<CreatePost />} />
           </Route>
           <Route path="/profile" element={<Profile />} />
