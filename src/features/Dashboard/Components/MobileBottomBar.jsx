@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, FilePlus, FileText, User, Settings, LogIn, UserPlus, Home, Compass, Info } from "lucide-react";
+import { LayoutDashboard, FilePlus, FileText, User, Settings, LogIn, UserPlus, Home, Compass, Info, Bookmark } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { cn } from "@/lib/utils";
 
@@ -9,10 +9,10 @@ export default function MobileBottomBar({ variant = "dashboard" }) {
 
     // Dashboard specific links (Admin/Creator mode)
     const dashboardLinks = [
-        { to: "/feed", icon: Compass, label: "Explore" },
         { to: "/dashboard", icon: LayoutDashboard, label: "Dash" },
+        { to: "/dashboard/saved", icon: Bookmark, label: "Saved" },
         { to: "/dashboard/create", icon: FilePlus, label: "Create" },
-        { to: "/dashboard/posts", icon: FileText, label: "Posts" },
+        { to: "/dashboard/settings", icon: Settings, label: "Settings" },
         { to: "/profile", icon: User, label: "Profile" },
     ];
 
@@ -26,8 +26,9 @@ export default function MobileBottomBar({ variant = "dashboard" }) {
 
     const feedLinksLoggedIn = [
         { to: "/", icon: Home, label: "Home" },
-        { to: "/about", icon: Info, label: "About" },
         { to: "/feed", icon: Compass, label: "Explore" },
+        { to: "/dashboard/saved", icon: Bookmark, label: "Saved" },
+        { to: "/dashboard/settings", icon: Settings, label: "Settings" },
         { to: "/profile", icon: User, label: "Profile" },
     ];
 

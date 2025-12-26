@@ -114,7 +114,7 @@ export default function Navbar() {
                     Profile
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => navigate("/settings")}
+                    onClick={() => navigate("/dashboard/settings")}
                     className="cursor-pointer"
                   >
                     Settings
@@ -217,8 +217,17 @@ export default function Navbar() {
               >
                 Profile
               </NavLink>
+
               <NavLink
-                to="/settings"
+                to="/dashboard/saved"
+                onClick={() => setOpen(false)}
+                className={({ isActive }) => (isActive ? "font-semibold text-primary" : "text-foreground")}
+              >
+                Saved Posts
+              </NavLink>
+
+              <NavLink
+                to="/dashboard/settings"
                 onClick={() => setOpen(false)}
                 className={({ isActive }) => (isActive ? "font-semibold text-primary" : "text-foreground")}
               >
