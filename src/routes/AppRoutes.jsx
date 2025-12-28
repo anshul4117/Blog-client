@@ -35,9 +35,12 @@ const Loading = () => (
   </div>
 );
 
+import ScrollToTop from "../components/layout/ScrollToTop.jsx";
+
 export default function AppRoutes() {
   return (
     <Suspense fallback={<Loading />}>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
