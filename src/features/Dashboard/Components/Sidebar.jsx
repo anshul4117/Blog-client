@@ -29,6 +29,7 @@ const bottomLinks = [
       { to: "/dashboard/settings", label: "Edit Account", icon: UserCog }, // Matches default settings page
     ]
   },
+  { to: "/dashboard/help", label: "Help & Support", icon: HelpCircle },
 ];
 
 const publicLinks = [

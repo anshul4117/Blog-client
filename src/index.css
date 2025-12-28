@@ -2,22 +2,27 @@
 
 /* Color variables (use these in components or as fallbacks). */
 :root {
-  --color-text: #0f172a; /* slate-900 */
-  --color-muted: #6b7280; /* gray-500 */
-  --color-primary: #7c3aed; /* purple-500 */
+  --color-text: #0f172a;
+  /* slate-900 */
+  --color-muted: #6b7280;
+  /* gray-500 */
+  --color-primary: #7c3aed;
+  /* purple-500 */
   --color-background: #ffffff;
   --color-foreground: var(--color-text);
 }
 
 .dark {
-  --color-text: #e6eef8; /* light foreground */
+  --color-text: #e6eef8;
+  /* light foreground */
   --color-muted: #9aa6b2;
   --color-primary: #8b5cf6;
   --color-background: #0b1220;
   --color-foreground: var(--color-text);
 }
 
-html, body {
+html,
+body {
   font-family: 'Rubik', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   background: var(--color-background);
   color: var(--color-foreground);
@@ -25,11 +30,33 @@ html, body {
 }
 
 /* Useful small utilities */
-.text-primary { color: var(--color-primary); }
-.text-muted-foreground { color: var(--color-muted); }
-.bg-background { background: var(--color-background); }
-.text-foreground { color: var(--color-foreground); }
-.transition-default { transition: all 200ms ease; }
+.text-primary {
+  color: var(--color-primary);
+}
+
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.border-primary {
+  border-color: var(--color-primary);
+}
+
+.text-muted-foreground {
+  color: var(--color-muted);
+}
+
+.bg-background {
+  background: var(--color-background);
+}
+
+.text-foreground {
+  color: var(--color-foreground);
+}
+
+.transition-default {
+  transition: all 200ms ease;
+}
 
 /* Keep original tailwind directives commented for compatibility with older setups */
 /* @tailwind base; @tailwind components; @tailwind utilities; */
@@ -40,6 +67,8 @@ html, body {
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .no-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
