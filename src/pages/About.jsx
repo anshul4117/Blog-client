@@ -47,6 +47,7 @@ export default function About() {
   );
 }
 
+// eslint-disable-next-line no-unused-vars
 function Feature({ icon: Icon, title, desc }) {
   return (
     <div className="p-6 rounded-2xl bg-muted/40 border border-border/50 hover:bg-muted/60 transition-colors">

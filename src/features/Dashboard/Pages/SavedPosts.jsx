@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PostCard from "../../../components/blog/PostCard";
 import PageTransition from "@/components/layout/PageTransition.jsx";
 import { Bookmark } from "lucide-react";
@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
 export default function SavedPosts() {
-    const [posts, setPosts] = useState([]);
-    const [loading, setLoading] = useState(false); // Set to false for now as we are mocking empty state
+    const [posts] = useState([]);
+    const [loading] = useState(false); // Set to false for now as we are mocking empty state
 
     // TODO: Integrate with backend API when available
-    // useEffect(() => {
+    // useEffect(() => { // eslint-disable-next-line no-unused-vars
     //   API.get("/blogs/saved")
     //     .then((res) => {
     //       setPosts(res.data.blogs || []);

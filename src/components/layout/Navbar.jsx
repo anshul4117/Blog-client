@@ -25,10 +25,7 @@ export default function Navbar() {
     setOpen(false);
   };
 
-  const handleNavClick = (path) => {
-    navigate(path);
-    setOpen(false);
-  };
+
 
   return (
     <nav className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50 transition-colors duration-300">

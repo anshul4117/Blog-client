@@ -1,235 +1,295 @@
+import { useEffect, useRef, useState } from "react";
 import MainLayout from "../components/layout/MainLayout.jsx";
 import PageTransition from "../components/layout/PageTransition.jsx";
 import { Link } from "react-router-dom";
-import { ArrowRight, PenTool, Zap, Users, Shield, BookOpen, Quote } from "lucide-react";
-import { motion } from "framer-motion";
-import ParticleBackground from "../components/ui/ParticleBackground.jsx";
+import { PenTool, Zap, Users, Shield, BookOpen, Quote, Star, Code, Feather, Globe, Sparkles } from "lucide-react";
+// eslint-disable-next-line no-unused-vars
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import { Button } from "@/components/ui/button";
 
-const fadeInUp = {
-  initial: { opacity: 0, y: 60 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-100px" },
-  transition: { duration: 0.6, ease: "easeOut" }
-};
+function AnimatedCounter({ value, label }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [count, setCount] = useState(0);
 
-const staggerContainer = {
-  whileInView: { transition: { staggerChildren: 0.1 } },
-  viewport: { once: true }
-};
+  useEffect(() => {
+    if (isInView) {
+      const duration = 2000;
+      const steps = 60;
+      const increment = value / steps;
+      let current = 0;
+      const timer = setInterval(() => {
+        current += increment;
+        if (current >= value) {
+          setCount(value);
+          clearInterval(timer);
+        } else {
+          setCount(Math.floor(current));
+        }
+      }, duration / steps);
+      return () => clearInterval(timer);
+    }
+  }, [isInView, value]);
+
+  return (
+    <div ref={ref} className="text-center">
+      <div className="text-4xl md:text-5xl font-black text-primary mb-2">
+        {count.toLocaleString()}+
+      </div>
+      <div className="text-muted-foreground font-medium">{label}</div>
+    </div>
+  );
+}
+
+const MarqueeItem = ({ text }) => (
+  <div className="mx-8 text-2xl md:text-4xl font-black text-muted-foreground/20 whitespace-nowrap uppercase tracking-widest hover:text-primary/50 transition-colors cursor-default">
+    #{text}
+  </div>
+);
 
 export default function Home() {
+  const { scrollYProgress } = useScroll();
+
+  // Parallax transforms
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, -200]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, -400]);
+  const y3 = useTransform(scrollYProgress, [0, 1], [0, -150]);
+  const rotate1 = useTransform(scrollYProgress, [0, 1], [0, 45]);
+  const rotate2 = useTransform(scrollYProgress, [0, 1], [0, -30]);
+
   return (
     <MainLayout>
-      <PageTransition className="relative w-full overflow-hidden">
+      <PageTransition className="w-full relative overflow-hidden">
 
-        {/* HERO SECTION */}
-        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-          {/* Animated Background */}
-          <div className="absolute inset-0 -z-10 bg-background">
-            <ParticleBackground />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80 pointer-events-none" />
-          </div>
+        {/* SECTION 1: HERO */}
+        <section className="relative min-h-[90vh] bg-background flex flex-col justify-center items-center px-6 py-20 overflow-hidden">
+          {/* Animated Gradient Blob */}
+          <motion.div
+            animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] pointer-events-none"
+          />
+          <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
 
-          <div className="container px-4 sm:px-6 relative z-10 text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8 }}
-            >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/30 text-accent-foreground text-xs sm:text-sm font-medium mb-6 sm:mb-8 border border-white/10 shadow-lg">
-                <Zap size={14} className="text-yellow-400 fill-yellow-400" />
-                <span className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent font-bold">New:</span>
-                Dark mode is live!
-              </div>
-
-              <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-6 md:mb-8 leading-[1.1]">
-                Craft Your <br className="hidden md:block" />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-blue-600">
-                  Digital Legacy
-                </span>
-              </h1>
-
-              <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-8 md:mb-12 leading-relaxed px-2">
-                Connect with a global community of writers. Share your stories,
-                tutorials, and ideas on a platform designed for <span className="text-foreground font-semibold">clarity</span> and <span className="text-foreground font-semibold">impact</span>.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 w-full px-4 sm:px-0">
-                <Link to="/register" className="w-full sm:w-auto">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 bg-primary text-primary-foreground text-base md:text-lg font-bold rounded-full shadow-[0_0_40px_-10px_rgba(var(--primary),0.5)] hover:shadow-[0_0_60px_-15px_rgba(var(--primary),0.6)] transition-all flex items-center justify-center gap-3"
-                  >
-                    Start Writing <ArrowRight size={20} />
-                  </motion.button>
-                </Link>
-                <Link to="/feed" className="w-full sm:w-auto">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 bg-background border border-border text-base md:text-lg font-medium rounded-full hover:bg-accent/50 transition-colors"
-                  >
-                    Read Stories
-                  </motion.button>
-                </Link>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* FEATURES GRID SECTION */}
-        <section className="py-20 md:py-32 bg-muted/20 relative">
-          <div className="container px-4 sm:px-6">
-            <motion.div
-              {...fadeInUp}
-              className="text-center mb-12 sm:mb-20"
-            >
-              <h2 className="text-3xl md:text-5xl font-bold mb-4 sm:mb-6">Built for Modern Writers</h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto px-2">
-                We've stripped away the clutter to focus on what matters most: your content and your audience.
-              </p>
-            </motion.div>
-
-            <motion.div
-              variants={staggerContainer}
-              initial="initial"
-              whileInView="whileInView"
-              viewport={{ once: true }}
-              className="grid md:grid-cols-3 gap-6 sm:gap-8"
-            >
-              <FeatureCard
-                icon={PenTool}
-                title="Rich Editor"
-                desc="A distraction-free writing environment that empowers you to create beautiful stories with ease."
-                color="text-pink-500"
-              />
-              <FeatureCard
-                icon={Users}
-                title="Audience First"
-                desc="Built-in tools to grow your following and engage with readers through comments and likes."
-                color="text-blue-500"
-              />
-              <FeatureCard
-                icon={Shield}
-                title="Secure Platform"
-                desc="Your content is yours. We ensure top-notch security so you can focus on creating."
-                color="text-green-500"
-              />
-            </motion.div>
-          </div>
-        </section>
-
-        {/* IMMERSIVE IMAGE SPLIT SECTION */}
-        <section className="py-20 md:py-24 overflow-hidden">
-          <div className="container px-4 sm:px-6">
-            <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-              <motion.div
-                {...fadeInUp}
-                className="flex-1 space-y-6 sm:space-y-8"
-              >
-                <h2 className="text-3xl md:text-6xl font-bold tracking-tight leading-tight text-center lg:text-left">
-                  Share ideas that <br className="hidden md:block" />
-                  <span className="text-primary">change the world.</span>
-                </h2>
-                <div className="space-y-4 sm:space-y-6 text-lg text-muted-foreground">
-                  <p>
-                    Whether you're sharing code snippets, personal essays, or industry analysis, our platform adapts to your voice.
-                  </p>
-                  <ul className="space-y-4">
-                    <li className="flex items-center gap-3">
-                      <div className="h-2 w-2 rounded-full bg-primary" />
-                      <span>Markdown support out of the box</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <div className="h-2 w-2 rounded-full bg-primary" />
-                      <span>SEO optimized content delivery</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <div className="h-2 w-2 rounded-full bg-primary" />
-                      <span>Real-time engagement analytics</span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="text-center lg:text-left">
-                  <Link to="/about">
-                    <Button variant="outline" size="lg" className="mt-4">Learn more about us</Button>
-                  </Link>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: 100 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8 }}
-                viewport={{ once: true }}
-                className="flex-1 relative w-full"
-              >
-                <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl skew-y-3 hover:skew-y-0 transition-transform duration-700 w-full aspect-video lg:aspect-auto lg:h-[600px]">
-                  <img
-                    src="/Woman.jpeg"
-                    alt="Writing workspace"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                {/* Decorative elements behind */}
-                <div className="absolute top-10 -right-10 w-full h-full border-2 border-primary/20 rounded-3xl -z-10" />
-                <div className="absolute -bottom-10 -left-10 w-full h-full bg-primary/5 rounded-3xl -z-10" />
-              </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="relative z-10 text-center max-w-5xl mx-auto"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border bg-muted/50 backdrop-blur-sm mb-8 hover:bg-muted/80 transition-colors cursor-pointer">
+              <Star className="text-yellow-500 fill-yellow-500 w-4 h-4" />
+              <span className="text-sm font-medium">The Writer's Platform</span>
             </div>
-          </div>
-        </section>
 
-        {/* TESTIMONIALS */}
-        <section className="py-20 md:py-24 bg-card border-y border-border/40">
-          <div className="container px-4 sm:px-6 text-center">
-            <h2 className="text-3xl font-bold mb-12 sm:mb-16">Loved by Developers & Writers</h2>
-            <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
-              <TestimonialCard
-                quote="The cleanest writing experience I've found on the web. It just gets out of the way."
-                author="Sarah J."
-                role="Tech Blogger"
-                img="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop"
-              />
-              <TestimonialCard
-                quote="Finally, a platform that understands Markdown first. My code blocks look amazing."
-                author="David C."
-                role="Full Stack Dev"
-                img="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop"
-              />
-              <TestimonialCard
-                quote="The community here is unmatched. I've made real connections through my posts."
-                author="Elena R."
-                role="UX Designer"
-                img="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop"
-              />
-            </div>
-          </div>
-        </section>
+            <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-[0.9] mb-8 text-foreground">
+              Level Up Your <br />
+              <span className="italic font-serif font-light text-muted-foreground">DIGITAL</span>
+              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent"> JOURNEY</span>
+            </h1>
 
-        {/* CTA */}
-        <section className="py-24 md:py-32 relative overflow-hidden">
-          <div className="absolute inset-0 bg-primary/90">
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
-          </div>
-          <div className="container px-4 sm:px-6 relative z-10 text-center text-primary-foreground">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-3xl md:text-6xl font-bold mb-6 sm:mb-8">Ready to tell your story?</h2>
-              <p className="text-lg sm:text-xl opacity-90 mb-8 sm:mb-10 max-w-2xl mx-auto px-2">
-                Join thousands of writers who found their voice on our platform.
-                It's free to start.
-              </p>
+            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto mb-10 font-light leading-relaxed">
+              A minimalistic, distraction-free space for storytellers, thinkers, and creators to share their voice with the world.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/register">
-                <button className="px-8 py-4 sm:px-10 sm:py-5 bg-white text-primary text-lg sm:text-xl font-bold rounded-full shadow-2xl hover:scale-105 transition-transform">
-                  Get Started for Free
-                </button>
+                <Button size="lg" className="h-14 px-8 text-lg rounded-full shadow-lg hover:shadow-primary/20 hover:scale-105 transition-all">
+                  Start Writing
+                </Button>
               </Link>
+              <Link to="/feed">
+                <Button variant="outline" size="lg" className="h-14 px-8 text-lg rounded-full border-2 hover:bg-muted">
+                  Read Stories
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
+
+          {/* Floating Elements Hero */}
+          <motion.div style={{ y: y1, rotate: rotate1 }} className="absolute md:top-20 right-[10%] opacity-10 hidden md:block pointer-events-none">
+            <PenTool size={120} className="text-primary" />
+          </motion.div>
+          <motion.div style={{ y: y2 }} className="absolute bottom-20 left-[10%] opacity-10 hidden md:block pointer-events-none">
+            <BookOpen size={140} className="text-primary" />
+          </motion.div>
+          <motion.div style={{ y: y3, rotate: rotate2 }} className="absolute top-40 left-[5%] opacity-10 hidden md:block pointer-events-none">
+            <Sparkles size={80} className="text-blue-500" />
+          </motion.div>
+        </section>
+
+        {/* SECTION 1.5: INFINITE MARQUEE */}
+        <div className="w-full bg-muted/20 py-8 overflow-hidden border-y border-border/50">
+          <div className="relative flex overflow-x-hidden group">
+            <motion.div
+              animate={{ x: "-50%" }}
+              transition={{ duration: 30, ease: "linear", repeat: Infinity }}
+              className="flex items-center whitespace-nowrap"
+            >
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="flex">
+                  <MarqueeItem text="Technology" />
+                  <MarqueeItem text="Design" />
+                  <MarqueeItem text="Culture" />
+                  <MarqueeItem text="Programming" />
+                  <MarqueeItem text="Creativity" />
+                  <MarqueeItem text="Future" />
+                  <MarqueeItem text="Innovation" />
+                  <MarqueeItem text="Storytelling" />
+                </div>
+              ))}
+            </motion.div>
+            <motion.div
+              animate={{ x: "-50%" }}
+              transition={{ duration: 30, ease: "linear", repeat: Infinity }}
+              className="flex items-center whitespace-nowrap absolute top-0 left-full"
+            >
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="flex">
+                  <MarqueeItem text="Technology" />
+                  <MarqueeItem text="Design" />
+                  <MarqueeItem text="Culture" />
+                  <MarqueeItem text="Programming" />
+                  <MarqueeItem text="Creativity" />
+                  <MarqueeItem text="Future" />
+                  <MarqueeItem text="Innovation" />
+                  <MarqueeItem text="Storytelling" />
+                </div>
+              ))}
             </motion.div>
           </div>
+        </div>
+
+        {/* SECTION 2: FEATURES */}
+        <section className="relative min-h-screen bg-muted/30 flex flex-col justify-center py-24 px-6 overflow-hidden">
+          <div className="container mx-auto">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true }}
+              >
+                <div className="flex items-center gap-2 mb-4 text-primary font-bold tracking-wider uppercase text-sm">
+                  <Zap size={16} /> Powerful Tools
+                </div>
+                <h2 className="text-5xl md:text-7xl font-black mb-6 leading-tight text-foreground">
+                  BUILT FOR <br />
+                  <span className="text-primary">MODERN</span> <br />
+                  WRITERS.
+                </h2>
+                <div className="space-y-6">
+                  <FeatureRow icon={Code} title="Markdown Native" desc="Write naturally with full markdown support and code syntax highlighting." />
+                  <FeatureRow icon={Shield} title="Secure & Private" desc="Your content is yours. We protect your intellectual property with enterprise-grade security." />
+                  <FeatureRow icon={Globe} title="Global Reach" desc="Publish to a worldwide audience with SEO optimization built-in." />
+                </div>
+              </motion.div>
+
+              <div className="relative">
+                {/* Decorative Cards Stack */}
+                <motion.div
+                  whileHover={{ rotate: -1, scale: 1.02 }}
+                  className="bg-card border p-8 md:p-12 rounded-[2.5rem] shadow-2xl relative z-10"
+                >
+                  <div className="flex items-center justify-between mb-8">
+                    <div className="flex gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-400" />
+                      <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                      <div className="w-3 h-3 rounded-full bg-green-400" />
+                    </div>
+                    <Feather className="text-primary/50" />
+                  </div>
+                  <h3 className="text-3xl font-bold mb-4">Focus Mode</h3>
+                  <p className="text-muted-foreground mb-8">Distractions kill creativity. Our interface fades away when you type, leaving just you and your words.</p>
+                  <div className="h-40 bg-muted/50 rounded-2xl border border-border/50 flex items-center justify-center relative overflow-hidden group">
+                    <span className="text-muted-foreground/50 font-mono relative z-10">Select text to format...</span>
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+                    />
+                  </div>
+                </motion.div>
+                {/* Abstract shape behind */}
+                <div className="absolute top-10 -right-4 w-full h-full bg-primary/5 rounded-[2.5rem] -z-0 rotate-3 border border-primary/10"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 2.5: STATS */}
+        <section className="py-20 bg-background border-y border-border/50">
+          <div className="container mx-auto">
+            <div className="grid md:grid-cols-3 gap-8">
+              <AnimatedCounter value={10000} label="Active Writers" />
+              <AnimatedCounter value={500000} label="Stories Published" />
+              <AnimatedCounter value={2000000} label="Monthly Readers" />
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 3: COMMUNITY */}
+        <section className="relative min-h-screen bg-background flex flex-col justify-center py-24 px-6">
+          <div className="container mx-auto text-center mb-16">
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-5xl md:text-7xl font-black mb-6 text-foreground"
+            >
+              LOVED BY <span className="text-primary">CREATORS</span>
+            </motion.h2>
+            <p className="text-xl md:text-2xl font-medium max-w-2xl mx-auto text-muted-foreground">
+              Join a community of thousands sharing ideas that change the world.
+            </p>
+          </div>
+
+          <div className="container mx-auto grid md:grid-cols-3 gap-8">
+            <TestimonialCard
+              quote="The cleanest writing experience I've found. It just gets out of the way."
+              author="Sarah Jenkins"
+              role="Tech Blogger"
+            />
+            <TestimonialCard
+              quote="Finally, a platform that understands Markdown first. My code looks amazing."
+              author="David Chen"
+              role="Full Stack Dev"
+              delay={0.2}
+            />
+            <TestimonialCard
+              quote="The community here is unmatched. I've made real connections."
+              author="Elena Rodriguez"
+              role="UX Designer"
+              delay={0.4}
+            />
+          </div>
+        </section>
+
+        {/* SECTION 4: CTA */}
+        <section className="relative h-[80vh] bg-muted/30 flex flex-col justify-center items-center px-6 text-center overflow-hidden">
+          <div className="absolute inset-0 bg-grid-black/[0.02] dark:bg-grid-white/[0.02]" />
+
+          {/* Floating elements CTA */}
+          <motion.div animate={{ y: [0, -20, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute top-20 left-[20%] opacity-20">
+            <Quote size={60} />
+          </motion.div>
+
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6 }}
+            className="relative z-10"
+          >
+            <h2 className="text-6xl md:text-9xl font-black mb-8 tracking-tighter text-foreground">
+              START NOW
+            </h2>
+            <p className="text-xl md:text-3xl font-medium mb-10 max-w-xl mx-auto text-muted-foreground">
+              Ready to tell your story? It's free to get started.
+            </p>
+            <Link to="/register">
+              <Button size="lg" className="h-16 px-12 text-xl rounded-full shadow-2xl hover:scale-105 transition-all">
+                Create Your Account
+              </Button>
+            </Link>
+          </motion.div>
         </section>
 
       </PageTransition>
@@ -237,42 +297,38 @@ export default function Home() {
   );
 }
 
-// Components
-function Button({ children, variant = "default", size = "default", className = "", ...props }) {
-  // Quick Reusable Button specific for this page if needed, or use UI component
-  return <div className={className} {...props}>{children}</div>
-}
-
-function FeatureCard({ icon: Icon, title, desc, color }) {
+// eslint-disable-next-line no-unused-vars
+function FeatureRow({ icon: Icon, title, desc }) {
   return (
-    <motion.div
-      variants={fadeInUp}
-      className="p-6 sm:p-8 rounded-3xl bg-background border border-border/50 shadow-lg hover:shadow-xl transition-shadow flex flex-col items-center text-center group"
-    >
-      <div className={`p-4 rounded-2xl bg-muted group-hover:bg-primary/10 transition-colors mb-4 sm:mb-6 ${color}`}>
-        <Icon size={28} className="sm:w-8 sm:h-8" />
+    <div className="flex items-start gap-5 group">
+      <div className="p-3 bg-primary/10 rounded-xl text-primary group-hover:scale-110 transition-transform">
+        <Icon size={24} />
       </div>
-      <h3 className="text-xl font-bold mb-2 sm:mb-3">{title}</h3>
-      <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">{desc}</p>
-    </motion.div>
+      <div>
+        <h3 className="text-xl font-bold mb-1 text-foreground">{title}</h3>
+        <p className="text-muted-foreground leading-relaxed">{desc}</p>
+      </div>
+    </div>
   )
 }
 
-function TestimonialCard({ quote, author, role, img }) {
+function TestimonialCard({ quote, author, role, delay = 0 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      className="text-left p-4 sm:p-6 bg-background rounded-2xl border border-border/30 shadow-sm"
+      transition={{ delay, duration: 0.6 }}
+      className="bg-card border p-8 rounded-3xl shadow-sm hover:shadow-md transition-shadow"
     >
-      <Quote className="text-primary/20 mb-4" size={32} />
-      <p className="text-base sm:text-lg font-medium leading-relaxed mb-6">"{quote}"</p>
-      <div className="flex items-center gap-4">
-        <img src={img} alt={author} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover" />
+      <Quote className="text-primary/40 mb-6 w-8 h-8" />
+      <p className="text-lg font-medium leading-relaxed mb-6 text-foreground">"{quote}"</p>
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 bg-muted rounded-full overflow-hidden">
+          <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${author}`} alt={author} />
+        </div>
         <div>
-          <h4 className="font-bold text-sm">{author}</h4>
-          <p className="text-xs text-muted-foreground">{role}</p>
+          <h4 className="font-bold text-sm text-foreground">{author}</h4>
+          <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">{role}</p>
         </div>
       </div>
     </motion.div>

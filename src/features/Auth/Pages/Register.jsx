@@ -25,7 +25,7 @@ export default function Register() {
 
   const onSubmit = async (data) => {
     try {
-      const res = await API.post("/users/create", data);
+      await API.post("/users/create", data);
       // alert("Registration successful ✅");
       navigate("/login");
     } catch (err) {

@@ -30,7 +30,7 @@ const qualityData = [
 ];
 
 // Mock Heatmap Data (7 days x 4 time slots approx)
-const heatmapData = Array.from({ length: 28 }, (_, i) => ({
+const heatmapData = Array.from({ length: 28 }, () => ({
     value: Math.floor(Math.random() * 4), // 0-3 intensity
 }));
 
@@ -160,7 +160,7 @@ export function StatDetailDialog({ open, onOpenChange, statType }) {
                                             <PolarGrid stroke="hsl(var(--muted-foreground))" strokeOpacity={0.2} />
                                             <PolarAngleAxis
                                                 dataKey="subject"
-                                                tick={({ payload, x, y, textAnchor, ...props }) => (
+                                                tick={({ payload, x, y, textAnchor }) => (
                                                     <text
                                                         x={x}
                                                         y={y}

@@ -4,6 +4,7 @@ import {
   LayoutDashboard, FilePlus, FileText, User, Settings, LogOut, LogIn, UserPlus, X, Bookmark,
   ChevronDown, ChevronRight, Shield, Lock, HelpCircle, UserCog, Ban, Fingerprint
 } from "lucide-react";
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../../context/AuthContext";
 
