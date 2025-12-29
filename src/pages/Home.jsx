@@ -123,26 +123,8 @@ export default function Home() {
           <div className="relative flex overflow-x-hidden group">
             <motion.div
               animate={{ x: "-50%" }}
-              transition={{ duration: 30, ease: "linear", repeat: Infinity }}
+              transition={{ duration: 20, ease: "linear", repeat: Infinity }}
               className="flex items-center whitespace-nowrap"
-            >
-              {[...Array(2)].map((_, i) => (
-                <div key={i} className="flex">
-                  <MarqueeItem text="Technology" />
-                  <MarqueeItem text="Design" />
-                  <MarqueeItem text="Culture" />
-                  <MarqueeItem text="Programming" />
-                  <MarqueeItem text="Creativity" />
-                  <MarqueeItem text="Future" />
-                  <MarqueeItem text="Innovation" />
-                  <MarqueeItem text="Storytelling" />
-                </div>
-              ))}
-            </motion.div>
-            <motion.div
-              animate={{ x: "-50%" }}
-              transition={{ duration: 30, ease: "linear", repeat: Infinity }}
-              className="flex items-center whitespace-nowrap absolute top-0 left-full"
             >
               {[...Array(2)].map((_, i) => (
                 <div key={i} className="flex">
