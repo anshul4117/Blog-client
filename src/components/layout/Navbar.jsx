@@ -1,10 +1,10 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Sun, Moon, Laptop } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext.jsx";
 import { ModeToggle } from "@/components/mode-toggle";
-import { useTheme } from "@/components/theme-provider";
+
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -16,7 +16,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { setTheme } = useTheme();
+
   const isLoggedIn = !!user;
 
   const handleLogout = () => {
@@ -35,126 +35,63 @@ export default function Navbar() {
           <span className="text-primary">My</span>Blog
         </Link>
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex gap-6 items-center">
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
-              isActive ? "text-primary font-semibold" : "hover:text-primary"
-            }
+        {/* Right Side Actions */}
+        <div className="flex items-center gap-2 sm:gap-6">
+
+          {/* Desktop Menu Links (Hidden on Mobile) */}
+          <div className="hidden md:flex gap-6 items-center">
+            <NavLink to="/" className={({ isActive }) => isActive ? "text-primary font-semibold" : "hover:text-primary"}>Home</NavLink>
+            <NavLink to="/about" className={({ isActive }) => isActive ? "text-primary font-semibold" : "hover:text-primary"}>About</NavLink>
+            <NavLink to="/feed" className={({ isActive }) => isActive ? "text-primary font-semibold" : "hover:text-primary"}>Explore</NavLink>
+
+            {isLoggedIn ? (
+              <>
+                <NavLink to="/dashboard" className={({ isActive }) => isActive ? "text-primary font-semibold" : "hover:text-primary"}>Dashboard</NavLink>
+                {/* Avatar Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="focus:outline-none">
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt={user.name || "avatar"} className="w-9 h-9 rounded-full object-cover border border-gray-200 hover:opacity-80" />
+                      ) : (
+                        <div className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-sm font-medium hover:bg-slate-300 text-slate-700">
+                          {(user?.user?.name || "U").split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                        </div>
+                      )}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48 mt-2 bg-popover text-popover-foreground">
+                    <div className="px-3 py-2 text-sm border-b border-border">
+                      <p className="font-medium">{user?.user?.name || "User"}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                    </div>
+                    <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer">Profile</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/dashboard/settings")} className="cursor-pointer">Settings</DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-500 focus:text-red-500">Logout</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <>
+                <NavLink to="/login" className={({ isActive }) => isActive ? "text-primary font-semibold" : "hover:text-primary"}>Login</NavLink>
+                <NavLink to="/register" className={({ isActive }) => isActive ? "text-primary font-semibold" : ""}>
+                  <Button size="sm">Sign up</Button>
+                </NavLink>
+              </>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setOpen(!open)}
+            className="md:hidden p-2 rounded-lg hover:bg-accent text-foreground"
           >
-            Home
-          </NavLink>
-          <NavLink
-            to="/about"
-            className={({ isActive }) =>
-              isActive ? "text-primary font-semibold" : "hover:text-primary"
-            }
-          >
-            About
-          </NavLink>
-          <NavLink
-            to="/feed"
-            className={({ isActive }) =>
-              isActive ? "text-primary font-semibold" : "hover:text-primary"
-            }
-          >
-            Explore
-          </NavLink>
+            {open ? <X /> : <Menu />}
+          </button>
 
-          {isLoggedIn ? (
-            <>
-              <NavLink
-                to="/dashboard"
-                className={({ isActive }) =>
-                  isActive ? "text-primary font-semibold" : "hover:text-primary"
-                }
-              >
-                Dashboard
-              </NavLink>
-
-              <ModeToggle />
-
-              {/* Avatar Dropdown Menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="focus:outline-none">
-                    {user?.avatar ? (
-                      <img
-                        src={user.avatar}
-                        alt={user.name || "avatar"}
-                        className="w-9 h-9 rounded-full object-cover border border-gray-200 hover:opacity-80"
-                      />
-                    ) : (
-                      <div className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-sm font-medium hover:bg-slate-300 text-slate-700">
-                        {(user?.user?.name || "U")
-                          .split(" ")
-                          .map((n) => n[0])
-                          .slice(0, 2)
-                          .join("")}
-                      </div>
-                    )}
-                  </button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent align="end" className="w-48 mt-2 bg-popover text-popover-foreground">
-                  <div className="px-3 py-2 text-sm border-b border-border">
-                    <p className="font-medium">{user?.user?.name || "User"}</p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {user?.email}
-                    </p>
-                  </div>
-                  <DropdownMenuItem
-                    onClick={() => navigate("/profile")}
-                    className="cursor-pointer"
-                  >
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => navigate("/dashboard/settings")}
-                    className="cursor-pointer"
-                  >
-                    Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={handleLogout}
-                    className="cursor-pointer text-red-500 focus:text-red-500"
-                  >
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
-          ) : (
-            <>
-              <ModeToggle />
-              <NavLink
-                to="/login"
-                className={({ isActive }) =>
-                  isActive ? "text-primary font-semibold" : "hover:text-primary"
-                }
-              >
-                Login
-              </NavLink>
-              <NavLink
-                to="/register"
-                className={({ isActive }) =>
-                  isActive ? "text-primary font-semibold" : ""
-                }
-              >
-                <Button size="sm">Sign up</Button>
-              </NavLink>
-            </>
-          )}
+          {/* Theme Toggle (Always Visible) */}
+          <ModeToggle />
         </div>
-
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setOpen(!open)}
-          className="md:hidden p-2 rounded-lg hover:bg-accent text-foreground"
-        >
-          {open ? <X /> : <Menu />}
-        </button>
       </div>
 
       {/* Mobile Dropdown */}
@@ -182,20 +119,7 @@ export default function Navbar() {
             Explore
           </NavLink>
 
-          <div className="flex items-center justify-between py-2 border-y border-border">
-            <span className="text-sm font-medium text-muted-foreground">Theme</span>
-            <div className="flex gap-2">
-              <Button variant="ghost" size="sm" onClick={() => setTheme("light")} className="h-8 w-8 p-0">
-                <Sun className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => setTheme("dark")} className="h-8 w-8 p-0">
-                <Moon className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => setTheme("system")} className="h-8 w-8 p-0">
-                <Laptop className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+
 
           {isLoggedIn ? (
             <>

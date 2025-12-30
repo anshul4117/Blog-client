@@ -4,14 +4,18 @@ import { Link } from "react-router-dom";
 import PageTransition from "@/components/layout/PageTransition.jsx";
 import PostCard from "../components/blog/PostCard.jsx";
 import API from "../lib/secureApi.js";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, Menu } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import Sidebar from "../features/Dashboard/Components/Sidebar.jsx"; // Import Sidebar
 import MobileBottomBar from "../features/Dashboard/Components/MobileBottomBar.jsx";
+// eslint-disable-next-line no-unused-vars
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function Feed() {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
         API.get("/blogs/allblogs")
@@ -28,18 +32,55 @@ export default function Feed() {
     return (
         <div className="min-h-screen bg-background flex justify-center pb-20 sm:pb-0">
             <MobileBottomBar variant="feed" />
+
+            {/* Mobile/Tablet Sidebar Drawer */}
+            <AnimatePresence>
+                {isSidebarOpen && (
+                    <>
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsSidebarOpen(false)}
+                            className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm"
+                        />
+                        {/* Drawer */}
+                        <motion.div
+                            initial={{ x: "-100%" }}
+                            animate={{ x: 0 }}
+                            exit={{ x: "-100%" }}
+                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                            className="fixed inset-y-0 left-0 z-50 lg:hidden h-full"
+                        >
+                            <Sidebar
+                                mobile={true}
+                                onClose={() => setIsSidebarOpen(false)}
+                            />
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
             <PageTransition className="w-full flex justify-center">
                 <div className="flex w-full max-w-7xl gap-0 lg:gap-6">
 
-                    {/* Left Sidebar (Navigation) - Desktop/Tablet */}
-                    <div className="hidden sm:block w-auto lg:w-64">
-                        <Sidebar showDesktopBrand={true} />
+                    {/* Left Sidebar (Navigation) - Desktop Only */}
+                    <div className="hidden lg:block w-64">
+                        <div className="sticky top-0 h-screen">
+                            <Sidebar showDesktopBrand={true} className="flex" />
+                        </div>
                     </div>
 
                     {/* Main Feed Column (Center) */}
                     <main className="flex-1 max-w-2xl border-r border-border min-h-screen pb-20">
                         {/* Sticky Header */}
                         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border px-4 py-3 flex items-center gap-3">
+                            <div className="lg:hidden">
+                                <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)} className="-ml-2">
+                                    <Menu className="h-5 w-5" />
+                                </Button>
+                            </div>
                             <Link to="/" className="text-xl font-bold">
                                 <span className="text-primary">My</span>Blog
                             </Link>
