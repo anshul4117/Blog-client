@@ -55,7 +55,7 @@ export default function Sidebar({ className = "", mobile = false, onClose, showD
 
   const baseClasses = mobile
     ? "flex flex-col w-[85vw] max-w-[300px] h-full bg-background/95 backdrop-blur-xl border-r border-border shadow-2xl"
-    : `hidden sm:flex flex-col w-64 bg-background border-r border-border/40 ${positionClasses}`;
+    : `hidden lg:flex flex-col w-64 bg-background border-r border-border/40 ${positionClasses}`;
 
   const renderLinks = (items) => (
     items.map((link) => (
@@ -154,14 +154,14 @@ function SidebarItem({ link, activePath, expanded, onToggle, onCloseMobile }) {
         {isActive && !hasSubItems && (
           <motion.div
             layoutId="sidebar-active"
-            className="absolute inset-0 bg-primary/10 rounded-xl"
+            className="absolute inset-0 bg-primary/10 rounded-xl border border-primary/20"
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           />
         )}
 
-        <div className={`relative flex items-center justify-between px-4 py-3 text-sm font-medium transition-colors ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`}>
+        <div className={`relative flex items-center justify-between px-4 py-3 text-sm font-medium transition-colors ${isActive ? "text-primary font-bold" : "text-foreground/80 hover:text-primary hover:bg-muted/50 rounded-xl"}`}>
           <div className="flex items-center gap-3">
-            <link.icon size={20} />
+            <link.icon size={20} className={isActive ? "text-primary underline decoration-wavy" : "text-muted-foreground group-hover:text-primary"} />
             {link.label}
           </div>
           {hasSubItems && (
