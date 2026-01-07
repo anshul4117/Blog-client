@@ -20,7 +20,7 @@ export default function Feed() {
     useEffect(() => {
         API.get("/blogs/allblogs")
             .then((res) => {
-                setPosts(res.data.blogs || []);
+                setPosts(res.data.data.blogs || []);
                 setLoading(false);
             })
             .catch((err) => {
