@@ -16,6 +16,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  console.log(user)
 
   const isLoggedIn = !!user;
 
@@ -51,8 +52,8 @@ export default function Navbar() {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="focus:outline-none">
-                      {user?.avatar ? (
-                        <img src={user.avatar} alt={user.name || "avatar"} className="w-9 h-9 rounded-full object-cover border border-gray-200 hover:opacity-80" />
+                      {user?.user?.profilePicture ? (
+                        <img src={user.user.profilePicture} alt={user.name || "avatar"} className="w-9 h-9 rounded-full object-cover border border-gray-200 hover:opacity-80" />
                       ) : (
                         <div className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-sm font-medium hover:bg-slate-300 text-slate-700">
                           {(user?.user?.name || "U").split(" ").map((n) => n[0]).slice(0, 2).join("")}

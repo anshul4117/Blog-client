@@ -53,7 +53,7 @@ export default function Profile() {
           <div className="flex flex-col md:flex-row items-start gap-6">
             <div className="relative">
               <img
-                src={user?.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
+                src={user?.user?.profilePicture }
                 alt="avatar"
                 className="w-32 h-32 rounded-full object-cover border-4 border-background shadow-lg"
               />
@@ -67,17 +67,19 @@ export default function Profile() {
             <div className="flex-1 mt-12 md:mt-14 space-y-2">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-3xl font-bold">{profileData.name}</h1>
-                  <p className="text-muted-foreground font-medium">{profileData.role}</p>
+                  <h1 className="text-3xl font-bold">{user?.user?.name}</h1>
+                  <p className="text-muted-foreground font-medium">{user?.user?.username}</p>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mt-2">
                 <span className="flex items-center gap-1">
-                  <MapPin size={14} /> {profileData.location}
+                  <MapPin size={14} /> {user?.user?.location}
                 </span>
                 <span className="flex items-center gap-1">
-                  <Calendar size={14} /> Joined {profileData.memberSince}
+                  {/* convert date to readable format */}
+                  <Calendar size={14} /> Joined {new Date(user?.user?.dateOfJoin).toLocaleDateString()}
+
                 </span>
               </div>
             </div>
@@ -104,7 +106,7 @@ export default function Profile() {
               <CardTitle className="text-base">About</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground leading-relaxed">
-              {profileData.about}
+              {user?.user?.bio}
             </CardContent>
           </Card>
 
