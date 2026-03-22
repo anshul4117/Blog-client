@@ -1,23 +1,48 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext.jsx";
-import { MapPin, Calendar, Link2, Edit, Award, LayoutGrid, List, ArrowLeft, Compass } from "lucide-react";
+import { useEffect, useState } from "react";
+import secureAPI from "@/lib/secureApi";
+import { MapPin, Calendar, Link2, Edit, Award, LayoutGrid, List, ArrowLeft, Compass, X } from "lucide-react";
 import PageTransition from "@/components/layout/PageTransition";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Profile() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showImageModal, setShowImageModal] = useState(false);
+  
+  // Fetch profile from backend; fall back to mock data for dev/demo
+  useEffect(() => {
+    let mounted = true;
+    const fetchProfile = async () => {
+      try {
+        const res = await secureAPI.get("users/profile");
+        // Extract the getProfile object from the response
+        if (mounted) setProfile(res.data?.getProfile ?? res.data);
+      } catch (err) {
+        if (mounted) setError(err);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    fetchProfile();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
-  // Mock data for demo purposes - should ideally come from API
-  const profileData = {
+  const fallbackProfile = {
     name: user?.name || "John Doe",
     role: "Full Stack Developer",
-    followers: 120,
-    following: 15,
+    followersCount: 0,
+    followingCount: 0,
     location: "Remote, Earth",
     memberSince: "Dec, 2024",
-    about:
+    bio:
       "Passionate about building scalable web applications and exploring new technologies. Lover of clean code and good coffee.",
     techStack: ["React", "Node.js", "Tailwind", "PostgreSQL"],
     blog: {
@@ -33,7 +58,27 @@ export default function Profile() {
     ],
   };
 
+  // profile is now the getProfile object directly (or null while loading)
+  const profileData = profile ?? fallbackProfile;
+
+  if (loading) {
+    return (
+      <PageTransition className="py-6 flex items-center justify-center min-h-[50vh]">
+        <p className="text-muted-foreground">Loading profile...</p>
+      </PageTransition>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageTransition className="py-6 flex items-center justify-center min-h-[50vh]">
+        <p className="text-red-500">Failed to load profile.</p>
+      </PageTransition>
+    );
+  }
+
   return (
+    <>
     <PageTransition className="py-6 space-y-6">
       {/* Navigation Header */}
       <div className="flex items-center justify-between">
@@ -51,11 +96,12 @@ export default function Profile() {
         <div className="h-32 bg-gradient-to-r from-primary/20 to-purple-500/20" />
         <CardContent className="px-6 pb-6 mt-[-3rem] relative">
           <div className="flex flex-col md:flex-row items-start gap-6">
-            <div className="relative">
+              <div className="relative">
               <img
-                src={user?.user?.profilePicture }
+                src={profileData.profilePicture}
                 alt="avatar"
-                className="w-32 h-32 rounded-full object-cover border-4 border-background shadow-lg"
+                className="w-32 h-32 rounded-full object-cover border-4 border-background shadow-lg cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={() => setShowImageModal(true)}
               />
               <Link to="/settings">
                 <Button size="icon" variant="secondary" className="absolute bottom-0 right-0 rounded-full w-8 h-8">
@@ -67,18 +113,18 @@ export default function Profile() {
             <div className="flex-1 mt-12 md:mt-14 space-y-2">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-3xl font-bold">{user?.user?.name}</h1>
-                  <p className="text-muted-foreground font-medium">{user?.user?.username}</p>
+                  <h1 className="text-3xl font-bold">{profileData.name}</h1>
+                  <p className="text-muted-foreground font-medium">@{profileData.username}</p>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mt-2">
                 <span className="flex items-center gap-1">
-                  <MapPin size={14} /> {user?.user?.location}
+                  <MapPin size={14} /> {profileData.location || "Remote"}
                 </span>
                 <span className="flex items-center gap-1">
                   {/* convert date to readable format */}
-                  <Calendar size={14} /> Joined {new Date(user?.user?.dateOfJoin).toLocaleDateString()}
+                  <Calendar size={14} /> Joined {profileData.dateOfJoin ? new Date(profileData.dateOfJoin).toLocaleDateString() : "Unknown"}
 
                 </span>
               </div>
@@ -87,11 +133,11 @@ export default function Profile() {
 
           <div className="flex items-center justify-center md:justify-end gap-8 mt-6 md:mt-0 border-t md:border-t-0 pt-4 md:pt-0">
             <div className="text-center">
-              <span className="block text-2xl font-bold">{profileData.followers}</span>
+              <span className="block text-2xl font-bold">{profileData.followersCount ?? 0}</span>
               <span className="text-xs text-muted-foreground uppercase tracking-wider">Followers</span>
             </div>
             <div className="text-center">
-              <span className="block text-2xl font-bold">{profileData.following}</span>
+              <span className="block text-2xl font-bold">{profileData.followingCount ?? 0}</span>
               <span className="text-xs text-muted-foreground uppercase tracking-wider">Following</span>
             </div>
           </div>
@@ -106,7 +152,7 @@ export default function Profile() {
               <CardTitle className="text-base">About</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground leading-relaxed">
-              {user?.user?.bio}
+              {profileData.bio || "No bio yet."}
             </CardContent>
           </Card>
 
@@ -115,7 +161,7 @@ export default function Profile() {
               <CardTitle className="text-base">Tech Stack</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
-              {profileData.techStack.map(tech => (
+              {(profileData?.techStack || []).map((tech) => (
                 <span key={tech} className="px-2.5 py-1 rounded-md bg-accent/50 text-xs font-medium border border-border/50">
                   {tech}
                 </span>
@@ -128,7 +174,7 @@ export default function Profile() {
               <CardTitle className="text-base">Badges</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {profileData.badges.map((badge, idx) => (
+              {(profileData?.badges || []).map((badge, idx) => (
                 <div key={idx} className="flex items-center gap-3">
                   <div className="p-2 rounded-full bg-yellow-500/10 dark:bg-yellow-500/20">
                     {badge.icon}
@@ -168,5 +214,30 @@ export default function Profile() {
         </div>
       </div>
     </PageTransition>
+
+    {/* Profile Picture Lightbox Modal */}
+    {showImageModal && (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+        onClick={() => setShowImageModal(false)}
+      >
+        <div className="relative max-w-lg w-[90vw]" onClick={(e) => e.stopPropagation()}>
+          <Button
+            size="icon"
+            variant="secondary"
+            className="absolute -top-3 -right-3 rounded-full z-10 shadow-lg"
+            onClick={() => setShowImageModal(false)}
+          >
+            <X size={18} />
+          </Button>
+          <img
+            src={profileData.profilePicture}
+            alt="Profile"
+            className="w-full rounded-2xl shadow-2xl object-cover"
+          />
+        </div>
+      </div>
+    )}
+    </>
   );
 }
