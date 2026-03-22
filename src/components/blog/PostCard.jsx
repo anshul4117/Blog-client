@@ -4,6 +4,7 @@ import OptimizedImage from "@/components/ui/OptimizedImage";
 
 export default function PostCard({ post }) {
     // Mock data for missing fields since we are reusing existing "blog" data structure
+
     const authorName = post.author?.name || post.author || "Anonymous";
     const authorHandle = `@${authorName.replace(/\s+/g, "").toLowerCase()}`;
     const timeAgo = new Date(post.createdAt).toLocaleDateString();
@@ -50,7 +51,7 @@ export default function PostCard({ post }) {
                     {/* Post Image */}
                     <div className="mt-3 rounded-2xl overflow-hidden border border-border/60">
                         <OptimizedImage
-                            src={post.image || post.coverImage || "/Woman.jpeg"}
+                            src={post.image.url || post.coverImage || "/Woman.jpeg"}
                             alt="Post attachment"
                             className="max-h-[500px] w-full object-cover"
                         />
