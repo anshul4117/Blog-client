@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, FilePlus, FileText, User, Settings, LogOut, LogIn, UserPlus, X, Bookmark,
-  ChevronDown, ChevronRight, Shield, Lock, HelpCircle, UserCog, Ban, Fingerprint
+  ChevronDown, ChevronRight, Shield, Lock, HelpCircle, UserCog, Ban, Fingerprint, Sparkles
 } from "lucide-react";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,17 +20,17 @@ const bottomLinks = [
   {
     label: "Settings",
     icon: Settings,
-    to: "/dashboard/settings", // Base path or just identifier
+    to: "/dashboard/settings",
     subItems: [
       { to: "/dashboard/settings/security", label: "Password & Security", icon: Lock },
       { to: "/dashboard/settings/blocked", label: "Blocked", icon: Ban },
-      { to: "/dashboard/settings/help", label: "Help", icon: HelpCircle },
-      { to: "/dashboard/settings/privacy", label: "Privacy Center", icon: Shield },
+      { to: "/dashboard/settings/help", label: "Help Center", icon: HelpCircle },
+      { to: "/dashboard/settings/privacy", label: "Privacy Hub", icon: Shield },
       { to: "/dashboard/settings/account-center", label: "Account Center", icon: Fingerprint },
-      { to: "/dashboard/settings", label: "Edit Account", icon: UserCog }, // Matches default settings page
+      { to: "/dashboard/settings", label: "Config Account", icon: UserCog },
     ]
   },
-  { to: "/dashboard/help", label: "Help & Support", icon: HelpCircle },
+  { to: "/dashboard/help", label: "Support", icon: HelpCircle },
 ];
 
 const publicLinks = [
@@ -41,8 +41,6 @@ const publicLinks = [
 export default function Sidebar({ className = "", mobile = false, onClose, showDesktopBrand = true }) {
   const { pathname } = useLocation();
   const { logout, user } = useAuth();
-
-  // State to track expanded menus (by label)
   const [expanded, setExpanded] = useState({ "Settings": false });
 
   const toggleExpand = (label) => {
@@ -54,8 +52,8 @@ export default function Sidebar({ className = "", mobile = false, onClose, showD
     : "h-[calc(100vh-4rem)] sticky top-16";
 
   const baseClasses = mobile
-    ? "flex flex-col w-[85vw] max-w-[300px] h-full bg-background/95 backdrop-blur-xl border-r border-border shadow-2xl"
-    : `hidden lg:flex flex-col w-64 bg-background border-r border-border/40 ${positionClasses}`;
+    ? "flex flex-col w-[85vw] max-w-[300px] h-full glass-panel border-r border-primary/10 shadow-2xl z-[100]"
+    : `hidden lg:flex flex-col w-72 glass-panel border-r border-primary/10 ${positionClasses}`;
 
   const renderLinks = (items) => (
     items.map((link) => (
@@ -73,47 +71,52 @@ export default function Sidebar({ className = "", mobile = false, onClose, showD
   const content = (
     <>
       {(mobile || showDesktopBrand) && (
-        <div className="p-6 border-b border-border/40 flex justify-between items-center">
-          <Link to="/" className="text-xl font-bold">
-            <span className="text-primary">My</span>Blog
+        <div className="p-8 border-b border-primary/5 flex justify-between items-center">
+          <Link to="/" className="flex items-center gap-2 group">
+            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center group-hover:rotate-12 transition-transform">
+                <Sparkles className="text-white" size={16} />
+            </div>
+            <span className="text-xl font-black tracking-tighter">
+                My<span className="text-primary">Blog</span>
+            </span>
           </Link>
           {mobile && (
-            <button onClick={onClose} className="p-1 rounded-full hover:bg-accent text-foreground/70">
+            <button onClick={onClose} className="p-2 rounded-xl hover:bg-primary/10 text-foreground/70">
               <X size={20} />
             </button>
           )}
         </div>
       )}
 
-      <div className="flex-1 py-6 px-4 space-y-6 overflow-y-auto no-scrollbar overflow-x-hidden">
+      <div className="flex-1 py-8 px-6 space-y-10 overflow-y-auto no-scrollbar overflow-x-hidden">
         {!user ? (
-          <div className="space-y-1">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Join Us</p>
-            {renderLinks(publicLinks)}
+          <div className="space-y-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 px-2">Access Portal</p>
+            <div className="space-y-1">{renderLinks(publicLinks)}</div>
           </div>
         ) : (
           <>
-            <div className="space-y-1">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Menu</p>
-              {renderLinks(links)}
+            <div className="space-y-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 px-2">Workspace</p>
+              <div className="space-y-1">{renderLinks(links)}</div>
             </div>
 
-            <div className="space-y-1">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Account</p>
-              {renderLinks(bottomLinks)}
+            <div className="space-y-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 px-2">Identity & Config</p>
+              <div className="space-y-1">{renderLinks(bottomLinks)}</div>
             </div>
           </>
         )}
       </div>
 
       {user && (
-        <div className="p-4 border-t border-border/40">
+        <div className="p-6 border-t border-primary/5">
           <button
             onClick={logout}
-            className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all"
+            className="flex items-center gap-3 w-full px-4 py-4 text-sm font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 rounded-2xl transition-all group"
           >
-            <LogOut size={18} />
-            <span>Logout</span>
+            <LogOut size={18} className="group-hover:-translate-x-1 transition-transform" />
+            <span>Terminate</span>
           </button>
         </div>
       )}
@@ -130,13 +133,11 @@ export default function Sidebar({ className = "", mobile = false, onClose, showD
 function SidebarItem({ link, activePath, expanded, onToggle, onCloseMobile }) {
   const hasSubItems = link.subItems && link.subItems.length > 0;
   const isExpanded = expanded[link.label];
-
-  // Check if main link or any sub-item is active
   const isActive = activePath === link.to || (hasSubItems && link.subItems.some(sub => activePath === sub.to));
 
   const handleClick = (e) => {
     if (hasSubItems) {
-      e.preventDefault(); // Prevent navigation if it has sub-items, just toggle
+      e.preventDefault();
       onToggle(link.label);
     } else {
       if (onCloseMobile) onCloseMobile();
@@ -144,54 +145,52 @@ function SidebarItem({ link, activePath, expanded, onToggle, onCloseMobile }) {
   };
 
   return (
-    <div className="mb-1">
+    <div className="mb-2">
       <Link
         to={link.to || "#"}
         onClick={handleClick}
         className="block relative group"
       >
-        {/* Active Background for standalone items */}
         {isActive && !hasSubItems && (
           <motion.div
             layoutId="sidebar-active"
-            className="absolute inset-0 bg-primary/10 rounded-xl border border-primary/20"
+            className="absolute inset-0 bg-primary/10 rounded-2xl border border-primary/20 shadow-lg shadow-primary/5"
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           />
         )}
 
-        <div className={`relative flex items-center justify-between px-4 py-3 text-sm font-medium transition-colors ${isActive ? "text-primary font-bold" : "text-foreground/80 hover:text-primary hover:bg-muted/50 rounded-xl"}`}>
+        <div className={`relative flex items-center justify-between px-4 py-3.5 text-sm font-bold tracking-tight transition-all duration-300 ${isActive ? "text-primary" : "text-foreground/70 hover:text-primary hover:translate-x-1"}`}>
           <div className="flex items-center gap-3">
-            <link.icon size={20} className={isActive ? "text-primary underline decoration-wavy" : "text-muted-foreground group-hover:text-primary"} />
+            <div className={`transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"}`}>
+                <link.icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+            </div>
             {link.label}
           </div>
           {hasSubItems && (
-            <div className="text-muted-foreground/70">
-              {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-            </div>
+            <motion.div animate={{ rotate: isExpanded ? 90 : 0 }} className="text-muted-foreground/40">
+              <ChevronRight size={16} />
+            </motion.div>
           )}
         </div>
       </Link>
 
-      {/* Sub-items */}
       <AnimatePresence>
         {hasSubItems && isExpanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden ml-4 pl-4 border-l border-border/50"
+            className="overflow-hidden ml-6 pl-4 border-l-2 border-primary/10 mt-2 space-y-1"
           >
             {link.subItems.map(sub => (
               <Link
                 key={sub.to}
                 to={sub.to}
                 onClick={onCloseMobile}
-                className={`block py-2 text-sm transition-colors ${activePath === sub.to ? "text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
+                className={`block py-2.5 text-xs font-bold uppercase tracking-widest transition-all ${activePath === sub.to ? "text-primary" : "text-muted-foreground hover:text-foreground hover:translate-x-1"}`}
               >
                 <div className="flex items-center gap-3">
-                  {/* Optional: Show icon for sub-items too if simpler */}
-                  {/* <sub.icon size={16} /> */}
+                  <sub.icon size={14} className={activePath === sub.to ? "text-primary" : "text-muted-foreground/40"} />
                   {sub.label}
                 </div>
               </Link>
