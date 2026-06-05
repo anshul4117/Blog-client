@@ -66,8 +66,8 @@ export default function Feed() {
 
                     {/* Left Sidebar (Navigation) - Desktop Only */}
                     <div className="hidden lg:block w-72 shrink-0">
-                        <div className="sticky top-0 h-screen pt-4">
-                            <Sidebar showDesktopBrand={true} className="rounded-[40px] border border-primary/10 shadow-2xl h-[calc(100vh-2rem)]" />
+                        <div className="sticky top-28 h-[calc(100vh-8rem)]">
+                            <Sidebar showDesktopBrand={true} />
                         </div>
                     </div>
 

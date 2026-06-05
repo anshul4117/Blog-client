@@ -8,7 +8,7 @@ export default function OptimizedImage({ src, alt, className, ...props }) {
     return (
         <div className={cn("relative overflow-hidden bg-muted", className)}>
             {!loaded && !error && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-200 animate-pulse">
+                <div className="absolute inset-0 flex items-center justify-center bg-primary/10 animate-pulse">
                     <span className="sr-only">Loading...</span>
                 </div>
             )}
@@ -26,7 +26,7 @@ export default function OptimizedImage({ src, alt, className, ...props }) {
                 {...props}
             />
             {error && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-400">
+                <div className="absolute inset-0 flex items-center justify-center bg-muted/10 text-muted-foreground/40">
                     <span className="text-xs">Failed to load</span>
                 </div>
             )}

@@ -13,9 +13,13 @@ export default function DashboardLayout() {
 
   return (
     <MainLayout>
-      <div className="flex min-h-screen relative">
+      <div className="flex w-full max-w-7xl mx-auto gap-0 lg:gap-12 px-0 lg:px-6 min-h-screen relative">
         {/* Desktop Sidebar (lg+) */}
-        <Sidebar showDesktopBrand={false} className="hidden lg:flex" />
+        <div className="hidden lg:block w-72 shrink-0">
+          <div className="sticky top-28 h-[calc(100vh-8rem)]">
+            <Sidebar showDesktopBrand={true} />
+          </div>
+        </div>
 
         {/* Mobile/Tablet Sidebar Drawer */}
         <AnimatePresence>

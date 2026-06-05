@@ -29,7 +29,15 @@ export default function Login() {
     try {
       const res = await API.post("/users/login", data);
       const userData = res.data;
-      login(userData);
+      if (userData?.user) {
+        login({
+          ...userData.user,
+          token: userData.accessToken,
+          refreshToken: userData.refreshToken,
+        });
+      } else {
+        login(userData);
+      }
       navigate("/feed");
     } catch (err) {
       alert(err.response?.data?.message || "Login failed ❌");

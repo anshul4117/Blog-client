@@ -47,13 +47,9 @@ export default function Sidebar({ className = "", mobile = false, onClose, showD
     setExpanded(prev => ({ ...prev, [label]: !prev[label] }));
   };
 
-  const positionClasses = showDesktopBrand
-    ? "h-screen sticky top-0"
-    : "h-[calc(100vh-4rem)] sticky top-16";
-
   const baseClasses = mobile
     ? "flex flex-col w-[85vw] max-w-[300px] h-full glass-panel border-r border-primary/10 shadow-2xl z-[100]"
-    : `hidden lg:flex flex-col w-72 glass-panel border-r border-primary/10 ${positionClasses}`;
+    : `hidden lg:flex flex-col w-full h-full glass-panel border border-primary/10 rounded-[32px] shadow-2xl`;
 
   const renderLinks = (items) => (
     items.map((link) => (

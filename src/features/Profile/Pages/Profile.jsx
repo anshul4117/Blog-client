@@ -3,30 +3,33 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext.jsx";
 import { useEffect, useState } from "react";
 import secureAPI from "@/lib/secureApi";
-import { MapPin, Calendar, Edit, Award, LayoutGrid, List, ArrowLeft, Compass, X, Share2, Github, Twitter, Globe, Link as LinkIcon, Sparkles } from "lucide-react";
+import { MapPin, Calendar, Edit, Award, LayoutGrid, List, ArrowLeft, Compass, X, Share2, Github, Twitter, Globe, Link as LinkIcon, Sparkles, Heart, MessageSquare } from "lucide-react";
 import PageTransition from "@/components/layout/PageTransition";
 import { Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
+import PostCard from "@/components/blog/PostCard.jsx";
 
 export default function Profile() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [myBlogs, setMyBlogs] = useState([]);
+  const [myBlogsLoading, setMyBlogsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("posts"); // "posts" or "analytics"
   
   useEffect(() => {
     let mounted = true;
     const fetchProfile = async () => {
       try {
-        const res = await secureAPI.get("users/profile");
+        const res = await secureAPI.get("/users/profile");
         if (mounted) {
             const data = res.data?.data?.getProfile || res.data?.getProfile || res.data?.data || res.data || {};
             setProfile(data);
         }
       } catch (err) {
-        if (mounted) setError(err);
+        console.error("Error loading profile:", err);
       } finally {
         if (mounted) setLoading(false);
       }
@@ -35,12 +38,31 @@ export default function Profile() {
     return () => { mounted = false; };
   }, []);
 
+  useEffect(() => {
+    let mounted = true;
+    const fetchMyBlogs = async () => {
+      try {
+        const res = await secureAPI.get("/blogs/myblogs");
+        if (mounted) {
+          const blogsData = res.data?.blogs || res.data?.data?.blogs || res.data?.data || [];
+          setMyBlogs(blogsData);
+        }
+      } catch (err) {
+        console.error("Error fetching my blogs:", err);
+      } finally {
+        if (mounted) setMyBlogsLoading(false);
+      }
+    };
+    fetchMyBlogs();
+    return () => { mounted = false; };
+  }, []);
+
   const fallbackProfile = {
     name: user?.name || "John Doe",
     username: user?.username || "johndoe",
     role: "Digital Visionary",
-    followersCount: 1240,
-    followingCount: 480,
+    followersCount: 0,
+    followingCount: 0,
     location: "Neo-Tokyo, Earth",
     memberSince: "Dec, 2024",
     bio: "Pioneering the next wave of digital storytelling. Building scalable architectures and beautiful experiences at the intersection of design and code.",
@@ -50,13 +72,23 @@ export default function Profile() {
       { name: "Verified Creator", earnedOn: "Jan 2025", icon: <Sparkles className="w-5 h-5 text-primary" /> },
     ],
     socials: {
-        github: "https://github.com/anshul",
-        twitter: "https://twitter.com/anshul",
+        github: "https://github.com",
+        twitter: "https://twitter.com",
         website: "https://anshul.dev"
     }
   };
 
   const profileData = profile ?? fallbackProfile;
+
+  const memberSinceDate = profileData.dateOfJoin 
+    ? new Date(profileData.dateOfJoin).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })
+    : profileData.memberSince || "Dec, 2024";
+
+  const professionTitle = profileData.profession || profileData.role || "Digital Visionary";
+
+  const totalPosts = myBlogs.length;
+  const totalLikes = myBlogs.reduce((acc, curr) => acc + (curr.likeCount || 0), 0);
+  const totalComments = myBlogs.reduce((acc, curr) => acc + (curr.commentCount || 0), 0);
 
   if (loading) return (
     <PageTransition className="flex items-center justify-center min-h-[50vh]">
@@ -107,7 +139,7 @@ export default function Profile() {
                 className="w-40 h-40 rounded-[32px] object-cover border-8 border-background shadow-2xl cursor-pointer hover:rotate-3 transition-transform"
                 onClick={() => setShowImageModal(true)}
               />
-              <Link to="/settings">
+              <Link to="/dashboard/settings">
                 <Button size="icon" className="absolute -bottom-2 -right-2 rounded-2xl w-10 h-10 shadow-xl">
                   <Edit size={16} />
                 </Button>
@@ -119,11 +151,12 @@ export default function Profile() {
                     <h1 className="text-4xl font-extrabold tracking-tighter">{profileData.name}</h1>
                     <div className="px-2 py-0.5 rounded-md bg-primary/20 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">Verified Identity</div>
                 </div>
-                <p className="text-primary font-bold text-lg mb-4">@{profileData.username}</p>
+                <p className="text-primary font-bold text-lg mb-1">@{profileData.username}</p>
+                <p className="text-muted-foreground/80 font-semibold text-sm mb-4">{professionTitle}</p>
                 
                 <div className="flex flex-wrap gap-6 text-sm text-muted-foreground font-medium">
-                    <span className="flex items-center gap-1.5"><MapPin size={16} className="text-primary/60" /> {profileData.location}</span>
-                    <span className="flex items-center gap-1.5"><Calendar size={16} className="text-primary/60" /> Joined {profileData.memberSince}</span>
+                    <span className="flex items-center gap-1.5"><MapPin size={16} className="text-primary/60" /> {profileData.location || "Earth"}</span>
+                    <span className="flex items-center gap-1.5"><Calendar size={16} className="text-primary/60" /> Joined {memberSinceDate}</span>
                 </div>
             </div>
 
@@ -140,13 +173,21 @@ export default function Profile() {
           </div>
 
           <div className="flex flex-wrap gap-4 pt-6 border-t border-white/5">
-                <Button variant="ghost" size="icon" className="rounded-xl hover:text-primary"><Github size={20} /></Button>
-                <Button variant="ghost" size="icon" className="rounded-xl hover:text-primary"><Twitter size={20} /></Button>
-                <Button variant="ghost" size="icon" className="rounded-xl hover:text-primary"><Globe size={20} /></Button>
+                <a href={profileData.socialLinks?.github || fallbackProfile.socials.github} target="_blank" rel="noreferrer">
+                    <Button variant="ghost" size="icon" className="rounded-xl hover:text-primary"><Github size={20} /></Button>
+                </a>
+                <a href={profileData.socialLinks?.twitter || fallbackProfile.socials.twitter} target="_blank" rel="noreferrer">
+                    <Button variant="ghost" size="icon" className="rounded-xl hover:text-primary"><Twitter size={20} /></Button>
+                </a>
+                <a href={profileData.socialLinks?.website || fallbackProfile.socials.website} target="_blank" rel="noreferrer">
+                    <Button variant="ghost" size="icon" className="rounded-xl hover:text-primary"><Globe size={20} /></Button>
+                </a>
                 <div className="h-10 w-[1px] bg-white/5 mx-2" />
-                <Button variant="outline" className="rounded-xl border-primary/20 hover:bg-primary/5 gap-2 px-6">
-                    <LinkIcon size={16} /> Portfolio Link
-                </Button>
+                <a href={profileData.socialLinks?.website || fallbackProfile.socials.website} target="_blank" rel="noreferrer">
+                    <Button variant="outline" className="rounded-xl border-primary/20 hover:bg-primary/5 gap-2 px-6">
+                        <LinkIcon size={16} /> Portfolio Link
+                    </Button>
+                </a>
           </div>
         </div>
       </div>
@@ -159,16 +200,16 @@ export default function Profile() {
               <CardTitle className="text-xs font-black uppercase tracking-widest text-primary">Mission Brief</CardTitle>
             </CardHeader>
             <CardContent className="pt-6 text-sm text-muted-foreground leading-relaxed font-medium">
-              {profileData.bio}
+              {profileData.bio || "No mission bio set yet."}
             </CardContent>
           </Card>
 
           <Card className="rounded-[32px] glass-panel border-primary/5 overflow-hidden">
             <CardHeader className="bg-primary/5 border-b border-primary/5">
-              <CardTitle className="text-xs font-black uppercase tracking-widest text-primary">Core Stack</CardTitle>
+              <CardTitle className="text-xs font-black uppercase tracking-widest text-primary">Core Interests</CardTitle>
             </CardHeader>
             <CardContent className="pt-6 flex flex-wrap gap-2">
-              {(profileData.techStack || []).map((tech) => (
+              {(profileData.interests && profileData.interests.length > 0 ? profileData.interests : fallbackProfile.techStack).map((tech) => (
                 <span key={tech} className="px-3 py-1.5 rounded-xl bg-primary/10 text-primary text-[11px] font-bold border border-primary/10">
                   {tech}
                 </span>
@@ -181,7 +222,7 @@ export default function Profile() {
               <CardTitle className="text-xs font-black uppercase tracking-widest text-primary">Achievements</CardTitle>
             </CardHeader>
             <CardContent className="pt-6 space-y-5">
-              {(profileData.badges || []).map((badge, idx) => (
+              {fallbackProfile.badges.map((badge, idx) => (
                 <div key={idx} className="flex items-center gap-4 group cursor-help">
                   <div className="p-3 rounded-2xl bg-yellow-500/10 text-yellow-500 group-hover:bg-yellow-500 group-hover:text-white transition-all">
                     {badge.icon}
@@ -199,25 +240,79 @@ export default function Profile() {
         {/* Main Production Area */}
         <div className="md:col-span-2 space-y-8">
           <div className="flex items-center gap-6 border-b border-white/5 pb-1">
-            <button className="flex items-center gap-2 pb-4 border-b-4 border-primary text-foreground font-black uppercase tracking-widest text-[11px]">
-              <LayoutGrid size={16} /> Recent Projects
+            <button 
+              onClick={() => setActiveTab("posts")}
+              className={`flex items-center gap-2 pb-4 font-black uppercase tracking-widest text-[11px] border-b-4 transition-all ${activeTab === "posts" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            >
+              <LayoutGrid size={16} /> Recent Publications
             </button>
-            <button className="flex items-center gap-2 pb-4 text-muted-foreground hover:text-foreground transition-colors font-black uppercase tracking-widest text-[11px]">
-              <List size={16} /> Log History
+            <button 
+              onClick={() => setActiveTab("analytics")}
+              className={`flex items-center gap-2 pb-4 font-black uppercase tracking-widest text-[11px] border-b-4 transition-all ${activeTab === "analytics" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            >
+              <List size={16} /> Performance Analytics
             </button>
           </div>
 
           <div className="grid grid-cols-1 gap-6">
-             <div className="p-16 text-center glass-panel rounded-[40px] border-dashed border-primary/20 bg-primary/5">
-                <div className="inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10 text-primary mb-6 shadow-xl shadow-primary/10">
-                    <LayoutGrid className="h-10 w-10" />
-                </div>
-                <h3 className="text-2xl font-extrabold text-foreground mb-2">No active publications</h3>
-                <p className="text-muted-foreground font-medium max-w-sm mx-auto">Your journey starts with a single word. Create your first post to populate your workspace.</p>
-                <Link to="/dashboard/create" className="inline-block mt-8">
-                    <Button className="rounded-2xl h-12 px-8 font-black uppercase tracking-widest shadow-xl shadow-primary/20">Initiate Project</Button>
-                </Link>
-             </div>
+             {activeTab === "posts" ? (
+               myBlogsLoading ? (
+                 <div className="flex justify-center py-20">
+                     <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent shadow-lg shadow-primary/20"></div>
+                 </div>
+               ) : myBlogs.length === 0 ? (
+                 <div className="p-16 text-center glass-panel rounded-[40px] border-dashed border-primary/20 bg-primary/5">
+                    <div className="inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10 text-primary mb-6 shadow-xl shadow-primary/10">
+                        <LayoutGrid className="h-10 w-10" />
+                    </div>
+                    <h3 className="text-2xl font-extrabold text-foreground mb-2">No active publications</h3>
+                    <p className="text-muted-foreground font-medium max-w-sm mx-auto">Your journey starts with a single word. Create your first post to populate your workspace.</p>
+                    <Link to="/dashboard/create" className="inline-block mt-8">
+                        <Button className="rounded-2xl h-12 px-8 font-black uppercase tracking-widest shadow-xl shadow-primary/20">Initiate Project</Button>
+                    </Link>
+                 </div>
+               ) : (
+                 <div className="space-y-6">
+                    {myBlogs.map((p, index) => (
+                        <PostCard key={p._id} post={p} index={index} />
+                    ))}
+                 </div>
+               )
+             ) : (
+               <div className="space-y-6">
+                 {/* Stats summary cards */}
+                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                     <div className="glass-panel p-6 rounded-[32px] border-primary/10 bg-primary/5 text-center">
+                         <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 mb-2">Total Publications</h4>
+                         <span className="text-4xl font-black text-foreground">{totalPosts}</span>
+                     </div>
+                     <div className="glass-panel p-6 rounded-[32px] border-primary/10 bg-primary/5 text-center">
+                         <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 mb-2">Total Likes</h4>
+                         <span className="text-4xl font-black text-primary">{totalLikes}</span>
+                     </div>
+                     <div className="glass-panel p-6 rounded-[32px] border-primary/10 bg-primary/5 text-center">
+                         <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 mb-2">Total Comments</h4>
+                         <span className="text-4xl font-black text-secondary">{totalComments}</span>
+                     </div>
+                 </div>
+
+                 {/* Influence overview */}
+                 <div className="glass-panel p-8 rounded-[40px] border-primary/10 space-y-6">
+                     <h3 className="text-xl font-bold tracking-tight text-foreground">Influence Index</h3>
+                     <div className="space-y-4">
+                         <div className="space-y-2">
+                             <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground/80">
+                                 <span>Engagement Ratio</span>
+                                 <span>{totalPosts > 0 ? ((totalLikes + totalComments) / totalPosts).toFixed(1) : 0} interactions/post</span>
+                             </div>
+                             <div className="h-2 w-full bg-muted/20 rounded-full overflow-hidden">
+                                 <div className="h-full bg-primary" style={{ width: `${Math.min(100, totalPosts > 0 ? ((totalLikes + totalComments) / totalPosts) * 10 : 0)}%` }} />
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+               </div>
+             )}
           </div>
         </div>
       </div>
