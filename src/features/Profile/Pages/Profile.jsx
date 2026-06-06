@@ -6,7 +6,7 @@ import secureAPI from "@/lib/secureApi";
 import { MapPin, Calendar, Edit, Award, LayoutGrid, List, ArrowLeft, Compass, X, Share2, Github, Twitter, Globe, Link as LinkIcon, Sparkles, Heart, MessageSquare } from "lucide-react";
 import PageTransition from "@/components/layout/PageTransition";
 import { Link, useNavigate } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import PostCard from "@/components/blog/PostCard.jsx";
 
 export default function Profile() {
