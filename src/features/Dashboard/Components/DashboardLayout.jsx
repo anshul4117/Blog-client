@@ -52,12 +52,9 @@ export default function DashboardLayout() {
         </AnimatePresence>
 
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Mobile/Tablet Header with Menu Trigger */}
-          <div className="lg:hidden sticky top-0 z-30 bg-background border-b border-border px-4 py-3 flex items-center gap-3 shadow-sm">
-            <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)} className="-ml-2 hover:bg-muted">
-              <Menu className="h-6 w-6 text-foreground" />
-            </Button>
-            <span className="font-bold text-lg text-foreground tracking-tight">Dashboard</span>
+          {/* Mobile/Tablet Header */}
+          <div className="lg:hidden sticky top-0 z-30 bg-background border-b border-border px-6 py-4 flex items-center justify-between shadow-sm">
+            <span className="font-extrabold text-lg text-foreground tracking-tight">Dashboard</span>
           </div>
 
           {/* Mobile Bottom Navigation (Optional: Can keep or remove based on preference, keeping for now as it offers quick access) */}

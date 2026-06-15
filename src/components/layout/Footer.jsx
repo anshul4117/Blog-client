@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
           <div>
             <h1 className="text-[12vw] md:text-[8vw] leading-[0.8] font-black tracking-tighter text-primary/10 select-none">
-              MY. BLOG
+              XDrop
             </h1>
             <h2 className="text-2xl md:text-3xl font-bold tracking-tighter mt-2 ml-2 text-foreground">
               Digital Excellence.
@@ -26,7 +26,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 border-t border-border pt-12">
           {/* Col 1: Brand Info */}
           <div className="col-span-2 md:col-span-1 space-y-4">
-            <Link to="/" className="text-2xl font-black tracking-tight text-primary">My.Blog</Link>
+            <Link to="/" className="text-2xl font-black tracking-tight text-primary">XDrop</Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
               Empowering voices, one story at a time. Join our community of creators and thinkers.
             </p>
@@ -35,30 +35,32 @@ export default function Footer() {
           {/* Col 2: Navigation */}
           <div className="flex flex-col gap-3 text-sm">
             <h3 className="font-bold text-foreground mb-1">Explore</h3>
-            <Link to="/feed" className="text-muted-foreground hover:text-primary transition-colors">Read Stories</Link>
-            <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">About Us</Link>
-            <Link to="/dashboard/create" className="text-muted-foreground hover:text-primary transition-colors">Start Writing</Link>
+            <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">Home</Link>
+            <Link to="/feed" className="text-muted-foreground hover:text-primary transition-colors">Feed</Link>
+            <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">About</Link>
+            <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact</Link>
           </div>
 
-          {/* Col 3: Legal */}
+          {/* Col 3: Portal */}
           <div className="flex flex-col gap-3 text-sm">
-            <h3 className="font-bold text-foreground mb-1">Legal</h3>
-            <Link to="/dashboard/settings/privacy" className="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link>
-            <Link to="/dashboard/help" className="text-muted-foreground hover:text-primary transition-colors">Help Center</Link>
-            <Link to="/register" className="text-muted-foreground hover:text-primary transition-colors">Join Now</Link>
+            <h3 className="font-bold text-foreground mb-1">Portal</h3>
+            <Link to="/dashboard" className="text-muted-foreground hover:text-primary transition-colors">Dashboard</Link>
+            <Link to="/profile" className="text-muted-foreground hover:text-primary transition-colors">Profile</Link>
+            <Link to="/dashboard/settings/privacy" className="text-muted-foreground hover:text-primary transition-colors">Privacy</Link>
+            <Link to="/dashboard/help" className="text-muted-foreground hover:text-primary transition-colors">Help</Link>
           </div>
 
           {/* Col 4: Contact */}
           <div className="flex flex-col gap-3 text-sm">
             <h3 className="font-bold text-foreground mb-1">Contact</h3>
-            <p className="text-muted-foreground">hello@myblog.com</p>
+            <p className="text-muted-foreground">hello@xdrop.com</p>
             <p className="text-muted-foreground">+1 (555) 123-4567</p>
             <p className="text-muted-foreground">San Francisco, CA</p>
           </div>
         </div>
 
         <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} MyBlog Platform. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} XDrop Platform. All rights reserved.</p>
           <div className="flex gap-6">
             <Link to="#" className="hover:text-foreground">Privacy</Link>
             <Link to="#" className="hover:text-foreground">Terms</Link>

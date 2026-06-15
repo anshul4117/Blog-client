@@ -76,11 +76,6 @@ export default function Feed() {
                         {/* Sticky Header */}
                         <div className="sticky top-0 z-40 glass-panel border-x-0 border-t-0 border-b border-primary/10 px-6 py-5 flex items-center justify-between">
                             <div className="flex items-center gap-4">
-                                <div className="lg:hidden">
-                                    <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)} className="rounded-xl hover:bg-primary/10">
-                                        <Menu className="h-6 w-6" />
-                                    </Button>
-                                </div>
                                 <h1 className="text-2xl font-black tracking-tighter">Global <span className="text-gradient">Feed</span></h1>
                             </div>
                             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">

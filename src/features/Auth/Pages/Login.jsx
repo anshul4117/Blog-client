@@ -9,7 +9,7 @@ import AuthLayout from "../Components/AuthLayout.jsx";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext.jsx";
 import API from "../../../lib/secureApi.js";
-import { Mail, Lock, ArrowRight, Github, Chrome, Twitter } from "lucide-react";
+import { Mail, Lock, ArrowRight, Github, Chrome, Twitter, Sparkles } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -22,6 +22,7 @@ export default function Login() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({ resolver: zodResolver(loginSchema) });
 
@@ -44,9 +45,35 @@ export default function Login() {
     }
   };
 
+  const handleAutofillDemo = () => {
+    setValue("email", "demo@example.com", { shouldValidate: true });
+    setValue("password", "password123", { shouldValidate: true });
+    setTimeout(() => {
+      handleSubmit(onSubmit)();
+    }, 100);
+  };
+
   return (
     <AuthLayout title="Welcome Back 👋" subtitle="Enter your credentials to access your account">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        {/* Sandbox Indicator */}
+        <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 text-xs text-muted-foreground space-y-2 relative overflow-hidden font-medium">
+          <div className="flex items-center gap-1.5 font-bold text-primary text-[10px] uppercase tracking-wider">
+            <Sparkles size={12} className="animate-pulse" /> Sandbox Mode Active
+          </div>
+          <p className="leading-normal text-[11px]">
+            No running backend required. Click below to prefill demo credentials and sign in instantly.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleAutofillDemo}
+            className="w-full h-9 rounded-lg border-primary/25 hover:bg-primary/10 text-[11px] font-black uppercase tracking-wider text-primary gap-1 cursor-pointer"
+          >
+            Autofill & Sign In
+          </Button>
+        </div>
+
         {/* Email */}
         <div className="space-y-1.5">
           <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email</Label>

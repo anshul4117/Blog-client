@@ -23,8 +23,14 @@ export default function AuthLayout({ title, subtitle, children }) {
       >
         {/* Brand */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-block text-2xl font-bold mb-4">
-            <span className="text-primary">My</span>Blog
+          <Link to="/" className="inline-flex items-center gap-2 text-2xl font-black mb-4 group text-foreground">
+            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:rotate-12 transition-transform duration-500 text-white">
+              <svg viewBox="0 0 512 512" className="h-5.5 w-5.5 fill-current">
+                <path d="M256,48 C160,192 96,280 96,352 A160,160 0 0,0 416,352 C416,280 352,192 256,48 Z" />
+                <path d="M200,240 L240,290 L200,340 H235 L256,310 L277,340 H312 L272,290 L312,240 H277 L256,270 L235,240 Z" fill="#002b36" />
+              </svg>
+            </div>
+            <span>X<span className="text-primary">Drop</span></span>
           </Link>
           <h2 className="text-3xl font-bold tracking-tight text-foreground">{title}</h2>
           {subtitle && (
@@ -39,8 +45,8 @@ export default function AuthLayout({ title, subtitle, children }) {
       </motion.div>
 
       {/* Footer */}
-      <p className="mt-8 text-xs text-muted-foreground/50 tracking-wide relative z-10">
-        © 2025 MyBlog · All rights reserved
+      <p className="mt-8 text-xs text-muted-foreground/50 tracking-wide relative z-10 font-medium">
+        © 2026 XDrop · All rights reserved
       </p>
     </div>
   );

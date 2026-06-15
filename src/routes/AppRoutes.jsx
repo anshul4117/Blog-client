@@ -8,6 +8,7 @@ import DashboardLayout from "../features/Dashboard/Components/DashboardLayout.js
 const Home = lazy(() => import("../pages/Home.jsx"));
 const About = lazy(() => import("../pages/About.jsx"));
 const Feed = lazy(() => import("../pages/Feed.jsx"));
+const Contact = lazy(() => import("../pages/Contact.jsx"));
 
 // Auth
 const Login = lazy(() => import("../features/Auth/Pages/Login.jsx"));
@@ -44,7 +45,7 @@ export default function AppRoutes() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/feed" element={<Feed />} />
+        <Route path="/contact" element={<Contact />} />
 
         {/* 🔒 Auth routes (PublicRoute prevents logged-in users) */}
         <Route element={<PublicRoute />}>
@@ -54,6 +55,7 @@ export default function AppRoutes() {
 
         {/* 🔐 Dashboard (Protected Layout) */}
         <Route element={<PrivateRoute />}>
+          <Route path="/feed" element={<Feed />} />
           <Route path="/post/:id" element={<PostDetails />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<DashboardHome />} />

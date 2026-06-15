@@ -73,7 +73,7 @@ export default function Sidebar({ className = "", mobile = false, onClose, showD
                 <Sparkles className="text-white" size={16} />
             </div>
             <span className="text-xl font-black tracking-tighter">
-                My<span className="text-primary">Blog</span>
+                X<span className="text-primary">Drop</span>
             </span>
           </Link>
           {mobile && (

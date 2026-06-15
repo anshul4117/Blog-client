@@ -6,11 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import API from "@/lib/secureApi.js";
 import { useAuth } from "@/context/AuthContext";
 import PageTransition from "@/components/layout/PageTransition";
-import { User, Mail, Link as LinkIcon, ArrowLeft, Compass, Briefcase, Heart, Calendar, Github, Twitter, Linkedin, Globe, Sparkles } from "lucide-react";
+import { User, Mail, Link as LinkIcon, ArrowLeft, Compass, Briefcase, Heart, Calendar, Github, Twitter, Linkedin, Globe, Sparkles, Bookmark, HelpCircle, LogOut, ChevronRight, LayoutGrid } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Settings() {
-  const { user, login } = useAuth();
+  const { user, login, logout } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
@@ -129,6 +129,31 @@ export default function Settings() {
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
         <p className="text-muted-foreground">Manage your account settings and preferences.</p>
       </div>
+
+      {/* Mobile directory hub - (settings contains the rest remaining things) */}
+      <Card className="rounded-[32px] glass-panel border-primary/10 overflow-hidden block md:hidden mb-8 shadow-2xl">
+        <CardHeader className="bg-primary/5 border-b border-primary/5">
+          <CardTitle className="text-xs font-black uppercase tracking-widest text-primary font-mono">Workspace Directory</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-6 space-y-2">
+          <Link to="/dashboard" className="flex items-center justify-between p-3 rounded-2xl hover:bg-primary/5 transition-all group font-bold">
+            <span className="flex items-center gap-3 text-sm text-foreground"><LayoutGrid size={18} className="text-primary" /> Creator Dashboard</span>
+            <ChevronRight size={16} className="text-muted-foreground/60 group-hover:translate-x-1 transition-transform" />
+          </Link>
+          <Link to="/dashboard/saved" className="flex items-center justify-between p-3 rounded-2xl hover:bg-primary/5 transition-all group font-bold">
+            <span className="flex items-center gap-3 text-sm text-foreground"><Bookmark size={18} className="text-primary" /> Saved Publications</span>
+            <ChevronRight size={16} className="text-muted-foreground/60 group-hover:translate-x-1 transition-transform" />
+          </Link>
+          <Link to="/dashboard/help" className="flex items-center justify-between p-3 rounded-2xl hover:bg-primary/5 transition-all group font-bold">
+            <span className="flex items-center gap-3 text-sm text-foreground"><HelpCircle size={18} className="text-primary" /> Support Center</span>
+            <ChevronRight size={16} className="text-muted-foreground/60 group-hover:translate-x-1 transition-transform" />
+          </Link>
+          <button onClick={logout} className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-red-500/5 transition-all group font-bold text-left">
+            <span className="flex items-center gap-3 text-sm text-red-500"><LogOut size={18} /> Terminate Session</span>
+            <ChevronRight size={16} className="text-red-500/60 group-hover:translate-x-1 transition-transform" />
+          </button>
+        </CardContent>
+      </Card>
 
       <Card className="rounded-[32px] glass-panel border-primary/10 overflow-hidden shadow-2xl">
         <CardHeader className="bg-primary/5 border-b border-primary/5">

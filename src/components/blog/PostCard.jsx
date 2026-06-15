@@ -1,9 +1,52 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Heart, MessageCircle, Repeat2, Share, MoreHorizontal, Sparkles } from "lucide-react";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import { motion } from "framer-motion";
 
 export default function PostCard({ post, index = 0 }) {
+    const [liked, setLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(post.likeCount || (post.likes !== undefined ? post.likes : 120));
+    
+    const [reposted, setReposted] = useState(false);
+    const [repostCount, setRepostCount] = useState(post.repostCount || 5);
+
+    const [commented, setCommented] = useState(false);
+    const [commentCount, setCommentCount] = useState(post.commentCount || (post.comments !== undefined ? post.comments : 24));
+
+    const handleLike = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (liked) {
+            setLikeCount(prev => prev - 1);
+        } else {
+            setLikeCount(prev => prev + 1);
+        }
+        setLiked(!liked);
+    };
+
+    const handleRepost = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (reposted) {
+            setRepostCount(prev => prev - 1);
+        } else {
+            setRepostCount(prev => prev + 1);
+        }
+        setReposted(!reposted);
+    };
+
+    const handleComment = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (commented) {
+            setCommentCount(prev => prev - 1);
+        } else {
+            setCommentCount(prev => prev + 1);
+        }
+        setCommented(!commented);
+    };
+
     const authorName = String(post.userId?.name || post.author?.name || (typeof post.author === 'string' ? post.author : '') || "Anonymous");
     const authorHandle = `@${authorName.replace(/\s+/g, "").toLowerCase()}`;
     const timeAgo = new Date(post.createdAt).toLocaleDateString(undefined, {
@@ -58,11 +101,17 @@ export default function PostCard({ post, index = 0 }) {
                         </div>
 
                         <div className="flex items-center gap-6 text-white/80">
-                            <button className="flex items-center gap-2 hover:text-pink-500 transition-colors">
-                                <Heart size={20} /> <span className="text-sm font-bold">120</span>
+                            <button 
+                                onClick={handleLike}
+                                className={`flex items-center gap-2 hover:text-pink-500 transition-colors ${liked ? "text-pink-500" : ""}`}
+                            >
+                                <Heart size={20} fill={liked ? "currentColor" : "none"} /> <span className="text-sm font-bold">{likeCount}</span>
                             </button>
-                            <button className="flex items-center gap-2 hover:text-blue-400 transition-colors">
-                                <MessageCircle size={20} /> <span className="text-sm font-bold">24</span>
+                            <button 
+                                onClick={handleComment}
+                                className={`flex items-center gap-2 hover:text-blue-400 transition-colors ${commented ? "text-blue-400" : ""}`}
+                            >
+                                <MessageCircle size={20} fill={commented ? "currentColor" : "none"} /> <span className="text-sm font-bold">{commentCount}</span>
                             </button>
                         </div>
                     </div>
@@ -144,25 +193,34 @@ export default function PostCard({ post, index = 0 }) {
 
                     {/* Action Bar */}
                     <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/20 text-muted-foreground">
-                        <button className="flex items-center gap-2 group/btn hover:text-blue-500 transition-colors text-xs font-bold uppercase tracking-wider">
+                        <button 
+                            onClick={handleComment}
+                            className={`flex items-center gap-2 group/btn hover:text-blue-500 transition-colors text-xs font-bold uppercase tracking-wider ${commented ? "text-blue-500" : ""}`}
+                        >
                             <div className="p-2 rounded-full group-hover/btn:bg-blue-500/10 group-active/btn:scale-90 transition-all">
-                                <MessageCircle size={18} />
+                                <MessageCircle size={18} fill={commented ? "currentColor" : "none"} />
                             </div>
-                            <span>24</span>
+                            <span>{commentCount}</span>
                         </button>
 
-                        <button className="flex items-center gap-2 group/btn hover:text-green-500 transition-colors text-xs font-bold uppercase tracking-wider">
+                        <button 
+                            onClick={handleRepost}
+                            className={`flex items-center gap-2 group/btn hover:text-green-500 transition-colors text-xs font-bold uppercase tracking-wider ${reposted ? "text-green-500" : ""}`}
+                        >
                             <div className="p-2 rounded-full group-hover/btn:bg-green-500/10 group-active/btn:scale-90 transition-all">
                                 <Repeat2 size={18} />
                             </div>
-                            <span>5</span>
+                            <span>{repostCount}</span>
                         </button>
 
-                        <button className="flex items-center gap-2 group/btn hover:text-pink-500 transition-colors text-xs font-bold uppercase tracking-wider">
+                        <button 
+                            onClick={handleLike}
+                            className={`flex items-center gap-2 group/btn hover:text-pink-500 transition-colors text-xs font-bold uppercase tracking-wider ${liked ? "text-pink-500" : ""}`}
+                        >
                             <div className="p-2 rounded-full group-hover/btn:bg-pink-500/10 group-active/btn:scale-90 transition-all">
-                                <Heart size={18} />
+                                <Heart size={18} fill={liked ? "currentColor" : "none"} />
                             </div>
-                            <span>120</span>
+                            <span>{likeCount}</span>
                         </button>
 
                         <button className="flex items-center gap-2 group/btn hover:text-primary transition-colors text-xs font-bold uppercase tracking-wider">
