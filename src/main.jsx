@@ -1,3 +1,7 @@
+if (localStorage.getItem("blog_app_demo_mode") === null) {
+  localStorage.setItem("blog_app_demo_mode", "true");
+}
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
