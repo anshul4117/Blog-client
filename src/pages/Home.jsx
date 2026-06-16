@@ -896,19 +896,19 @@ This is our **Focus Mode Simulator**. Type text here, structure it with clean ma
 
         {/* CTA FOOTER */}
         <section className="py-28 px-6">
-          <div className="max-w-6xl mx-auto rounded-[48px] bg-gradient-to-br from-primary via-primary/80 to-violet-950 p-16 text-center relative overflow-hidden group shadow-2xl shadow-primary/25 border border-primary/20">
-            <div className="absolute inset-0 mesh-gradient opacity-20" />
-            <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-white/5 rounded-full blur-[120px] animate-pulse duration-[10s]" />
+          <div className="max-w-6xl mx-auto rounded-[48px] cta-footer-card p-16 text-center relative overflow-hidden group border border-primary/20 shadow-xl shadow-primary/5 backdrop-blur-md">
+            <div className="absolute inset-0 mesh-gradient opacity-10" />
+            <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-primary/5 rounded-full blur-[120px] animate-pulse duration-[10s]" />
             
             <div className="relative z-10 space-y-8">
-              <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white leading-none">
-                Start Publishing Your <br /> Frequencies Today
+              <h2 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tighter text-foreground leading-tight">
+                Start Publishing Your <br className="hidden md:inline" /> Frequencies Today
               </h2>
-              <p className="text-base md:text-lg text-white/70 max-w-2xl mx-auto font-medium">
+              <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto font-medium">
                 Reserve your custom handle, customize your profile settings, and sync your thoughts to our global markdown feed.
               </p>
               <Link to="/register" className="inline-block mt-4">
-                <Button size="lg" className="h-16 px-12 text-sm font-black uppercase tracking-[0.25em] bg-white text-primary hover:bg-white/90 rounded-[24px] shadow-2xl hover:scale-105 transition-all border-none">
+                <Button size="lg" className="h-16 px-12 text-sm font-black uppercase tracking-[0.25em] bg-primary text-primary-foreground hover:bg-primary/95 rounded-[24px] shadow-2xl hover:scale-105 transition-all border-none">
                   Get Started Now
                 </Button>
               </Link>

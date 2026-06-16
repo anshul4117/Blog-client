@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Instagram, Facebook, Twitter, Linkedin } from "lucide-react";
+import { Instagram, Github, Linkedin } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -16,10 +16,9 @@ export default function Footer() {
             </h2>
           </div>
           <div className="flex gap-4">
-            <SocialLink href="#" icon={Instagram} />
-            <SocialLink href="#" icon={Facebook} />
-            <SocialLink href="#" icon={Twitter} />
-            <SocialLink href="#" icon={Linkedin} />
+            <SocialLink href="https://github.com/anshul4117" icon={Github} />
+            <SocialLink href="https://www.linkedin.com/in/anshul-ab7135245/" icon={Linkedin} />
+            <SocialLink href="https://www.instagram.com/ur_.anshul" icon={Instagram} />
           </div>
         </div>
 
@@ -41,31 +40,25 @@ export default function Footer() {
             <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact</Link>
           </div>
 
-          {/* Col 3: Portal */}
+          {/* Col 3: Support */}
           <div className="flex flex-col gap-3 text-sm">
-            <h3 className="font-bold text-foreground mb-1">Portal</h3>
+            <h3 className="font-bold text-foreground mb-1">Support</h3>
             <Link to="/dashboard" className="text-muted-foreground hover:text-primary transition-colors">Dashboard</Link>
             <Link to="/profile" className="text-muted-foreground hover:text-primary transition-colors">Profile</Link>
-            <Link to="/dashboard/settings/privacy" className="text-muted-foreground hover:text-primary transition-colors">Privacy</Link>
-            <Link to="/dashboard/help" className="text-muted-foreground hover:text-primary transition-colors">Help</Link>
+            <Link to="/help" className="text-muted-foreground hover:text-primary transition-colors">Help</Link>
+            <a href="https://anshul4117-portfolio.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">Portfolio</a>
           </div>
 
           {/* Col 4: Contact */}
           <div className="flex flex-col gap-3 text-sm">
             <h3 className="font-bold text-foreground mb-1">Contact</h3>
-            <p className="text-muted-foreground">hello@xdrop.com</p>
-            <p className="text-muted-foreground">+1 (555) 123-4567</p>
-            <p className="text-muted-foreground">San Francisco, CA</p>
+            <p className="text-muted-foreground">anshul41171@gmail.com</p>
+            <p className="text-muted-foreground">Meerut, India</p>
           </div>
         </div>
 
-        <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
+        <div className="mt-16 flex justify-center text-xs text-muted-foreground">
           <p>© {new Date().getFullYear()} XDrop Platform. All rights reserved.</p>
-          <div className="flex gap-6">
-            <Link to="#" className="hover:text-foreground">Privacy</Link>
-            <Link to="#" className="hover:text-foreground">Terms</Link>
-            <Link to="#" className="hover:text-foreground">Cookies</Link>
-          </div>
         </div>
       </div>
     </footer>

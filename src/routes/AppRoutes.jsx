@@ -37,6 +37,7 @@ const Loading = () => (
 );
 
 import ScrollToTop from "../components/layout/ScrollToTop.jsx";
+import MainLayout from "../components/layout/MainLayout.jsx";
 
 export default function AppRoutes() {
   return (
@@ -46,6 +47,7 @@ export default function AppRoutes() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/help" element={<MainLayout><Help /></MainLayout>} />
 
         {/* 🔒 Auth routes (PublicRoute prevents logged-in users) */}
         <Route element={<PublicRoute />}>
