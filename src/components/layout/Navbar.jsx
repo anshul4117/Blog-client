@@ -95,6 +95,9 @@ export default function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden lg:flex items-center gap-8">
+          <NavLink to="/" className={({isActive}) => `text-sm font-bold uppercase tracking-widest hover:text-primary transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
+            Home
+          </NavLink>
           {isLoggedIn && (
             <NavLink to="/feed" className={({isActive}) => `text-sm font-bold uppercase tracking-widest hover:text-primary transition-colors ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>
               Feed
@@ -121,22 +124,7 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* Connection Status Badge */}
-          {!isHomePage && (
-            <button
-              onClick={handleReconnect}
-              disabled={checkingConnection}
-              className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider border transition-all active:scale-95 ${
-                isDemoMode 
-                  ? "bg-amber-500/10 text-amber-500 border-amber-500/20 hover:bg-amber-500/20" 
-                  : "bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20"
-              }`}
-              title={isDemoMode ? "Sandbox mode: click to check live server availability" : "Live mode: connected to local backend"}
-            >
-              <span className={`h-1.5 w-1.5 rounded-full ${isDemoMode ? 'bg-amber-500 animate-pulse' : 'bg-green-500'} `} />
-              {checkingConnection ? "Scanning..." : isDemoMode ? "Sandbox" : "Live"}
-            </button>
-          )}
+
 
           <ModeToggle />
 
@@ -218,6 +206,7 @@ export default function Navbar() {
             </div>
 
             <div className="flex flex-col gap-6">
+              <NavLink to="/" onClick={() => setOpen(false)} className="text-2xl font-black uppercase tracking-tighter hover:text-primary transition-colors">Home</NavLink>
               {isLoggedIn && (
                 <NavLink to="/feed" onClick={() => setOpen(false)} className="text-2xl font-black uppercase tracking-tighter hover:text-primary transition-colors">Feed</NavLink>
               )}
@@ -250,19 +239,8 @@ export default function Navbar() {
               )}
             </div>
 
-            <div className="mt-auto pt-8 border-t border-primary/10 flex justify-between items-center">
+            <div className="mt-auto pt-8 border-t border-primary/10 flex justify-center items-center">
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">XDrop System v1.0</p>
-              {!isHomePage && (
-                <button
-                  onClick={handleReconnect}
-                  disabled={checkingConnection}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-wider border ${
-                    isDemoMode ? "bg-amber-500/10 text-amber-500 border-amber-500/20" : "bg-green-500/10 text-green-500 border-green-500/20"
-                  }`}
-                >
-                  {checkingConnection ? "..." : isDemoMode ? "Sandbox" : "Live"}
-                </button>
-              )}
             </div>
           </motion.div>
         )}
