@@ -669,7 +669,7 @@ This is our **Focus Mode Simulator**. Type text here, structure it with clean ma
             </div>
 
             {/* Tag Pills */}
-            <div className="w-full flex items-center gap-2 overflow-x-auto no-scrollbar px-1 py-1">
+            <div className="flex items-center gap-2 overflow-x-auto max-w-full no-scrollbar px-1 py-1">
               <Filter size={12} className="text-muted-foreground shrink-0" />
               {allTags.slice(0, 7).map((tag) => (
                 <button
