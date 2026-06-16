@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, CheckCircle2, Mail, MapPin, ChevronLeft, ChevronRight, MessageSquare, Quote, Sparkles, Star } from "lucide-react";
 import BackgroundMesh from "../components/ui/BackgroundMesh.jsx";
+import MagneticOrbBackground from "../components/ui/MagneticOrbBackground.jsx";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -79,6 +80,7 @@ export default function Contact() {
     <MainLayout>
       <div className="min-h-screen bg-background relative overflow-hidden pt-32 pb-24 px-4 sm:px-6 lg:px-8">
         <BackgroundMesh />
+        <MagneticOrbBackground />
         
         {/* Ambient background glows matching WhatBytes theme */}
         <div className="absolute inset-0 z-0 pointer-events-none">
@@ -93,20 +95,29 @@ export default function Contact() {
             
             {/* Left Content Column */}
             <div className="lg:col-span-5 space-y-8 mt-4 text-left">
-              <h1 className="text-5xl lg:text-7xl font-black tracking-tighter leading-none text-foreground">
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="text-5xl lg:text-7xl font-black tracking-tighter leading-none text-foreground"
+              >
                 Excited to hear <br />
                 <span className="text-gradient">from you</span>
-              </h1>
+              </motion.h1>
               
-              <div className="space-y-6 pt-6 font-medium">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.15 }}
+                className="space-y-6 pt-6 font-medium"
+              >
                 <div className="flex gap-4">
                   <div className="h-10 w-10 shrink-0 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
                     <MapPin size={18} />
                   </div>
                   <div className="text-sm leading-relaxed text-muted-foreground">
-                    <p className="font-extrabold text-foreground mb-0.5">Global Nodes</p>
-                    <p>357 Bay St., Toronto, ON M5H 4A6, Canada</p>
-                    <p className="mt-1">235 Binnamangala 2nd Stage, Indiranagar, Bangalore, Karnataka 560038</p>
+                    <p className="font-extrabold text-foreground mb-0.5">Location</p>
+                    <p>Meerut, India</p>
                   </div>
                 </div>
 
@@ -116,15 +127,20 @@ export default function Contact() {
                   </div>
                   <div className="text-sm">
                     <p className="font-extrabold text-foreground mb-0.5">Send Frequency</p>
-                    <p className="text-muted-foreground hover:text-primary transition-colors cursor-pointer">info@xdrop.com</p>
+                    <p className="text-muted-foreground hover:text-primary transition-colors cursor-pointer">anshul41171@gmail.com</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
 
             {/* Right Form Column */}
-            <div className="lg:col-span-7">
-              <div className="glass-panel rounded-[36px] p-8 md:p-12 border-primary/10 bg-background/30 backdrop-blur-3xl !shadow-[0_30px_100px_-10px_rgba(108,113,196,0.25)] dark:!shadow-[0_30px_100px_-10px_rgba(0,0,0,0.8)] transition-all duration-500 hover:!shadow-[0_30px_100px_-10px_rgba(108,113,196,0.35)] dark:hover:!shadow-[0_30px_100px_-10px_rgba(108,113,196,0.2)] hover:border-primary/30 relative">
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="lg:col-span-7"
+            >
+              <div className="glass-panel rounded-[36px] p-8 md:p-12 border-primary/10 bg-background/30 backdrop-blur-3xl !shadow-none transition-all duration-500 hover:border-primary/30 relative">
                 {/* Glowing subtle ring inside form */}
                 <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-[60px] pointer-events-none" />
 
@@ -228,7 +244,7 @@ export default function Contact() {
                   )}
                 </AnimatePresence>
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Testimonial Section in Middle */}
