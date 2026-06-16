@@ -1,6 +1,6 @@
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Search, Sparkles, User, LogOut, LayoutDashboard, Settings, Globe, Shield } from "lucide-react";
+import { Menu, X, Search, Sparkles, User, LogOut, LayoutDashboard, Settings, Globe, Shield, UserPlus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext.jsx";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -178,7 +178,11 @@ export default function Navbar() {
                 <Button variant="ghost" className="font-bold text-xs uppercase tracking-widest hover:text-primary">Login</Button>
               </Link>
               <Link to="/register">
-                <Button className="font-black text-xs uppercase tracking-widest rounded-xl px-5 h-10 shadow-lg shadow-primary/20">Register</Button>
+                {/* Mobile: Small Icon Button | Desktop: Full Text Button */}
+                <Button className="font-black text-[10px] sm:text-xs uppercase tracking-widest rounded-lg sm:rounded-xl px-3 sm:px-5 h-8 sm:h-10 shadow-md sm:shadow-lg shadow-primary/20 flex items-center gap-1.5">
+                  <UserPlus size={14} />
+                  <span className="hidden sm:inline">Register</span>
+                </Button>
               </Link>
             </div>
           )}
