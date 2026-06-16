@@ -3,19 +3,21 @@ import { useState } from "react";
 import MainLayout from "../components/layout/MainLayout.jsx";
 import PageTransition from "../components/layout/PageTransition.jsx";
 import { Link } from "react-router-dom";
-import { Users, Globe, Zap, Target, Heart, Coffee, ArrowRight } from "lucide-react";
+import { Users, Globe, Zap, Target, Heart, Coffee, ArrowRight, MessageSquare, Sparkles, Activity, Award, Bookmark } from "lucide-react";
 // eslint-disable-next-line no-unused-vars
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import GeometricParticleBackground from "../components/ui/GeometricParticleBackground.jsx";
 
 export default function About() {
 
   return (
     <MainLayout>
       <PageTransition className="w-full relative overflow-hidden">
+        <GeometricParticleBackground />
 
         {/* SECTION 1: HERO - THE CREATIVE UNIVERSE */}
-        <section className="relative min-h-[90vh] flex flex-col justify-center items-center px-6 py-10 overflow-hidden">
+        <section className="relative min-h-[95vh] flex flex-col justify-center items-center px-6 py-10 overflow-hidden">
           {/* Animated Background Grid */}
           <div className="absolute inset-0 bg-grid-black/[0.02] dark:bg-grid-white/[0.02] bg-[size:30px_30px]" />
           <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/80 to-background pointer-events-none" />
@@ -36,51 +38,90 @@ export default function About() {
             <div className="flex flex-col items-center gap-12">
 
               {/* Floating 3D Elements Composition (Now on Top) */}
-              <div className="relative h-[500px] w-full max-w-5xl mx-auto perspective-1000">
-                {/* Floating Card 1: Code */}
+              <div className="relative h-[550px] sm:h-[600px] md:h-[620px] w-full max-w-5xl mx-auto perspective-1000">
+                {/* Floating Card 1: Feed Publication Card */}
                 <FloatCard
-                  className="absolute top-[10%] left-[15%] z-20"
+                  className="absolute top-[2%] left-[2%] md:top-[6%] md:left-[6%] lg:left-[10%] z-20 scale-[0.65] xs:scale-[0.72] sm:scale-80 md:scale-95 lg:scale-100 transform-gpu origin-top-left"
                   delay={0}
                 >
-                  <div className="w-64 p-6 rounded-3xl bg-background/40 backdrop-blur-xl border border-white/10 shadow-2xl">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-500">
-                        <Zap size={20} />
+                  <div className="w-[310px] sm:w-[350px] md:w-[380px] p-5 sm:p-6 rounded-[2rem] bg-background/55 backdrop-blur-xl border border-white/10 shadow-2xl flex flex-col justify-between text-left transition-all duration-300 hover:border-primary/30">
+                    <div>
+                      <div className="flex items-center gap-3 mb-4">
+                        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=80" className="h-8 w-8 rounded-full object-cover border border-primary/20" alt="avatar" />
+                        <div>
+                          <span className="block text-xs font-black text-foreground">@design_nomad</span>
+                          <span className="block text-[8px] text-muted-foreground/60">2 hours ago · 5 min read</span>
+                        </div>
+                        <span className="ml-auto text-primary/80"><Bookmark size={14} /></span>
                       </div>
-                      <div>
-                        <div className="h-2 w-20 bg-foreground/20 rounded-full mb-2" />
-                        <div className="h-2 w-12 bg-foreground/10 rounded-full" />
-                      </div>
+
+                      <h4 className="text-sm sm:text-base font-extrabold text-foreground leading-snug mb-2 line-clamp-2">
+                        A Case for Glassmorphism in Modern Typography Layouts
+                      </h4>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground leading-normal line-clamp-3 font-medium mb-4">
+                        Frosted glass styling blended with responsive HSL variable color systems creates a beautiful aesthetic hierarchy and depth in user interfaces. By styling with border variable systems, layouts feel unified...
+                      </p>
                     </div>
-                    <div className="space-y-2">
-                      <div className="h-2 w-full bg-foreground/10 rounded-full" />
-                      <div className="h-2 w-3/4 bg-foreground/10 rounded-full" />
+                    <div className="flex items-center justify-between pt-3.5 border-t border-primary/5 text-[10px] font-bold text-muted-foreground/60">
+                      <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-[8px] font-black uppercase">#Design</span>
+                      <span className="flex items-center gap-3">
+                        <span className="flex items-center gap-1"><Heart size={11} className="text-red-500" fill="currentColor" /> 142</span>
+                        <span className="flex items-center gap-1"><MessageSquare size={11} /> 28</span>
+                      </span>
                     </div>
                   </div>
                 </FloatCard>
 
-                {/* Floating Card 2: Image */}
+                {/* Floating Card 2: Creator Profile Card */}
                 <FloatCard
-                  className="absolute top-[5%] right-[15%] z-10"
+                  className="absolute top-[18%] right-[2%] md:top-[2%] md:right-[6%] lg:right-[10%] z-10 scale-[0.65] xs:scale-[0.72] sm:scale-80 md:scale-95 lg:scale-100 transform-gpu origin-top-right"
                   delay={1.5}
                   duration={6}
                 >
-                  <div className="w-56 h-72 rounded-[2rem] overflow-hidden shadow-2xl border-4 border-background/50 rotate-6">
-                    <img
-                      src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop"
-                      alt="Abstract"
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-[280px] sm:w-[310px] md:w-[330px] rounded-[2rem] overflow-hidden bg-background/55 backdrop-blur-xl border border-white/10 shadow-2xl text-left transition-all duration-300 hover:border-primary/30">
+                    <div className="h-20 bg-gradient-to-r from-primary via-purple-600 to-indigo-600 opacity-90 relative flex items-end justify-end p-2">
+                      <span className="px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[8px] font-bold text-white uppercase tracking-wider">Top Writer</span>
+                    </div>
+                    <div className="px-5 pb-5 -mt-10 relative z-10 flex flex-col items-center text-center">
+                      <div className="h-20 w-20 rounded-2xl overflow-hidden border-4 border-background bg-muted shadow-lg mb-2">
+                        <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus&backgroundColor=transparent" className="w-full h-full object-cover" alt="avatar" />
+                      </div>
+                      <h4 className="text-base font-extrabold text-foreground leading-none">Marcus Vance</h4>
+                      <p className="text-[10px] font-black text-primary mb-3">@marcus_vance</p>
+                      
+                      <p className="text-[10px] sm:text-xs text-muted-foreground font-medium leading-relaxed mb-4 px-2">
+                        UI/UX researcher and author of Digital Simplicity. Curating clean interfaces and sharing insights on clean markdown structures.
+                      </p>
+                      
+                      <div className="grid grid-cols-3 gap-2 w-full py-3 border-y border-primary/5 text-[10px] font-black uppercase text-center mb-4">
+                        <div>
+                          <span className="block text-sm font-extrabold text-foreground">34</span>
+                          <span className="text-[7px] text-muted-foreground/60">Posts</span>
+                        </div>
+                        <div>
+                          <span className="block text-sm font-extrabold text-foreground">8.9k</span>
+                          <span className="text-[7px] text-muted-foreground/60">Likes</span>
+                        </div>
+                        <div>
+                          <span className="block text-sm font-extrabold text-foreground">4.1k</span>
+                          <span className="text-[7px] text-muted-foreground/60">Readers</span>
+                        </div>
+                      </div>
+                      
+                      <Button variant="outline" size="sm" className="w-full rounded-full text-xs font-bold py-1.5 h-8 border-primary/20 hover:bg-primary hover:text-white transition-colors">
+                        View Profile
+                      </Button>
+                    </div>
                   </div>
                 </FloatCard>
 
                 {/* Floating Card 3: Stats */}
                 <FloatCard
-                  className="absolute bottom-[15%] left-[25%] z-30"
+                  className="absolute bottom-[20%] left-[2%] md:bottom-[15%] md:left-[20%] lg:left-[25%] z-30 scale-[0.65] xs:scale-[0.72] sm:scale-80 md:scale-95 lg:scale-100 transform-gpu origin-bottom-left"
                   delay={0.5}
                   duration={7}
                 >
-                  <div className="w-48 p-5 rounded-3xl bg-primary/90 backdrop-blur-md text-primary-foreground shadow-xl -rotate-3">
+                  <div className="w-48 p-5 rounded-3xl bg-primary/90 backdrop-blur-md text-primary-foreground shadow-xl -rotate-3 text-left">
                     <div className="text-4xl font-black mb-1">4.2M+</div>
                     <div className="text-sm opacity-80 font-medium">Stories Told</div>
                   </div>
@@ -88,15 +129,15 @@ export default function About() {
 
                 {/* Floating Card 4: User */}
                 <FloatCard
-                  className="absolute bottom-[10%] right-[25%] z-20"
+                  className="absolute bottom-[2%] right-[2%] md:bottom-[10%] md:right-[20%] lg:right-[25%] z-20 scale-[0.65] xs:scale-[0.72] sm:scale-80 md:scale-95 lg:scale-100 transform-gpu origin-bottom-right"
                   delay={2}
                 >
-                  <div className="flex items-center gap-3 p-4 pr-8 rounded-full bg-background/60 backdrop-blur-md border border-white/20 shadow-xl">
-                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary">
+                  <div className="flex items-center gap-3 p-4 pr-8 rounded-full bg-background/60 backdrop-blur-md border border-white/20 shadow-xl text-left">
+                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary shrink-0">
                       <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Felix" alt="User" />
                     </div>
                     <div>
-                      <div className="font-bold text-sm">Felix Joined</div>
+                      <div className="font-bold text-sm text-foreground">Felix Joined</div>
                       <div className="text-xs text-muted-foreground">Just now</div>
                     </div>
                   </div>
@@ -229,7 +270,7 @@ export default function About() {
                     <Globe size={180} className="animate-spin-slow duration-[20s]" />
                   </div>
                   <img
-                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop"
+                    src="https://images.unsplash.com/photo-152202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop"
                     alt="Community"
                     className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-60 grayscale group-hover:grayscale-0 transition-all duration-700"
                   />
@@ -246,13 +287,15 @@ export default function About() {
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="relative"
+              className="relative w-full"
             >
-              <div className="aboslute inset-0 bg-gradient-to-tr from-primary/20 to-transparent rounded-3xl transform rotate-3 scale-105 -z-10" />
-              <img
-                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop"
-                alt="Team collaboration"
-                className="rounded-3xl shadow-2xl border border-border/50 grayscale hover:grayscale-0 transition-all duration-700"
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent rounded-3xl transform rotate-3 scale-105 -z-10" />
+              <motion.img
+                whileHover={{ scale: 1.03 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                src="https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=800&auto=format&fit=crop"
+                alt="XDrop UI Design Workspace"
+                className="w-full h-[300px] sm:h-[380px] md:h-[450px] object-cover rounded-3xl shadow-2xl border border-border/50 grayscale hover:grayscale-0 transition-all duration-700"
               />
             </motion.div>
 
@@ -261,23 +304,23 @@ export default function About() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-6">Built by Humans.</h2>
+              <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-6">Designed & Built Solo.</h2>
               <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                It started in a coffee shop in 2023. Two friends, one problem: existing blogging platforms were too cluttered.
-                We wanted a place that felt like a fresh sheet of paper.
+                It started in 2023. One creator, one problem: existing blogging platforms were too cluttered and lacked focus.
+                I wanted to build a place that felt like a fresh sheet of paper.
               </p>
               <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-                Today, we're a distributed team across 4 continents, united by a love for typography and clean code.
+                Today, XDrop is an independent platform built entirely from scratch, driven by a love for minimal typography and high-performance code.
               </p>
 
               <div className="flex gap-8 border-t border-border pt-8">
                 <div>
                   <div className="text-3xl font-black text-primary">100%</div>
-                  <div className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Remote</div>
+                  <div className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Independent</div>
                 </div>
                 <div>
                   <div className="text-3xl font-black text-primary">4.9/5</div>
-                  <div className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Culture Score</div>
+                  <div className="text-sm text-muted-foreground font-medium uppercase tracking-wider">User Satisfaction</div>
                 </div>
               </div>
             </motion.div>
@@ -287,13 +330,12 @@ export default function About() {
         {/* SECTION 4: TEAM */}
         <section className="py-24 bg-muted/30 px-6 border-t border-border/50">
           <div className="container mx-auto text-center">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-16">Meet the Team</h2>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-16">The Creator</h2>
 
-            <div className="grid md:grid-cols-4 gap-8">
-              <TeamMember name="Alex Richardson" role="Founder & CEO" color="bg-blue-200" />
-              <TeamMember name="Sarah Chen" role="Head of Design" color="bg-purple-200" />
-              <TeamMember name="Marcus Johnson" role="Lead Engineer" color="bg-green-200" />
-              <TeamMember name="Emily Davis" role="Community Lead" color="bg-yellow-200" />
+            <div className="flex justify-center">
+              <div className="w-full max-w-sm">
+                <TeamMember name="Anshul" role="Founder, CEO & Solo Builder" color="bg-primary/20" />
+              </div>
             </div>
 
             <div className="mt-20">
