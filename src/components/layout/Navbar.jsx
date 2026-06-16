@@ -206,21 +206,21 @@ export default function Navbar() {
             </div>
 
             <div className="flex flex-col gap-6">
-              <NavLink to="/" onClick={() => setOpen(false)} className="text-2xl font-black uppercase tracking-tighter hover:text-primary transition-colors">Home</NavLink>
+              <NavLink to="/" onClick={() => setOpen(false)} className={({isActive}) => `text-2xl font-black uppercase tracking-tighter hover:text-primary transition-colors ${isActive ? 'text-primary' : 'text-foreground/75'}`}>Home</NavLink>
               {isLoggedIn && (
-                <NavLink to="/feed" onClick={() => setOpen(false)} className="text-2xl font-black uppercase tracking-tighter hover:text-primary transition-colors">Feed</NavLink>
+                <NavLink to="/feed" onClick={() => setOpen(false)} className={({isActive}) => `text-2xl font-black uppercase tracking-tighter hover:text-primary transition-colors ${isActive ? 'text-primary' : 'text-foreground/75'}`}>Feed</NavLink>
               )}
-              <NavLink to="/about" onClick={() => setOpen(false)} className="text-2xl font-black uppercase tracking-tighter hover:text-primary transition-colors">About</NavLink>
-              <NavLink to="/contact" onClick={() => setOpen(false)} className="text-2xl font-black uppercase tracking-tighter hover:text-primary transition-colors">Contact</NavLink>
+              <NavLink to="/about" onClick={() => setOpen(false)} className={({isActive}) => `text-2xl font-black uppercase tracking-tighter hover:text-primary transition-colors ${isActive ? 'text-primary' : 'text-foreground/75'}`}>About</NavLink>
+              <NavLink to="/contact" onClick={() => setOpen(false)} className={({isActive}) => `text-2xl font-black uppercase tracking-tighter hover:text-primary transition-colors ${isActive ? 'text-primary' : 'text-foreground/75'}`}>Contact</NavLink>
               
               <DropdownMenuSeparator className="bg-primary/10 my-4" />
               
               {isLoggedIn ? (
                 <>
-                  <NavLink to="/dashboard" onClick={() => setOpen(false)} className="text-xl font-bold hover:text-primary flex items-center gap-3">
+                  <NavLink to="/dashboard" onClick={() => setOpen(false)} className={({isActive}) => `text-xl font-bold hover:text-primary flex items-center gap-3 ${isActive ? 'text-primary' : 'text-foreground/75'}`}>
                     <LayoutDashboard size={20} /> Dashboard
                   </NavLink>
-                  <NavLink to="/profile" onClick={() => setOpen(false)} className="text-xl font-bold hover:text-primary flex items-center gap-3">
+                  <NavLink to="/profile" onClick={() => setOpen(false)} className={({isActive}) => `text-xl font-bold hover:text-primary flex items-center gap-3 ${isActive ? 'text-primary' : 'text-foreground/75'}`}>
                     <User size={20} /> Profile
                   </NavLink>
                   <button onClick={handleLogout} className="text-xl font-bold text-red-500 flex items-center gap-3 mt-8">
