@@ -99,7 +99,7 @@ export default function Contact() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
-                className="text-5xl lg:text-7xl font-black tracking-tighter leading-none text-foreground"
+                className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tighter leading-none text-foreground"
               >
                 Excited to hear <br />
                 <span className="text-gradient">from you</span>
@@ -285,7 +285,7 @@ export default function Contact() {
                     }}
                     transition={{ duration: 0.4 }}
                     className={`glass-panel p-6 rounded-[28px] flex flex-col justify-between min-h-[220px] transition-all duration-300 ${
-                      isActive ? "border-primary/20 bg-primary/[0.03] shadow-lg" : "border-primary/5 bg-transparent"
+                      isActive ? "border-primary/20 bg-primary/[0.03] shadow-lg block" : "border-primary/5 bg-transparent hidden md:flex"
                     }`}
                   >
                     <div className="space-y-4">

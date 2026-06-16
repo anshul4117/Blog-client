@@ -37,8 +37,84 @@ export default function About() {
           <div className="container mx-auto relative z-10 w-full">
             <div className="flex flex-col items-center gap-12">
 
-              {/* Floating 3D Elements Composition (Now on Top) */}
-              <div className="relative h-[550px] sm:h-[600px] md:h-[620px] w-full max-w-5xl mx-auto perspective-1000">
+              {/* Mobile stacked view (No absolute overflows or 3D overlaps) */}
+              <div className="md:hidden flex flex-col gap-6 w-full max-w-sm mx-auto px-4 z-20 relative">
+                {/* Mobile Card 1: Feed Card */}
+                <div className="w-full p-5 sm:p-6 rounded-[2rem] bg-background/55 backdrop-blur-xl border border-white/10 shadow-lg text-left">
+                  <div className="flex items-center gap-3 mb-4">
+                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=80" className="h-8 w-8 rounded-full object-cover border border-primary/20" alt="avatar" />
+                    <div>
+                      <span className="block text-xs font-black text-foreground">@design_nomad</span>
+                      <span className="block text-[8px] text-muted-foreground/60">2 hours ago · 5 min read</span>
+                    </div>
+                    <span className="ml-auto text-primary/80"><Bookmark size={14} /></span>
+                  </div>
+                  <h4 className="text-sm font-extrabold text-foreground leading-snug mb-2 line-clamp-2">
+                    A Case for Glassmorphism in Modern Typography Layouts
+                  </h4>
+                  <p className="text-[10px] text-muted-foreground leading-normal line-clamp-3 font-medium mb-4">
+                    Frosted glass styling blended with responsive HSL variable color systems creates a beautiful aesthetic hierarchy and depth in user interfaces...
+                  </p>
+                  <div className="flex items-center justify-between pt-3.5 border-t border-primary/5 text-[10px] font-bold text-muted-foreground/60">
+                    <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-[8px] font-black uppercase">#Design</span>
+                    <span className="flex items-center gap-3">
+                      <span className="flex items-center gap-1"><Heart size={11} className="text-red-500" fill="currentColor" /> 142</span>
+                      <span className="flex items-center gap-1"><MessageSquare size={11} /> 28</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Mobile Card 2: Creator Profile Card */}
+                <div className="w-full rounded-[2rem] overflow-hidden bg-background/55 backdrop-blur-xl border border-white/10 shadow-lg text-left">
+                  <div className="h-16 bg-gradient-to-r from-primary via-purple-600 to-indigo-600 opacity-90 relative flex items-end justify-end p-2">
+                    <span className="px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[8px] font-bold text-white uppercase tracking-wider">Top Writer</span>
+                  </div>
+                  <div className="px-5 pb-5 -mt-8 relative z-10 flex flex-col items-center text-center">
+                    <div className="h-16 w-16 rounded-2xl overflow-hidden border-4 border-background bg-muted shadow-lg mb-2">
+                      <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Marcus&backgroundColor=transparent" className="w-full h-full object-cover" alt="avatar" />
+                    </div>
+                    <h4 className="text-base font-extrabold text-foreground leading-none">Marcus Vance</h4>
+                    <p className="text-[10px] font-black text-primary mb-3">@marcus_vance</p>
+                    <p className="text-[10px] text-muted-foreground font-medium leading-relaxed mb-4 px-2 line-clamp-2">
+                      UI/UX researcher and author of Digital Simplicity. Sharing insights on clean layouts.
+                    </p>
+                    <div className="grid grid-cols-3 gap-2 w-full py-3 border-y border-primary/5 text-[10px] font-black uppercase text-center mb-4">
+                      <div>
+                        <span className="block text-sm font-extrabold text-foreground">34</span>
+                        <span className="text-[7px] text-muted-foreground/60">Posts</span>
+                      </div>
+                      <div>
+                        <span className="block text-sm font-extrabold text-foreground">8.9k</span>
+                        <span className="text-[7px] text-muted-foreground/60">Likes</span>
+                      </div>
+                      <div>
+                        <span className="block text-sm font-extrabold text-foreground">4.1k</span>
+                        <span className="text-[7px] text-muted-foreground/60">Readers</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mobile Card 3: Stories Told Card */}
+                <div className="w-full p-6 rounded-[2rem] bg-primary text-primary-foreground shadow-lg text-center">
+                  <div className="text-4xl font-black mb-1">4.2M+</div>
+                  <div className="text-sm opacity-80 font-medium">Stories Told</div>
+                </div>
+
+                {/* Mobile Card 4: Felix Card */}
+                <div className="w-full flex items-center gap-3 p-4 pr-6 rounded-full bg-background/60 backdrop-blur-xl border border-white/10 shadow-lg text-left">
+                  <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary shrink-0">
+                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Felix" alt="User" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-xs text-foreground">Felix Joined</div>
+                    <div className="text-[10px] text-muted-foreground">Just now</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop Floating 3D Elements Composition (hidden on mobile, shown on md and up) */}
+              <div className="hidden md:block relative h-[550px] sm:h-[600px] md:h-[620px] w-full max-w-5xl mx-auto perspective-1000">
                 {/* Floating Card 1: Feed Publication Card */}
                 <FloatCard
                   className="absolute top-[2%] left-[2%] md:top-[6%] md:left-[6%] lg:left-[10%] z-20 scale-[0.65] xs:scale-[0.72] sm:scale-80 md:scale-95 lg:scale-100 transform-gpu origin-top-left"
@@ -159,12 +235,12 @@ export default function About() {
                 {/* Massive Luxury Headline */}
                 <div className="relative mb-12 select-none">
                   {/* Main Text */}
-                  <h1 className="text-[5rem] md:text-[9rem] font-black tracking-tighter leading-[0.85] bg-clip-text bg-gradient-to-b from-foreground via-foreground/90 to-foreground/50 filter drop-shadow-xl">
+                  <h1 className="text-[4.2rem] sm:text-[6rem] md:text-[9rem] font-black tracking-tighter leading-[0.85] bg-clip-text bg-gradient-to-b from-foreground via-foreground/90 to-foreground/50 filter drop-shadow-xl">
                     ABOUT
                   </h1>
 
                   {/* Reflection Effect */}
-                  <h1 className="text-[5rem] md:text-[9rem] font-black tracking-tighter leading-[0.85] bg-clip-text bg-gradient-to-b from-foreground/20 to-transparent absolute top-[85%] left-0 right-0 scale-y-[-1] opacity-30 blur-[2px] pointer-events-none">
+                  <h1 className="text-[4.2rem] sm:text-[6rem] md:text-[9rem] font-black tracking-tighter leading-[0.85] bg-clip-text bg-gradient-to-b from-foreground/20 to-transparent absolute top-[85%] left-0 right-0 scale-y-[-1] opacity-30 blur-[2px] pointer-events-none">
                     ABOUT
                   </h1>
                 </div>
