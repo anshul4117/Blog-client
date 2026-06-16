@@ -27,7 +27,7 @@ export default function AuthLayout({ title, subtitle, children }) {
             <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:rotate-12 transition-transform duration-500 text-white">
               <svg viewBox="0 0 512 512" className="h-5.5 w-5.5 fill-current">
                 <path d="M256,48 C160,192 96,280 96,352 A160,160 0 0,0 416,352 C416,280 352,192 256,48 Z" />
-                <path d="M200,240 L240,290 L200,340 H235 L256,310 L277,340 H312 L272,290 L312,240 H277 L256,270 L235,240 Z" fill="#002b36" />
+                <path d="M200,240 L240,290 L200,340 H235 L256,310 L277,340 H312 L272,290 L312,240 H277 L256,270 L235,240 Z" fill="var(--color-background)" />
               </svg>
             </div>
             <span>X<span className="text-primary">Drop</span></span>
