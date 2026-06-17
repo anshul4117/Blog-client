@@ -30,7 +30,7 @@ export default function Feed() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-background flex justify-center pb-20 sm:pb-0 relative overflow-hidden">
+        <div className="h-screen w-full bg-background flex justify-center relative overflow-hidden">
             <BackgroundMesh />
             <MobileBottomBar variant="feed" />
 
@@ -61,30 +61,18 @@ export default function Feed() {
                 )}
             </AnimatePresence>
 
-            <PageTransition className="w-full flex justify-center relative z-10">
-                <div className="flex w-full max-w-7xl gap-0 lg:gap-12 px-0 lg:px-6">
+            <PageTransition className="w-full h-full flex justify-center relative z-10">
+                <div className="flex w-full max-w-7xl h-full gap-0 lg:gap-12 px-0 lg:px-6">
 
                     {/* Left Sidebar (Navigation) - Desktop Only */}
-                    <div className="hidden lg:block w-72 shrink-0">
-                        <div className="sticky top-28 h-[calc(100vh-8rem)]">
-                            <Sidebar showDesktopBrand={true} />
-                        </div>
+                    <div className="hidden lg:block w-72 shrink-0 pt-6 pb-0 h-full">
+                        <Sidebar showDesktopBrand={true} />
                     </div>
 
                     {/* Main Feed Column (Center) */}
-                    <main className="flex-1 max-w-2xl min-h-screen pb-20 border-x border-primary/5 bg-background/20 backdrop-blur-sm">
-                        {/* Sticky Header */}
-                        <div className="sticky top-0 z-40 glass-panel border-x-0 border-t-0 border-b border-primary/10 px-6 py-5 flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <h1 className="text-2xl font-black tracking-tighter">Global <span className="text-gradient">Feed</span></h1>
-                            </div>
-                            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">
-                                <Globe size={12} /> Live Signals
-                            </div>
-                        </div>
-
+                    <main className="flex-1 max-w-2xl h-full flex flex-col border-x border-primary/5 bg-background/20 backdrop-blur-sm">
                         {/* Create Post Input Placeholder */}
-                        <div className="p-6 border-b border-primary/5 group">
+                        <div className="glass-panel border-x-0 border-t-0 border-b border-primary/10 p-6 group">
                             <div className="flex gap-4">
                                 <div className="h-12 w-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-inner">
                                     <Sparkles size={24} />
@@ -97,32 +85,34 @@ export default function Feed() {
                             </div>
                         </div>
 
-                        {/* Feed List */}
-                        {loading ? (
-                            <div className="flex flex-col items-center justify-center py-32 space-y-4">
-                                <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent shadow-lg shadow-primary/20"></div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/40">Synchronizing with Network</p>
-                            </div>
-                        ) : (
-                            <div className="p-4 space-y-6">
-                                {posts.map((post, index) => (
-                                    <PostCard key={post._id} post={post} index={index} />
-                                ))}
-                                {posts.length === 0 && (
-                                    <div className="py-32 text-center">
-                                        <div className="h-16 w-16 bg-muted/20 rounded-3xl flex items-center justify-center mx-auto mb-4 text-muted-foreground/40">
-                                            <Activity size={32} />
+                        {/* Feed List - Scrollable Area */}
+                        <div className="flex-1 overflow-y-auto no-scrollbar">
+                            {loading ? (
+                                <div className="flex flex-col items-center justify-center py-32 space-y-4">
+                                    <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent shadow-lg shadow-primary/20"></div>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/40">Synchronizing with Network</p>
+                                </div>
+                            ) : (
+                                <div className="p-4 pb-28 space-y-6">
+                                    {posts.map((post, index) => (
+                                        <PostCard key={post._id} post={post} index={index} />
+                                    ))}
+                                    {posts.length === 0 && (
+                                        <div className="py-32 text-center">
+                                            <div className="h-16 w-16 bg-muted/20 rounded-3xl flex items-center justify-center mx-auto mb-4 text-muted-foreground/40">
+                                                <Activity size={32} />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-muted-foreground">No signals detected</h3>
+                                            <p className="text-sm text-muted-foreground/60">The network is currently silent.</p>
                                         </div>
-                                        <h3 className="text-xl font-bold text-muted-foreground">No signals detected</h3>
-                                        <p className="text-sm text-muted-foreground/60">The network is currently silent.</p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </main>
 
                     {/* Right Sidebar (Search & Trending) */}
-                    <aside className="hidden xl:block w-80 shrink-0 py-8 space-y-8 h-fit sticky top-0">
+                    <aside className="hidden xl:block w-80 shrink-0 pt-6 pb-6 space-y-6 h-full overflow-y-auto no-scrollbar">
                         {/* Search */}
                         <div className="relative group">
                             <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />

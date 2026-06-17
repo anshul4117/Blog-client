@@ -8,6 +8,8 @@ import PageTransition from "@/components/layout/PageTransition";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import PostCard from "@/components/blog/PostCard.jsx";
+import BackgroundMesh from "@/components/ui/BackgroundMesh.jsx";
+import MobileBottomBar from "@/features/Dashboard/Components/MobileBottomBar.jsx";
 
 export default function Profile() {
   const { user, logout } = useAuth();
@@ -97,7 +99,10 @@ export default function Profile() {
   );
 
   return (
-    <PageTransition className="pb-20 space-y-8 px-4 max-w-7xl mx-auto">
+    <div className="relative min-h-screen bg-background w-full overflow-x-hidden">
+      <BackgroundMesh />
+      <MobileBottomBar />
+      <PageTransition className="relative z-10 pb-32 pt-6 sm:pt-8 space-y-8 px-4 max-w-7xl mx-auto">
       {/* Navigation Header */}
       <div className="flex items-center justify-between">
         <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 rounded-xl hover:bg-primary/10">
@@ -125,8 +130,8 @@ export default function Profile() {
         </div>
 
         {/* Info Section */}
-        <div className="px-8 pb-10 -mt-20 relative z-10">
-          <div className="flex flex-col md:flex-row items-end gap-6 mb-8">
+        <div className="px-4 sm:px-8 pb-10 -mt-20 relative z-10">
+          <div className="flex flex-col md:flex-row items-center md:items-end gap-6 mb-8 text-center md:text-left">
             <motion.div 
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -146,15 +151,15 @@ export default function Profile() {
               </Link>
             </motion.div>
 
-            <div className="flex-1 pb-2">
-                <div className="flex items-center gap-3">
+            <div className="flex-1 pb-2 w-full">
+                <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3">
                     <h1 className="text-4xl font-extrabold tracking-tighter">{profileData.name}</h1>
                     <div className="px-2 py-0.5 rounded-md bg-primary/20 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">Verified Identity</div>
                 </div>
                 <p className="text-primary font-bold text-lg mb-1">@{profileData.username}</p>
                 <p className="text-muted-foreground/80 font-semibold text-sm mb-4">{professionTitle}</p>
                 
-                <div className="flex flex-wrap gap-6 text-sm text-muted-foreground font-medium">
+                <div className="flex flex-wrap justify-center md:justify-start gap-6 text-sm text-muted-foreground font-medium">
                     <span className="flex items-center gap-1.5"><MapPin size={16} className="text-primary/60" /> {profileData.location || "Earth"}</span>
                     <span className="flex items-center gap-1.5"><Calendar size={16} className="text-primary/60" /> Joined {memberSinceDate}</span>
                 </div>
@@ -172,7 +177,7 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-4 pt-6 border-t border-white/5">
+          <div className="flex flex-wrap justify-center md:justify-start gap-4 pt-6 border-t border-white/5 w-full">
                 <a href={profileData.socialLinks?.github || fallbackProfile.socials.github} target="_blank" rel="noreferrer">
                     <Button variant="ghost" size="icon" className="rounded-xl hover:text-primary"><Github size={20} /></Button>
                 </a>
@@ -182,7 +187,7 @@ export default function Profile() {
                 <a href={profileData.socialLinks?.website || fallbackProfile.socials.website} target="_blank" rel="noreferrer">
                     <Button variant="ghost" size="icon" className="rounded-xl hover:text-primary"><Globe size={20} /></Button>
                 </a>
-                <div className="h-10 w-[1px] bg-white/5 mx-2" />
+                <div className="hidden sm:block h-10 w-[1px] bg-white/5 mx-2" />
                 <a href={profileData.socialLinks?.website || fallbackProfile.socials.website} target="_blank" rel="noreferrer">
                     <Button variant="outline" className="rounded-xl border-primary/20 hover:bg-primary/5 gap-2 px-6">
                         <LinkIcon size={16} /> Portfolio Link
@@ -239,16 +244,16 @@ export default function Profile() {
 
         {/* Main Production Area */}
         <div className="md:col-span-2 space-y-8">
-          <div className="flex items-center gap-6 border-b border-white/5 pb-1">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6 border-b border-white/5 pb-1">
             <button 
               onClick={() => setActiveTab("posts")}
-              className={`flex items-center gap-2 pb-4 font-black uppercase tracking-widest text-[11px] border-b-4 transition-all ${activeTab === "posts" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+              className={`flex items-center gap-2 pb-3 sm:pb-4 font-black uppercase tracking-widest text-[9px] sm:text-[11px] border-b-4 transition-all ${activeTab === "posts" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             >
               <LayoutGrid size={16} /> Recent Publications
             </button>
             <button 
               onClick={() => setActiveTab("analytics")}
-              className={`flex items-center gap-2 pb-4 font-black uppercase tracking-widest text-[11px] border-b-4 transition-all ${activeTab === "analytics" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+              className={`flex items-center gap-2 pb-3 sm:pb-4 font-black uppercase tracking-widest text-[9px] sm:text-[11px] border-b-4 transition-all ${activeTab === "analytics" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             >
               <List size={16} /> Performance Analytics
             </button>
@@ -352,5 +357,6 @@ export default function Profile() {
         )}
       </AnimatePresence>
     </PageTransition>
+    </div>
   );
 }
