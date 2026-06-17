@@ -44,13 +44,13 @@ export default function AppRoutes() {
     <Suspense fallback={<Loading />}>
       <ScrollToTop />
       <Routes>
-        <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/help" element={<MainLayout><Help /></MainLayout>} />
 
         {/* 🔒 Auth routes (PublicRoute prevents logged-in users) */}
         <Route element={<PublicRoute />}>
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Route>
