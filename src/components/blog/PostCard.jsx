@@ -96,7 +96,6 @@ export default function PostCard({ post, index = 0 }) {
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-white font-bold text-sm">{authorName}</span>
-                                <span className="text-white/60 text-xs">{authorHandle}</span>
                             </div>
                         </div>
 
@@ -149,7 +148,6 @@ export default function PostCard({ post, index = 0 }) {
                             <Link to={`/profile/${post.userId?._id || post.author?._id || ""}`} className="font-bold text-foreground hover:text-primary transition-colors truncate">
                                 {authorName}
                             </Link>
-                            <span className="text-muted-foreground/60 truncate">{authorHandle}</span>
                             <span className="text-muted-foreground/40">·</span>
                             <span className="text-muted-foreground/60 text-xs">{timeAgo}</span>
                         </div>
