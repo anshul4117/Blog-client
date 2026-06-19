@@ -80,7 +80,7 @@ export default function CreatePost() {
             </div>
 
             <div>
-                <h1 className="text-4xl font-extrabold tracking-tighter">Draft Your <span className="text-gradient">Masterpiece</span></h1>
+                <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tighter">Draft Your <span className="text-gradient">Masterpiece</span></h1>
                 <p className="text-muted-foreground mt-2">Every word counts. Craft something unforgettable.</p>
             </div>
 
@@ -89,12 +89,12 @@ export default function CreatePost() {
                     {/* Image Placeholder Dropzone */}
                     <motion.div 
                         whileHover={{ scale: 1.01 }}
-                        className="h-48 rounded-[32px] border-2 border-dashed border-primary/20 bg-primary/5 flex flex-col items-center justify-center gap-3 group cursor-pointer hover:border-primary/40 transition-all"
+                        className="h-36 sm:h-48 rounded-[24px] sm:rounded-[32px] border-2 border-dashed border-primary/20 bg-primary/5 flex flex-col items-center justify-center gap-2 sm:gap-3 group cursor-pointer hover:border-primary/40 transition-all p-4 text-center"
                     >
-                        <div className="p-4 rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
-                            <ImagePlus size={32} />
+                        <div className="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform shrink-0">
+                            <ImagePlus size={24} className="sm:w-8 sm:h-8" />
                         </div>
-                        <p className="text-sm font-bold text-muted-foreground">Drop a cover image or click to browse</p>
+                        <p className="text-xs sm:text-sm font-bold text-muted-foreground px-2">Drop a cover image or click to browse</p>
                     </motion.div>
 
                     <div className="space-y-4">
@@ -103,7 +103,7 @@ export default function CreatePost() {
                             <Input
                                 id="title"
                                 placeholder="The title of your next big idea..."
-                                className="h-16 text-xl font-bold rounded-2xl border-primary/10 focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all bg-muted/20"
+                                className="h-13 sm:h-16 text-base sm:text-xl font-bold rounded-xl sm:rounded-2xl border-primary/10 focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all bg-muted/20"
                                 {...register("title")}
                             />
                             {errors.title && (
@@ -114,31 +114,31 @@ export default function CreatePost() {
                         <div className="relative">
                             <Label htmlFor="tags" className="absolute -top-2.5 left-4 px-2 bg-background text-[10px] font-black uppercase tracking-[0.2em] text-primary z-10">Tags (comma separated)</Label>
                             <div className="relative">
-                                <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+                                <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
                                 <Input
                                     id="tags"
                                     placeholder="design, coding, lifestyle"
-                                    className="h-14 pl-12 rounded-2xl border-primary/10 focus:border-primary transition-all bg-muted/20"
+                                    className="h-11 sm:h-14 pl-10 sm:pl-12 text-sm sm:text-base rounded-xl sm:rounded-2xl border-primary/10 focus:border-primary transition-all bg-muted/20"
                                     {...register("tags")}
                                 />
                             </div>
                         </div>
 
-                        <div className="relative">
+                        <div className="relative flex flex-col">
                             <Label htmlFor="content" className="absolute -top-2.5 left-4 px-2 bg-background text-[10px] font-black uppercase tracking-[0.2em] text-primary z-10">Story Content</Label>
                             
                             {/* Toolbar Placeholder */}
-                            <div className="absolute top-4 right-4 z-10 flex gap-1 p-1 rounded-xl glass-panel border-primary/10">
+                            <div className="flex gap-1 p-1 rounded-t-xl border-t border-x border-primary/10 bg-muted/10 self-start ml-2 z-10">
                                 <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg"><Type size={14} /></Button>
-                                <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg font-serif">B</Button>
-                                <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg font-serif italic">i</Button>
+                                <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg font-bold">B</Button>
+                                <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg italic">I</Button>
                             </div>
 
                             <Textarea
                                 id="content"
                                 placeholder="Start writing your story here..."
-                                rows={15}
-                                className="rounded-[32px] border-primary/10 focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all bg-muted/20 p-6 pt-12 resize-none leading-relaxed text-lg"
+                                rows={12}
+                                className="rounded-b-[24px] rounded-tr-[24px] sm:rounded-b-[32px] sm:rounded-tr-[32px] border-primary/10 focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all bg-muted/20 p-4 sm:p-6 resize-none leading-relaxed text-sm sm:text-lg"
                                 {...register("content")}
                             />
                             {errors.content && (
@@ -148,12 +148,12 @@ export default function CreatePost() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                     <Button 
                         type="submit" 
                         size="lg" 
                         disabled={isSubmitting} 
-                        className="flex-1 h-16 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all gap-3"
+                        className="flex-1 h-13 sm:h-16 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all gap-3 text-sm sm:text-base"
                     >
                         {isSubmitting ? "Publishing..." : <><Send size={18} /> Publish Story</>}
                     </Button>
@@ -161,7 +161,7 @@ export default function CreatePost() {
                         type="button" 
                         variant="outline" 
                         size="lg" 
-                        className="h-16 rounded-2xl px-8 border-primary/10 hover:bg-primary/5 font-bold"
+                        className="h-13 sm:h-16 rounded-xl sm:rounded-2xl px-8 border-primary/10 hover:bg-primary/5 font-bold text-sm sm:text-base"
                     >
                         Save Draft
                     </Button>
