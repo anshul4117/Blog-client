@@ -62,7 +62,7 @@ export default function PostCard({ post, index = 0 }) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: (index % 5) * 0.1 }}
-                className="relative group mb-8 mx-4 overflow-hidden rounded-[32px] glass-panel border-primary/20 shadow-2xl h-[400px]"
+                className="relative group mb-6 sm:mb-8 mx-0 sm:mx-2 md:mx-4 overflow-hidden rounded-[24px] sm:rounded-[32px] glass-panel border-primary/20 shadow-2xl h-[320px] sm:h-[400px]"
             >
                 {/* Featured Background Image */}
                 <div className="absolute inset-0 z-0">
@@ -75,8 +75,8 @@ export default function PostCard({ post, index = 0 }) {
                 </div>
 
                 {/* Featured Content */}
-                <div className="absolute inset-0 z-20 p-8 flex flex-col justify-end">
-                    <div className="flex items-center gap-3 mb-4">
+                <div className="absolute inset-0 z-20 p-4 sm:p-8 flex flex-col justify-end">
+                    <div className="flex items-center gap-3 mb-2 sm:mb-4">
                         <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 backdrop-blur-md border border-primary/30 text-primary-foreground text-xs font-bold uppercase tracking-widest">
                             <Sparkles size={12} /> Featured Story
                         </div>
@@ -84,7 +84,7 @@ export default function PostCard({ post, index = 0 }) {
                     </div>
 
                     <Link to={`/post/${post._id}`}>
-                        <h3 className="text-3xl md:text-4xl font-extrabold text-white mb-4 leading-tight group-hover:text-primary transition-colors">
+                        <h3 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-white mb-3 sm:mb-4 leading-tight group-hover:text-primary transition-colors">
                             {post.title}
                         </h3>
                     </Link>
@@ -124,13 +124,13 @@ export default function PostCard({ post, index = 0 }) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: (index % 5) * 0.08, type: "spring" }}
-            className="p-6 mb-4 mx-4 rounded-[24px] glass-card group transition-all duration-300"
+            className="p-4 sm:p-6 mb-4 mx-0 sm:mx-2 md:mx-4 rounded-[20px] sm:rounded-[24px] glass-card group transition-all duration-300"
         >
-            <div className="flex gap-4">
+            <div className="flex gap-3 sm:gap-4">
                 {/* Avatar Column */}
                 <div className="flex-shrink-0">
                     <Link to={`/profile/${post.userId?._id || post.author?._id || ""}`}>
-                        <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-border/40 group-hover:border-primary/50 transition-colors">
+                        <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full overflow-hidden border-2 border-border/40 group-hover:border-primary/50 transition-colors">
                             <img
                                 src={post.userId?.profilePicture || post.author?.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
                                 alt={authorName}

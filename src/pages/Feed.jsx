@@ -72,13 +72,13 @@ export default function Feed() {
                     {/* Main Feed Column (Center) */}
                     <main className="flex-1 max-w-2xl h-full flex flex-col border-x border-primary/5 bg-background/20 backdrop-blur-sm">
                         {/* Create Post Input Placeholder */}
-                        <div className="glass-panel border-x-0 border-t-0 border-b border-primary/10 p-6 group">
-                            <div className="flex gap-4">
-                                <div className="h-12 w-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-inner">
-                                    <Sparkles size={24} />
+                        <div className="glass-panel border-x-0 border-t-0 border-b border-primary/10 p-4 sm:p-6 group">
+                            <div className="flex gap-3 sm:gap-4">
+                                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-inner shrink-0">
+                                    <Sparkles size={20} className="sm:w-6 sm:h-6" />
                                 </div>
-                                <Link to="/dashboard/create" className="flex-1">
-                                    <div className="bg-muted/30 border border-primary/5 rounded-[24px] h-14 px-6 flex items-center text-muted-foreground/60 w-full cursor-pointer hover:bg-muted/50 hover:border-primary/20 transition-all font-bold text-lg">
+                                <Link to="/dashboard/create" className="flex-1 min-w-0">
+                                    <div className="bg-muted/30 border border-primary/5 rounded-[20px] sm:rounded-[24px] h-11 sm:h-14 px-4 sm:px-6 flex items-center text-muted-foreground/60 w-full cursor-pointer hover:bg-muted/50 hover:border-primary/20 transition-all font-bold text-sm sm:text-lg truncate">
                                         Broadcast a new frequency...
                                     </div>
                                 </Link>
@@ -93,7 +93,7 @@ export default function Feed() {
                                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/40">Synchronizing with Network</p>
                                 </div>
                             ) : (
-                                <div className="p-4 pb-28 space-y-6">
+                                <div className="py-4 px-2 sm:px-4 pb-28 space-y-4 sm:space-y-6">
                                     {posts.map((post, index) => (
                                         <PostCard key={post._id} post={post} index={index} />
                                     ))}
