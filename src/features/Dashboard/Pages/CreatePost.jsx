@@ -124,27 +124,29 @@ export default function CreatePost() {
                             </div>
                         </div>
 
-                        <div className="relative flex flex-col">
+                        <div className="relative rounded-[24px] sm:rounded-[32px] border border-primary/10 bg-muted/20 flex flex-col focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/5 transition-all">
                             <Label htmlFor="content" className="absolute -top-2.5 left-4 px-2 bg-background text-[10px] font-black uppercase tracking-[0.2em] text-primary z-10">Story Content</Label>
                             
                             {/* Toolbar Placeholder */}
-                            <div className="flex gap-1 p-1 rounded-t-xl border-t border-x border-primary/10 bg-muted/10 self-start ml-2 z-10">
-                                <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg"><Type size={14} /></Button>
-                                <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg font-bold">B</Button>
-                                <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg italic">I</Button>
+                            <div className="flex gap-1 p-2 bg-primary/5 border-b border-primary/10 pt-4 sm:pt-4 rounded-t-[23px] sm:rounded-t-[31px]">
+                                <div className="flex gap-1 ml-2">
+                                    <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg"><Type size={14} /></Button>
+                                    <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg font-bold">B</Button>
+                                    <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg italic">I</Button>
+                                </div>
                             </div>
 
                             <Textarea
                                 id="content"
                                 placeholder="Start writing your story here..."
                                 rows={12}
-                                className="rounded-b-[24px] rounded-tr-[24px] sm:rounded-b-[32px] sm:rounded-tr-[32px] border-primary/10 focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all bg-muted/20 p-4 sm:p-6 resize-none leading-relaxed text-sm sm:text-lg"
+                                className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-none focus:ring-0 focus:outline-none bg-transparent p-4 sm:p-6 resize-none leading-relaxed text-sm sm:text-lg shadow-none rounded-b-[23px] sm:rounded-b-[31px]"
                                 {...register("content")}
                             />
-                            {errors.content && (
-                                <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-xs font-bold mt-2 ml-2">{errors.content.message}</motion.p>
-                            )}
                         </div>
+                        {errors.content && (
+                            <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-xs font-bold mt-2 ml-2">{errors.content.message}</motion.p>
+                        )}
                     </div>
                 </div>
 
