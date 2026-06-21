@@ -29,7 +29,7 @@ export default function BackgroundMesh() {
           opacity: [0.05, 0.1, 0.05]
         }}
         transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-        className="absolute top-[50%] left-[45%] w-[20vw] h-[20vw] rounded-full bg-purple-500/10 blur-[80px]"
+        className="absolute top-[50%] left-[45%] w-[20vw] h-[20vw] rounded-full bg-primary/10 blur-[80px]"
       />
       
       {/* Noise Texture Overlay */}

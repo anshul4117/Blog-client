@@ -1,6 +1,6 @@
-# 🚀 Modern Social Media App
+# 🚀 XDrop — Modern Content Broadcasting Platform
 
-A premium, high-performance social media application built for the modern web. Share your moments, connect with others, and experience a fluid, dynamic interface.
+A premium, high-performance content sharing and blogging platform built for the modern web. Share your ideas, broadcast your signal, and experience a fluid, dynamic interface.
 
 ## ✨ Features
 

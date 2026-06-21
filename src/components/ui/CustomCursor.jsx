@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+// eslint-disable-next-line no-unused-vars
 import { motion, useSpring, useMotionValue } from "framer-motion";
 
 export default function CustomCursor() {
@@ -14,6 +15,8 @@ export default function CustomCursor() {
     const cursorY = useSpring(mouseY, springConfig);
 
     useEffect(() => {
+        if (window.innerWidth < 1024) return;
+
         const moveMouse = (e) => {
             mouseX.set(e.clientX);
             mouseY.set(e.clientY);
@@ -50,9 +53,8 @@ export default function CustomCursor() {
                 translateX: "-50%",
                 translateY: "-50%",
                 border: "1.5px solid var(--color-primary)",
-                background: isHovering ? "rgba(124, 58, 237, 0.15)" : "transparent",
+                background: isHovering ? "color-mix(in srgb, var(--color-primary) 15%, transparent)" : "transparent",
                 scale: isHovering ? 2.5 : 1,
-                mixBlendMode: "difference"
             }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
         >

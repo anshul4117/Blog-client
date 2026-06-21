@@ -1,5 +1,7 @@
 # 📘 Project Documentation: Social Media App
 
+> **⚠️ AI Assistants: For the most up-to-date and comprehensive project context, refer to [`GEMINI.md`](./GEMINI.md) instead of this file.**
+
 ## 1. Project Overview
 This is a modern, responsive social media application built with React 19, Vite, and Tailwind CSS v4. The goal is to provide a premium user experience for creating, sharing, and interacting with content.
 

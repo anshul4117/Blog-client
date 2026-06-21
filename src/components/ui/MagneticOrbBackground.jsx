@@ -41,16 +41,16 @@ export default function MagneticOrbBackground() {
     // Resolve brand colors dynamically based on theme index.css variable
     const getThemeColor = () => {
       const isDark = document.documentElement.classList.contains("dark");
-      // Violet for light/dark matching XDrop branding violet (#6c71c4)
-      return isDark ? { r: 108, g: 113, b: 196 } : { r: 108, g: 113, b: 196 };
+      // Forest green matching XDrop branding green
+      return isDark ? { r: 75, g: 126, b: 107 } : { r: 43, g: 87, b: 72 };
     };
 
     class Orb {
       constructor() {
-        this.reset(true);
+        this.reset();
       }
 
-      reset(init = false) {
+      reset() {
         this.x = Math.random() * width;
         this.y = Math.random() * height;
         // Keep original home coordinates for spring return
@@ -140,7 +140,7 @@ export default function MagneticOrbBackground() {
     }
 
     const orbs = [];
-    const orbCount = 70;
+    const orbCount = window.innerWidth < 768 ? 25 : 70; // Optimized orb count for mobile rendering
     for (let i = 0; i < orbCount; i++) {
       orbs.push(new Orb());
     }
