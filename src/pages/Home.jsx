@@ -126,6 +126,7 @@ function GlowCard({ children, className = "" }) {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseMove = (e) => {
+    if (window.innerWidth < 1024) return;
     if (cardRef.current) {
       const rect = cardRef.current.getBoundingClientRect();
       setCoords({
@@ -139,7 +140,7 @@ function GlowCard({ children, className = "" }) {
     <div
       ref={cardRef}
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => window.innerWidth >= 1024 && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={`relative overflow-hidden rounded-[32px] glass-panel border-primary/10 hover:border-primary/25 transition-all duration-300 p-8 cursor-default ${className}`}
     >
@@ -368,11 +369,11 @@ This is our **Focus Mode Simulator**. Type text here, structure it with clean ma
           <ParticleBackground />
           
           <div className="absolute inset-0 z-0 pointer-events-none">
-            <div className="absolute top-[15%] left-[8%] w-[45vw] h-[45vw] rounded-full bg-primary/10 blur-[130px] animate-pulse duration-[12s]" />
-            <div className="absolute bottom-[10%] right-[8%] w-[40vw] h-[40vw] rounded-full bg-secondary/8 blur-[110px] animate-pulse duration-[16s]" />
+            <div className="absolute top-[15%] left-[8%] w-[45vw] h-[45vw] rounded-full bg-primary/10 blur-[130px] md:animate-pulse duration-[12s]" />
+            <div className="absolute bottom-[10%] right-[8%] w-[40vw] h-[40vw] rounded-full bg-secondary/8 blur-[110px] md:animate-pulse duration-[16s]" />
           </div>
 
-          <div className="relative z-10 text-center max-w-6xl mx-auto space-y-8">
+          <div className="relative z-10 text-center w-full max-w-6xl mx-auto space-y-8">
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full glass-panel border-primary/20 hover:border-primary/45 transition-all duration-300 shadow-xl shadow-primary/5 hover:scale-[1.03] cursor-pointer">
               <div className="p-1 rounded-full bg-primary/25 text-primary">
                 <Sparkles size={12} />
@@ -380,7 +381,7 @@ This is our **Focus Mode Simulator**. Type text here, structure it with clean ma
               <span className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Solarized Engine Active</span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] text-foreground">
+            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] text-foreground">
               Write Clearly. <br />
               <span className="font-serif font-light text-muted-foreground/50 pr-4 italic">Broadcast</span>
               <span className="text-gradient">Fluidly.</span>
@@ -402,14 +403,14 @@ This is our **Focus Mode Simulator**. Type text here, structure it with clean ma
               ))}
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-6">
-              <Link to="/register">
-                <Button size="lg" className="h-16 px-10 text-sm font-black uppercase tracking-[0.2em] rounded-[24px] shadow-2xl shadow-primary/10 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all gap-3 group bg-primary text-white border-none">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 pt-6 w-full max-w-md mx-auto sm:max-w-none px-4 sm:px-0">
+              <Link to="/register" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto h-16 px-10 text-sm font-black uppercase tracking-[0.2em] rounded-[24px] shadow-2xl shadow-primary/10 hover:shadow-primary/30 hover:-translate-y-0.5 transition-all gap-3 group bg-primary text-white border-none">
                   Initialize Account <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <a href="#editor-section">
-                <Button variant="outline" size="lg" className="h-16 px-10 text-sm font-black uppercase tracking-[0.2em] rounded-[24px] border-primary/15 hover:bg-primary/5 transition-all gap-3">
+              <a href="#editor-section" className="w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto h-16 px-10 text-sm font-black uppercase tracking-[0.2em] rounded-[24px] border-primary/15 hover:bg-primary/5 transition-all gap-3">
                   <Play size={18} /> Test Sandbox
                 </Button>
               </a>
@@ -423,7 +424,7 @@ This is our **Focus Mode Simulator**. Type text here, structure it with clean ma
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-black uppercase tracking-widest">
               <PenTool size={12} /> Focus Writer Deck
             </div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-foreground">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-foreground">
               Distraction-Free <span className="text-gradient">Publishing Hub</span>
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto font-medium">
@@ -627,9 +628,9 @@ This is our **Focus Mode Simulator**. Type text here, structure it with clean ma
 
         {/* SECTION 3: DECK MARQUEE */}
         <div className="py-16 border-y border-primary/5 bg-primary/[0.01] backdrop-blur-md relative overflow-hidden select-none">
-          <div className="flex whitespace-nowrap animate-marquee">
+          <div className="flex whitespace-nowrap animate-marquee w-max">
             {[...Array(2)].map((_, i) => (
-              <div key={i} className="flex">
+              <div key={i} className="flex shrink-0">
                 {["Markdown", "SolarizedLight", "Typography", "Glassmorphism", "MicroAnimations", "FluidDesign", "SemanticContrast", "StaticGeneration"].map((word, idx) => (
                   <div key={idx} className="mx-8 text-2xl md:text-4xl font-black text-muted-foreground/10 uppercase tracking-[0.25em] hover:text-primary/20 transition-colors duration-300">
                     #{word}
@@ -646,7 +647,7 @@ This is our **Focus Mode Simulator**. Type text here, structure it with clean ma
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-black uppercase tracking-widest">
               <Globe size={12} /> Community Stream
             </div>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-foreground">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-foreground">
               The <span className="text-gradient">Frequency Stream</span>
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto font-medium">
@@ -655,7 +656,7 @@ This is our **Focus Mode Simulator**. Type text here, structure it with clean ma
           </div>
 
           {/* Search, Tag filter toolbar */}
-          <div className="glass-panel p-6 rounded-[28px] border-primary/10 max-w-4xl mx-auto mb-10 bg-background/20 flex flex-col md:flex-row items-center gap-4 justify-between">
+          <div className="glass-panel p-6 rounded-[28px] border-primary/10 max-w-4xl mx-auto mb-10 bg-background/20 flex flex-col md:flex-row items-stretch md:items-center gap-4 justify-between">
             {/* Search Input */}
             <div className="relative w-full md:w-80 group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -669,13 +670,13 @@ This is our **Focus Mode Simulator**. Type text here, structure it with clean ma
             </div>
 
             {/* Tag Pills */}
-            <div className="flex items-center gap-2 overflow-x-auto max-w-full no-scrollbar px-1 py-1">
+            <div className="flex items-center gap-2 overflow-x-auto max-w-full no-scrollbar px-1 py-1 w-full md:w-auto justify-start md:justify-end">
               <Filter size={12} className="text-muted-foreground shrink-0" />
               {allTags.slice(0, 7).map((tag) => (
                 <button
                   key={tag}
                   onClick={() => setActiveTagFilter(tag)}
-                  className={`px-3.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all duration-300 border ${
+                  className={`px-3.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all duration-300 border shrink-0 ${
                     activeTagFilter === tag 
                       ? "bg-primary text-white border-primary shadow-lg shadow-primary/15" 
                       : "bg-transparent text-muted-foreground border-primary/15 hover:border-primary/30"
@@ -776,7 +777,7 @@ This is our **Focus Mode Simulator**. Type text here, structure it with clean ma
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-black uppercase tracking-widest">
                 <Layers size={12} /> Design System Core
               </div>
-              <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-foreground">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-foreground">
                 The <span className="text-gradient">Solarized Studio</span>
               </h2>
               <p className="text-muted-foreground max-w-xl mx-auto font-medium">
@@ -849,20 +850,20 @@ This is our **Focus Mode Simulator**. Type text here, structure it with clean ma
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20 mb-6">
                   <Shield size={12} /> System Framework
                 </div>
-                <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-none mb-6">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter leading-none mb-6">
                   Engineered for <br /><span className="text-gradient">Readability Scale</span>
                 </h2>
                 <p className="text-base text-muted-foreground font-medium mb-10 leading-relaxed">
                   We engineered this dashboard specifically to resolve contrast fatigue. By prioritizing responsive breakpoints, glassmorphism, and consistent variable layout heights, readers focus strictly on syntax ideas.
                 </p>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {[
                     { icon: Zap, title: "Hyper-fluid UI", desc: "Responsive transitions" },
                     { icon: Shield, title: "Solarized Light", desc: "High contrast readability" },
                     { icon: Globe, title: "Direct Stream", desc: "Instant deployment nodes" },
                     { icon: Sparkles, title: "Premium Visuals", desc: "Aesthetic CSS mesh orbs" },
                   ].map((feat, idx) => (
-                    <div key={idx} className="space-y-2.5 group cursor-default">
+                    <div key={idx} className="space-y-2.5 group cursor-default text-left">
                       <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-300">
                         <feat.icon size={18} />
                       </div>
@@ -896,7 +897,7 @@ This is our **Focus Mode Simulator**. Type text here, structure it with clean ma
 
         {/* CTA FOOTER */}
         <section className="py-28 px-6">
-          <div className="max-w-6xl mx-auto rounded-[48px] cta-footer-card p-16 text-center relative overflow-hidden group border border-primary/20 shadow-xl shadow-primary/5 backdrop-blur-md">
+          <div className="max-w-6xl mx-auto rounded-[48px] cta-footer-card p-8 sm:p-16 text-center relative overflow-hidden group border border-primary/20 shadow-xl shadow-primary/5 backdrop-blur-md">
             <div className="absolute inset-0 mesh-gradient opacity-10" />
             <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-primary/5 rounded-full blur-[120px] animate-pulse duration-[10s]" />
             
@@ -907,8 +908,8 @@ This is our **Focus Mode Simulator**. Type text here, structure it with clean ma
               <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto font-medium">
                 Reserve your custom handle, customize your profile settings, and sync your thoughts to our global markdown feed.
               </p>
-              <Link to="/register" className="inline-block mt-4">
-                <Button size="lg" className="h-16 px-12 text-sm font-black uppercase tracking-[0.25em] bg-primary text-primary-foreground hover:bg-primary/95 rounded-[24px] shadow-2xl hover:scale-105 transition-all border-none">
+              <Link to="/register" className="inline-block mt-4 w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto h-16 px-12 text-sm font-black uppercase tracking-[0.25em] bg-primary text-white border-none shadow-xl hover:bg-primary/95 dark:bg-white dark:text-primary dark:hover:bg-slate-50 rounded-[24px] hover:scale-105 transition-all">
                   Get Started Now
                 </Button>
               </Link>

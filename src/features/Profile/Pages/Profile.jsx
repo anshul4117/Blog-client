@@ -124,7 +124,7 @@ export default function Profile() {
       <div className="relative rounded-[40px] overflow-hidden glass-panel border-primary/20 shadow-2xl">
         {/* Cover Section */}
         <div className="h-64 relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary via-indigo-600 to-purple-900 opacity-80" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/80 to-secondary/80 opacity-80" />
             <div className="absolute inset-0 mesh-gradient opacity-40" />
             <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
         </div>

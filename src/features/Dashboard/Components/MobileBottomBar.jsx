@@ -52,7 +52,7 @@ export default function MobileBottomBar() {
 
     return (
         <>
-            <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg sm:hidden safe-area-bottom">
+            <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg lg:hidden safe-area-bottom">
                 <div className="flex items-center justify-around h-16 px-2">
                     {navItems.map((item, idx) => {
                         if (item.type === "search") {
@@ -94,7 +94,7 @@ export default function MobileBottomBar() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 50 }}
                         transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                        className="fixed inset-0 z-[100] bg-background/98 backdrop-blur-2xl p-6 flex flex-col sm:hidden"
+                        className="fixed inset-0 z-[100] bg-background/98 backdrop-blur-2xl p-6 flex flex-col lg:hidden"
                     >
                         {/* Header */}
                         <div className="flex items-center justify-between mb-6">

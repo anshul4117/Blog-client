@@ -31,14 +31,14 @@ export default function About() {
           <motion.div
             animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
             transition={{ duration: 15, repeat: Infinity, delay: 2 }}
-            className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none"
+            className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] pointer-events-none"
           />
 
           <div className="container mx-auto relative z-10 w-full">
             <div className="flex flex-col items-center gap-12">
 
               {/* Mobile stacked view (No absolute overflows or 3D overlaps) */}
-              <div className="md:hidden flex flex-col gap-6 w-full max-w-sm mx-auto px-4 z-20 relative">
+              <div className="lg:hidden flex flex-col gap-6 w-full max-w-sm mx-auto px-4 z-20 relative">
                 {/* Mobile Card 1: Feed Card */}
                 <div className="w-full p-5 sm:p-6 rounded-[2rem] bg-background/55 backdrop-blur-xl border border-white/10 shadow-lg text-left">
                   <div className="flex items-center gap-3 mb-4">
@@ -66,7 +66,7 @@ export default function About() {
 
                 {/* Mobile Card 2: Creator Profile Card */}
                 <div className="w-full rounded-[2rem] overflow-hidden bg-background/55 backdrop-blur-xl border border-white/10 shadow-lg text-left">
-                  <div className="h-16 bg-gradient-to-r from-primary via-purple-600 to-indigo-600 opacity-90 relative flex items-end justify-end p-2">
+                  <div className="h-16 bg-gradient-to-r from-primary via-primary/80 to-secondary/80 opacity-90 relative flex items-end justify-end p-2">
                     <span className="px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[8px] font-bold text-white uppercase tracking-wider">Top Writer</span>
                   </div>
                   <div className="px-5 pb-5 -mt-8 relative z-10 flex flex-col items-center text-center">
@@ -114,7 +114,7 @@ export default function About() {
               </div>
 
               {/* Desktop Floating 3D Elements Composition (hidden on mobile, shown on md and up) */}
-              <div className="hidden md:block relative h-[550px] sm:h-[600px] md:h-[620px] w-full max-w-5xl mx-auto perspective-1000">
+              <div className="hidden lg:block relative h-[550px] sm:h-[600px] md:h-[620px] w-full max-w-5xl mx-auto perspective-1000">
                 {/* Floating Card 1: Feed Publication Card */}
                 <FloatCard
                   className="absolute top-[2%] left-[2%] md:top-[6%] md:left-[6%] lg:left-[10%] z-20 scale-[0.65] xs:scale-[0.72] sm:scale-80 md:scale-95 lg:scale-100 transform-gpu origin-top-left"
@@ -155,7 +155,7 @@ export default function About() {
                   duration={6}
                 >
                   <div className="w-[280px] sm:w-[310px] md:w-[330px] rounded-[2rem] overflow-hidden bg-background/55 backdrop-blur-xl border border-white/10 shadow-2xl text-left transition-all duration-300 hover:border-primary/30">
-                    <div className="h-20 bg-gradient-to-r from-primary via-purple-600 to-indigo-600 opacity-90 relative flex items-end justify-end p-2">
+                    <div className="h-20 bg-gradient-to-r from-primary via-primary/80 to-secondary/80 opacity-90 relative flex items-end justify-end p-2">
                       <span className="px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[8px] font-bold text-white uppercase tracking-wider">Top Writer</span>
                     </div>
                     <div className="px-5 pb-5 -mt-10 relative z-10 flex flex-col items-center text-center">
@@ -303,7 +303,7 @@ export default function About() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 }}
-                className="md:col-span-1 group relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20 p-10 flex flex-col justify-between hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500"
+                className="md:col-span-1 group relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20 p-10 flex flex-col justify-between hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500"
               >
                 <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-primary/20 rounded-full blur-[80px] group-hover:bg-primary/30 transition-all" />
 

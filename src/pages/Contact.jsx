@@ -285,7 +285,7 @@ export default function Contact() {
                     }}
                     transition={{ duration: 0.4 }}
                     className={`glass-panel p-6 rounded-[28px] flex flex-col justify-between min-h-[220px] transition-all duration-300 ${
-                      isActive ? "border-primary/20 bg-primary/[0.03] shadow-lg" : "border-primary/5 bg-transparent"
+                      isActive ? "border-primary/20 bg-primary/[0.03] shadow-lg" : "border-primary/5 bg-transparent hidden md:flex"
                     }`}
                   >
                     <div className="space-y-4">

@@ -155,7 +155,7 @@ export default function GeometricParticleBackground() {
 
         const initParticles = () => {
             particles = [];
-            const particleCount = 55; // Perfectly balanced for ambient feel
+            const particleCount = window.innerWidth < 768 ? 25 : 55; // Optimized particle density for mobile smoothness
             for (let i = 0; i < particleCount; i++) {
                 particles.push(new GeometricParticle());
             }

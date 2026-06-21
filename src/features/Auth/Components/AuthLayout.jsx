@@ -8,7 +8,7 @@ export default function AuthLayout({ title, subtitle, children }) {
       {/* Background gradient orbs */}
       <div className="absolute top-[-15%] right-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-15%] left-[-10%] w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute top-[30%] left-[50%] w-[300px] h-[300px] bg-purple-400/5 rounded-full blur-[80px] pointer-events-none" />
+      <div className="absolute top-[30%] left-[50%] w-[300px] h-[300px] bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
 
       {/* Decorative ring accents */}
       <div className="absolute -top-20 -right-20 w-80 h-80 border border-primary/5 rounded-full pointer-events-none" />

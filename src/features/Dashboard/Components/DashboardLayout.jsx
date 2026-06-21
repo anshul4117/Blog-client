@@ -12,7 +12,7 @@ export default function DashboardLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <MainLayout>
+    <MainLayout showNavbar={false} showFooter={false}>
       <div className="flex w-full max-w-7xl mx-auto gap-0 lg:gap-12 px-0 lg:px-6 min-h-screen relative">
         {/* Desktop Sidebar (lg+) */}
         <div className="hidden lg:block w-72 shrink-0">
@@ -60,7 +60,7 @@ export default function DashboardLayout() {
           {/* Mobile Bottom Navigation (Optional: Can keep or remove based on preference, keeping for now as it offers quick access) */}
           <MobileBottomBar variant="dashboard" />
 
-          <main className="flex-1 bg-background p-4 sm:p-6 pb-24 sm:pb-6">
+          <main className="flex-1 bg-background p-4 sm:p-6 pb-24 lg:pb-6">
             <Outlet />
           </main>
         </div>

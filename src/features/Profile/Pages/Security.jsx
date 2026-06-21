@@ -370,7 +370,7 @@ export default function Security() {
                             {/* SMS */}
                             <div className="flex items-center justify-between pb-4 border-b">
                                 <div className="flex items-center gap-4">
-                                    <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-purple-600">
+                                    <div className="p-2 bg-primary/10 rounded-lg text-primary">
                                         <MessageSquare className="h-6 w-6" />
                                     </div>
                                     <div>

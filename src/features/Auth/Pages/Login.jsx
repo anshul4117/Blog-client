@@ -9,6 +9,8 @@ import AuthLayout from "../Components/AuthLayout.jsx";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext.jsx";
 import API from "../../../lib/secureApi.js";
+// eslint-disable-next-line no-unused-vars
+import { motion } from "framer-motion";
 import { Mail, Lock, ArrowRight, Github, Chrome, Twitter, Sparkles } from "lucide-react";
 
 const loginSchema = z.object({
@@ -55,7 +57,13 @@ export default function Login() {
 
   return (
     <AuthLayout title="Welcome Back 👋" subtitle="Enter your credentials to access your account">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <motion.form 
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        onSubmit={handleSubmit(onSubmit)} 
+        className="space-y-6"
+      >
         {/* Sandbox Indicator */}
         <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 text-xs text-muted-foreground space-y-2 relative overflow-hidden font-medium">
           <div className="flex items-center gap-1.5 font-bold text-primary text-[10px] uppercase tracking-wider">
@@ -75,47 +83,46 @@ export default function Login() {
         </div>
 
         {/* Email */}
-        <div className="space-y-1.5">
-          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email</Label>
-          <div className="relative group">
-            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 group-focus-within:text-primary transition-colors" />
-            <Input
-              type="email"
-              {...register("email")}
-              placeholder="name@example.com"
-              className="h-12 pl-11 bg-muted/20 border-border/40 focus:border-primary/50 focus:ring-primary/20 transition-all rounded-xl"
-            />
-          </div>
+        <div className="relative group">
+          <Label htmlFor="email" className="absolute -top-2.5 left-4 px-2 bg-background text-[10px] font-black uppercase tracking-[0.2em] text-primary z-10">Email Address</Label>
+          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 group-focus-within:text-primary transition-colors" />
+          <Input
+            id="email"
+            type="email"
+            {...register("email")}
+            placeholder="name@example.com"
+            className="h-13 pl-11 bg-muted/20 border-primary/10 focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all rounded-xl text-foreground font-medium"
+          />
           {errors.email && (
-            <p className="text-red-500 text-xs font-medium">{errors.email.message}</p>
+            <p className="text-red-500 text-xs font-semibold mt-1 ml-2">{errors.email.message}</p>
           )}
         </div>
 
         {/* Password */}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Password</Label>
-            <Link to="/forgot-password" className="text-xs font-medium text-primary hover:underline">
-              Forgot password?
-            </Link>
-          </div>
-          <div className="relative group">
-            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 group-focus-within:text-primary transition-colors z-10" />
-            <PasswordInput
-              {...register("password")}
-              placeholder="••••••••"
-              className="h-12 pl-11 bg-muted/20 border-border/40 focus:border-primary/50 focus:ring-primary/20 transition-all rounded-xl"
-            />
-          </div>
+        <div className="relative group">
+          <Label htmlFor="password" className="absolute -top-2.5 left-4 px-2 bg-background text-[10px] font-black uppercase tracking-[0.2em] text-primary z-10">Password</Label>
+          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 group-focus-within:text-primary transition-colors z-10" />
+          <PasswordInput
+            id="password"
+            {...register("password")}
+            placeholder="••••••••"
+            className="h-13 pl-11 bg-muted/20 border-primary/10 focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all rounded-xl text-foreground font-medium"
+          />
           {errors.password && (
-            <p className="text-red-500 text-xs font-medium">{errors.password.message}</p>
+            <p className="text-red-500 text-xs font-semibold mt-1 ml-2">{errors.password.message}</p>
           )}
+        </div>
+
+        <div className="flex items-center justify-end text-xs">
+          <Link to="/forgot-password" style={{ color: "var(--color-primary)" }} className="font-semibold hover:underline">
+            Forgot password?
+          </Link>
         </div>
 
         {/* Submit */}
         <Button
           type="submit"
-          className="w-full h-12 text-sm font-bold rounded-xl shadow-lg hover:shadow-primary/25 transition-all flex items-center justify-center gap-2"
+          className="w-full h-13 text-sm font-black uppercase tracking-widest rounded-xl shadow-lg hover:shadow-primary/25 transition-all flex items-center justify-center gap-2 cursor-pointer bg-primary text-white"
         >
           Sign In
           <ArrowRight className="h-4 w-4" />
@@ -127,7 +134,7 @@ export default function Login() {
             <span className="w-full border-t border-border/50" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background/60 backdrop-blur-sm px-3 text-muted-foreground/60 font-medium tracking-wider">
+            <span className="bg-background/60 backdrop-blur-sm px-3 text-muted-foreground/60 font-semibold tracking-wider">
               Or continue with
             </span>
           </div>
@@ -135,25 +142,25 @@ export default function Login() {
 
         {/* Social Buttons */}
         <div className="grid grid-cols-3 gap-3">
-          <button type="button" className="flex items-center justify-center h-11 rounded-xl border border-border/40 bg-muted/10 hover:bg-muted/30 transition-all group">
+          <button type="button" className="flex items-center justify-center h-11 rounded-xl border border-primary/10 bg-muted/10 hover:bg-muted/30 transition-all group cursor-pointer">
             <Chrome className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
           </button>
-          <button type="button" className="flex items-center justify-center h-11 rounded-xl border border-border/40 bg-muted/10 hover:bg-muted/30 transition-all group">
+          <button type="button" className="flex items-center justify-center h-11 rounded-xl border border-primary/10 bg-muted/10 hover:bg-muted/30 transition-all group cursor-pointer">
             <Github className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
           </button>
-          <button type="button" className="flex items-center justify-center h-11 rounded-xl border border-border/40 bg-muted/10 hover:bg-muted/30 transition-all group">
+          <button type="button" className="flex items-center justify-center h-11 rounded-xl border border-primary/10 bg-muted/10 hover:bg-muted/30 transition-all group cursor-pointer">
             <Twitter className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
           </button>
         </div>
 
         {/* Footer link */}
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center text-sm text-muted-foreground font-semibold">
           Don&apos;t have an account?{" "}
-          <Link to="/register" className="text-primary font-bold hover:underline transition-all">
+          <Link to="/register" className="text-primary font-black hover:underline transition-all">
             Create an account
           </Link>
         </p>
-      </form>
+      </motion.form>
     </AuthLayout>
   );
 }

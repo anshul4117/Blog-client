@@ -144,7 +144,7 @@ export default function ParticleBackground() {
 
         const initParticles = () => {
             particles = [];
-            const particleCount = 130; // Increased density for rich particle field
+            const particleCount = window.innerWidth < 768 ? 45 : 130; // Optimized particle density for mobile performance
             for (let i = 0; i < particleCount; i++) {
                 particles.push(new Particle());
             }
