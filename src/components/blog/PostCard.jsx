@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import { Heart, MessageCircle, Repeat2, Share, MoreHorizontal, Sparkles } from "lucide-react";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import { motion } from "framer-motion";
+import { useAuth } from "@/context/AuthContext.jsx";
 
 export default function PostCard({ post, index = 0 }) {
+    const { user } = useAuth();
     const [liked, setLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(post.likeCount || (post.likes !== undefined ? post.likes : 120));
     
@@ -13,6 +15,18 @@ export default function PostCard({ post, index = 0 }) {
 
     const [commented, setCommented] = useState(false);
     const [commentCount, setCommentCount] = useState(post.commentCount || (post.comments !== undefined ? post.comments : 24));
+
+    const [followed, setFollowed] = useState(false);
+
+    const handleFollow = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setFollowed(!followed);
+    };
+
+    const currentUserId = user?._id || user?.id || user?.userId;
+    const postUserId = post.userId?._id || post.userId || post.author?._id || post.author || "";
+    const showFollowButton = !!user && String(currentUserId) !== String(postUserId) && postUserId !== "";
 
     const handleLike = (e) => {
         e.preventDefault();
@@ -94,8 +108,20 @@ export default function PostCard({ post, index = 0 }) {
                             <div className="h-10 w-10 rounded-full border-2 border-white/20 overflow-hidden">
                                 <img src={post.author?.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"} alt={authorName} className="w-full h-full object-cover" />
                             </div>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                                 <span className="text-white font-bold text-sm">{authorName}</span>
+                                {showFollowButton && (
+                                    <button 
+                                        onClick={handleFollow}
+                                        className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider transition-all duration-300 active:scale-95 border ${
+                                            followed 
+                                                ? "bg-white/20 text-white border-white/40 hover:bg-white/30" 
+                                                : "bg-white text-primary border-white hover:bg-white/95"
+                                        }`}
+                                    >
+                                        {followed ? "Following" : "Follow"}
+                                    </button>
+                                )}
                             </div>
                         </div>
 
@@ -144,16 +170,30 @@ export default function PostCard({ post, index = 0 }) {
                 <div className="flex-1 min-w-0">
                     {/* Header */}
                     <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2 text-[14px]">
-                            <Link to={`/profile/${post.userId?._id || post.author?._id || ""}`} className="font-bold text-foreground hover:text-primary transition-colors truncate">
+                        <div className="flex items-center gap-2 text-[14px] min-w-0">
+                            <Link to={`/profile/${post.userId?._id || post.author?._id || ""}`} className="font-bold text-foreground hover:text-primary transition-colors truncate max-w-[120px] sm:max-w-[180px]">
                                 {authorName}
                             </Link>
                             <span className="text-muted-foreground/40">·</span>
-                            <span className="text-muted-foreground/60 text-xs">{timeAgo}</span>
+                            <span className="text-muted-foreground/60 text-xs shrink-0">{timeAgo}</span>
                         </div>
-                        <button className="text-muted-foreground hover:text-primary p-1.5 rounded-full hover:bg-primary/10 transition-all">
-                            <MoreHorizontal size={18} />
-                        </button>
+                        <div className="flex items-center gap-2">
+                            {showFollowButton && (
+                                <button 
+                                    onClick={handleFollow}
+                                    className={`px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all duration-300 active:scale-95 ${
+                                        followed 
+                                            ? "bg-primary text-white border border-primary hover:bg-primary/95" 
+                                            : "border border-primary/30 text-primary hover:bg-primary/5"
+                                    }`}
+                                >
+                                    {followed ? "Following" : "Follow"}
+                                </button>
+                            )}
+                            <button className="text-muted-foreground hover:text-primary p-1.5 rounded-full hover:bg-primary/10 transition-all">
+                                <MoreHorizontal size={18} />
+                            </button>
+                        </div>
                     </div>
 
                     {/* Post Content */}
