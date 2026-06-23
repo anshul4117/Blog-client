@@ -1,11 +1,13 @@
 {
-  "files": [],
-  "references": [
-  ],
   "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs",
+    "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
-  }
+    },
+    "jsx": "react-jsx"
+  },
+  "include": ["src/**/*"]
 }

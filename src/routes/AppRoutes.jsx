@@ -57,20 +57,22 @@ export default function AppRoutes() {
 
         {/* 🔐 Dashboard (Protected Layout) */}
         <Route element={<PrivateRoute />}>
-          <Route path="/feed" element={<Feed />} />
-          <Route path="/post/:id" element={<PostDetails />} />
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<DashboardHome />} />
-            <Route path="posts" element={<MyPosts />} />
-            <Route path="saved" element={<SavedPosts />} />
-            <Route path="create" element={<CreatePost />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="settings/security" element={<Security />} />
-            <Route path="help" element={<Help />} />
-            <Route path="settings/privacy" element={<Privacy />} />
-            <Route path="settings/:category" element={<SettingsPlaceholder />} />
+          <Route element={<DashboardLayout />}>
+            <Route path="/feed" element={<Feed />} />
+            <Route path="/post/:id" element={<PostDetails />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/dashboard">
+              <Route index element={<DashboardHome />} />
+              <Route path="posts" element={<MyPosts />} />
+              <Route path="saved" element={<SavedPosts />} />
+              <Route path="create" element={<CreatePost />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="settings/security" element={<Security />} />
+              <Route path="help" element={<Help />} />
+              <Route path="settings/privacy" element={<Privacy />} />
+              <Route path="settings/:category" element={<SettingsPlaceholder />} />
+            </Route>
           </Route>
-          <Route path="/profile" element={<Profile />} />
         </Route>
       </Routes>
     </Suspense>

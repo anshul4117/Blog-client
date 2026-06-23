@@ -8,8 +8,6 @@ import PageTransition from "@/components/layout/PageTransition";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import PostCard from "@/components/blog/PostCard.jsx";
-import BackgroundMesh from "@/components/ui/BackgroundMesh.jsx";
-import MobileBottomBar from "@/features/Dashboard/Components/MobileBottomBar.jsx";
 
 export default function Profile() {
   const { user, logout } = useAuth();
@@ -100,8 +98,6 @@ export default function Profile() {
 
   return (
     <div className="relative min-h-screen bg-background w-full overflow-x-hidden">
-      <BackgroundMesh />
-      <MobileBottomBar />
       <PageTransition className="relative z-10 pb-32 pt-6 sm:pt-8 space-y-8 px-4 max-w-7xl mx-auto">
       {/* Navigation Header */}
       <div className="flex items-center justify-between">
