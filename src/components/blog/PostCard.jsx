@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Heart, MessageCircle, Repeat2, Share, MoreHorizontal, Sparkles } from "lucide-react";
@@ -9,7 +10,7 @@ export default function PostCard({ post, index = 0 }) {
     const { user } = useAuth();
     const [liked, setLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(post.likeCount || (post.likes !== undefined ? post.likes : 120));
-    
+
     const [reposted, setReposted] = useState(false);
     const [repostCount, setRepostCount] = useState(post.repostCount || 5);
 
@@ -80,9 +81,9 @@ export default function PostCard({ post, index = 0 }) {
             >
                 {/* Featured Background Image */}
                 <div className="absolute inset-0 z-0">
-                    <img 
-                        src={post.image?.url || post.coverImage || "/Woman.jpeg"} 
-                        alt="Featured" 
+                    <img
+                        src={post.image?.url || post.coverImage || "/Woman.jpeg"}
+                        alt="Featured"
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10" />
@@ -111,13 +112,12 @@ export default function PostCard({ post, index = 0 }) {
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                                 <span className="text-white font-bold text-sm">{authorName}</span>
                                 {showFollowButton && (
-                                    <button 
+                                    <button
                                         onClick={handleFollow}
-                                        className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider transition-all duration-300 active:scale-95 border ${
-                                            followed 
-                                                ? "bg-white/20 text-white border-white/40 hover:bg-white/30" 
+                                        className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider transition-all duration-300 active:scale-95 border ${followed
+                                                ? "bg-white/20 text-white border-white/40 hover:bg-white/30"
                                                 : "bg-white text-primary border-white hover:bg-white/95"
-                                        }`}
+                                            }`}
                                     >
                                         {followed ? "Following" : "Follow"}
                                     </button>
@@ -126,13 +126,13 @@ export default function PostCard({ post, index = 0 }) {
                         </div>
 
                         <div className="flex items-center gap-6 text-white/80">
-                            <button 
+                            <button
                                 onClick={handleLike}
                                 className={`flex items-center gap-2 hover:text-pink-500 transition-colors ${liked ? "text-pink-500" : ""}`}
                             >
                                 <Heart size={20} fill={liked ? "currentColor" : "none"} /> <span className="text-sm font-bold">{likeCount}</span>
                             </button>
-                            <button 
+                            <button
                                 onClick={handleComment}
                                 className={`flex items-center gap-2 hover:text-blue-400 transition-colors ${commented ? "text-blue-400" : ""}`}
                             >
@@ -146,7 +146,7 @@ export default function PostCard({ post, index = 0 }) {
     }
 
     return (
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: (index % 5) * 0.08, type: "spring" }}
@@ -179,13 +179,12 @@ export default function PostCard({ post, index = 0 }) {
                         </div>
                         <div className="flex items-center gap-2">
                             {showFollowButton && (
-                                <button 
+                                <button
                                     onClick={handleFollow}
-                                    className={`px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all duration-300 active:scale-95 ${
-                                        followed 
-                                            ? "bg-primary text-white border border-primary hover:bg-primary/95" 
+                                    className={`px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all duration-300 active:scale-95 ${followed
+                                            ? "bg-primary text-white border border-primary hover:bg-primary/95"
                                             : "border border-primary/30 text-primary hover:bg-primary/5"
-                                    }`}
+                                        }`}
                                 >
                                     {followed ? "Following" : "Follow"}
                                 </button>
@@ -231,7 +230,7 @@ export default function PostCard({ post, index = 0 }) {
 
                     {/* Action Bar */}
                     <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/20 text-muted-foreground">
-                        <button 
+                        <button
                             onClick={handleComment}
                             className={`flex items-center gap-2 group/btn hover:text-blue-500 transition-colors text-xs font-bold uppercase tracking-wider ${commented ? "text-blue-500" : ""}`}
                         >
@@ -241,7 +240,7 @@ export default function PostCard({ post, index = 0 }) {
                             <span>{commentCount}</span>
                         </button>
 
-                        <button 
+                        <button
                             onClick={handleRepost}
                             className={`flex items-center gap-2 group/btn hover:text-green-500 transition-colors text-xs font-bold uppercase tracking-wider ${reposted ? "text-green-500" : ""}`}
                         >
@@ -251,7 +250,7 @@ export default function PostCard({ post, index = 0 }) {
                             <span>{repostCount}</span>
                         </button>
 
-                        <button 
+                        <button
                             onClick={handleLike}
                             className={`flex items-center gap-2 group/btn hover:text-pink-500 transition-colors text-xs font-bold uppercase tracking-wider ${liked ? "text-pink-500" : ""}`}
                         >

@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {
     Shield, Key, Smartphone, Laptop, CheckCircle2, AlertTriangle, Fingerprint, QrCode, Copy, ArrowRight,
-    Mail, MessageSquare, Usb, Bell, Globe, ChevronRight, MoreHorizontal
+    Mail, MessageSquare, Usb, Bell, Globe, ChevronRight, MoreHorizontal, ArrowLeft
 } from 'lucide-react';
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { useNavigate } from "react-router-dom";
 import {
     Dialog,
     DialogContent,
@@ -40,6 +41,7 @@ const passwordSchema = z.object({
 });
 
 export default function Security() {
+    const navigate = useNavigate();
     const [successMsg, setSuccessMsg] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
 
@@ -290,7 +292,13 @@ export default function Security() {
 
     return (
         <PageTransition>
-            <div className="container max-w-4xl mx-auto py-6 space-y-8">
+            <div className="container max-w-4xl mx-auto py-6 px-4 space-y-8">
+                {/* Navigation Header */}
+                <div className="flex items-center justify-between mb-6">
+                    <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 pl-0 hover:bg-transparent hover:text-primary">
+                        <ArrowLeft size={18} /> Back
+                    </Button>
+                </div>
 
                 {/* Header */}
                 <div className="space-y-2">

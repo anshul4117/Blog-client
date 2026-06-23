@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Lock, Eye, UserX, Download, ExternalLink, Shield, BellRing,
-    MessageSquare, AtSign, Search, Database, FileText
+    MessageSquare, AtSign, Search, Database, FileText, ArrowLeft
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -14,8 +14,10 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import PageTransition from "@/components/layout/PageTransition";
+import { useNavigate } from "react-router-dom";
 
 export default function Privacy() {
+    const navigate = useNavigate();
     const [isPrivate, setIsPrivate] = useState(false);
     const [showActivity, setShowActivity] = useState(true);
     const [searchIndexing, setSearchIndexing] = useState(false);
@@ -23,7 +25,13 @@ export default function Privacy() {
 
     return (
         <PageTransition>
-            <div className="container max-w-4xl mx-auto py-6 space-y-8">
+            <div className="container max-w-4xl mx-auto py-6 px-4 space-y-8">
+                {/* Navigation Header */}
+                <div className="flex items-center justify-between mb-6">
+                    <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 pl-0 hover:bg-transparent hover:text-primary">
+                        <ArrowLeft size={18} /> Back
+                    </Button>
+                </div>
 
                 {/* Header */}
                 <div className="space-y-2">

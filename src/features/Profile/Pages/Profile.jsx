@@ -102,7 +102,7 @@ export default function Profile() {
       {/* Navigation Header */}
       <div className="flex items-center justify-between">
         <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 rounded-xl hover:bg-primary/10">
-          <ArrowLeft size={18} /> <span className="text-xs font-bold uppercase tracking-widest">Return</span>
+          <ArrowLeft size={18} /> <span className="text-xs font-bold uppercase tracking-widest">Back</span>
         </Button>
         <div className="flex gap-2">
             <Button variant="outline" className="gap-2 rounded-xl border-primary/20 hover:bg-primary/5">
@@ -140,7 +140,7 @@ export default function Profile() {
                 className="w-40 h-40 rounded-[32px] object-cover border-8 border-background shadow-2xl cursor-pointer hover:rotate-3 transition-transform"
                 onClick={() => setShowImageModal(true)}
               />
-              <Link to="/dashboard/settings">
+              <Link to="/dashboard/settings/profile">
                 <Button size="icon" className="absolute -bottom-2 -right-2 rounded-2xl w-10 h-10 shadow-xl">
                   <Edit size={16} />
                 </Button>

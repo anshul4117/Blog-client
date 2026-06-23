@@ -95,7 +95,7 @@ export default function PostDetails() {
         <PageTransition className="max-w-4xl mx-auto pb-20 px-4">
             <div className="mb-8 flex items-center justify-between">
                 <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 rounded-xl hover:bg-primary/10">
-                    <ArrowLeft size={18} /> <span className="text-xs font-bold uppercase tracking-widest">Return</span>
+                    <ArrowLeft size={18} /> <span className="text-xs font-bold uppercase tracking-widest">Back</span>
                 </Button>
                 <div className="flex gap-2">
                     <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl border-primary/20 hover:bg-primary/5 hover:text-primary">

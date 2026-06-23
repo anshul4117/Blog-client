@@ -25,6 +25,7 @@ const PostDetails = lazy(() => import("../features/Dashboard/Pages/PostDetails.j
 const Profile = lazy(() => import("../features/Profile/Pages/Profile.jsx"));
 const Settings = lazy(() => import("../features/Profile/Pages/Setting.jsx"));
 const SettingsPlaceholder = lazy(() => import("../features/Dashboard/Pages/SettingsPlaceholder.jsx"));
+const UpdateProfile = lazy(() => import("../features/Profile/Pages/UpdateProfile.jsx"));
 
 const Security = lazy(() => import("../features/Profile/Pages/Security.jsx"));
 const Help = lazy(() => import("../features/Support/Pages/Help.jsx"));
@@ -67,8 +68,10 @@ export default function AppRoutes() {
               <Route path="saved" element={<SavedPosts />} />
               <Route path="create" element={<CreatePost />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="settings/profile" element={<UpdateProfile />} />
               <Route path="settings/security" element={<Security />} />
               <Route path="help" element={<Help />} />
+              <Route path="settings/help" element={<Help />} />
               <Route path="settings/privacy" element={<Privacy />} />
               <Route path="settings/:category" element={<SettingsPlaceholder />} />
             </Route>

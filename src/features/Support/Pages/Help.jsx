@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, HelpCircle, Book, User, Settings, Shield, MessageCircle, Mail, ExternalLink, ChevronRight } from 'lucide-react';
+import { Search, HelpCircle, Book, User, Settings, Shield, MessageCircle, Mail, ExternalLink, ChevronRight, ArrowLeft } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,8 +10,10 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import PageTransition from "@/components/layout/PageTransition";
+import { useNavigate } from "react-router-dom";
 
 export default function Help() {
+    const navigate = useNavigate();
     const categories = [
         { icon: Book, title: "Getting Started", description: "Learn the basics of using our platform" },
         { icon: User, title: "Account & Profile", description: "Manage your account settings and profile" },
@@ -44,7 +46,13 @@ export default function Help() {
 
     return (
         <PageTransition>
-            <div className="container max-w-5xl mx-auto py-8 space-y-12">
+            <div className="container max-w-5xl mx-auto py-8 px-4 space-y-12">
+                {/* Navigation Header */}
+                <div className="flex items-center justify-between mb-6">
+                    <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 pl-0 hover:bg-transparent hover:text-primary">
+                        <ArrowLeft size={18} /> Back
+                    </Button>
+                </div>
 
                 {/* Header & Search */}
                 <div className="text-center space-y-6 py-8">

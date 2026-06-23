@@ -27,7 +27,7 @@ const bottomLinks = [
       { to: "/dashboard/settings/help", label: "Help Center", icon: HelpCircle },
       { to: "/dashboard/settings/privacy", label: "Privacy Hub", icon: Shield },
       { to: "/dashboard/settings/account-center", label: "Account Center", icon: Fingerprint },
-      { to: "/dashboard/settings", label: "Config Account", icon: UserCog },
+      { to: "/dashboard/settings/profile", label: "Update Profile", icon: UserCog },
     ]
   },
   { to: "/dashboard/help", label: "Support", icon: HelpCircle },
