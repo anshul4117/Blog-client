@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Lock, Eye, UserX, Download, ExternalLink, Shield, BellRing,
     MessageSquare, AtSign, Search, Database, FileText, ArrowLeft
@@ -15,13 +15,60 @@ import {
 } from "@/components/ui/accordion";
 import PageTransition from "@/components/layout/PageTransition";
 import { useNavigate } from "react-router-dom";
+import API from '@/lib/secureApi';
 
 export default function Privacy() {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
     const [isPrivate, setIsPrivate] = useState(false);
     const [showActivity, setShowActivity] = useState(true);
     const [searchIndexing, setSearchIndexing] = useState(false);
     const [personalizedAds, setPersonalizedAds] = useState(true);
+
+    useEffect(() => {
+        let mounted = true;
+        const fetchPrivacySettings = async () => {
+            try {
+                const res = await API.get("/users/profile");
+                if (mounted) {
+                    const profileData = res.data?.data?.getProfile || res.data?.getProfile || res.data?.data || res.data || {};
+                    const privacy = profileData.privacySettings || {};
+                    setIsPrivate(!!privacy.isPrivate);
+                    setShowActivity(privacy.showActivity !== false);
+                    setSearchIndexing(!!privacy.searchIndexing);
+                    setPersonalizedAds(privacy.personalizedAds !== false);
+                }
+            } catch (err) {
+                console.error("Error loading privacy settings:", err);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+        fetchPrivacySettings();
+        return () => { mounted = false; };
+    }, []);
+
+    const updatePrivacy = async (updatedFields) => {
+        try {
+            const payload = {
+                privacySettings: {
+                    isPrivate: updatedFields.isPrivate !== undefined ? updatedFields.isPrivate : isPrivate,
+                    showActivity: updatedFields.showActivity !== undefined ? updatedFields.showActivity : showActivity,
+                    searchIndexing: updatedFields.searchIndexing !== undefined ? updatedFields.searchIndexing : searchIndexing,
+                    personalizedAds: updatedFields.personalizedAds !== undefined ? updatedFields.personalizedAds : personalizedAds,
+                }
+            };
+            await API.patch("/users/update-user-profile", payload);
+        } catch (err) {
+            console.error("Error updating privacy settings:", err);
+        }
+    };
+
+    if (loading) return (
+        <PageTransition className="flex items-center justify-center min-h-[50vh]">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent shadow-lg shadow-primary/20"></div>
+        </PageTransition>
+    );
 
     return (
         <PageTransition>
@@ -57,7 +104,14 @@ export default function Privacy() {
                         <CardContent>
                             <div className="flex items-center justify-between">
                                 <Label htmlFor="private-account" className="font-medium">Private Account</Label>
-                                <Switch id="private-account" checked={isPrivate} onCheckedChange={setIsPrivate} />
+                                <Switch 
+                                    id="private-account" 
+                                    checked={isPrivate} 
+                                    onCheckedChange={(val) => {
+                                        setIsPrivate(val);
+                                        updatePrivacy({ isPrivate: val });
+                                    }} 
+                                />
                             </div>
                         </CardContent>
                     </Card>
@@ -75,7 +129,14 @@ export default function Privacy() {
                         <CardContent>
                             <div className="flex items-center justify-between">
                                 <Label htmlFor="activity-status" className="font-medium">Show Activity Status</Label>
-                                <Switch id="activity-status" checked={showActivity} onCheckedChange={setShowActivity} />
+                                <Switch 
+                                    id="activity-status" 
+                                    checked={showActivity} 
+                                    onCheckedChange={(val) => {
+                                        setShowActivity(val);
+                                        updatePrivacy({ showActivity: val });
+                                    }} 
+                                />
                             </div>
                         </CardContent>
                     </Card>
@@ -140,7 +201,13 @@ export default function Privacy() {
                                         <p className="font-medium text-sm">Search engine indexing</p>
                                         <p className="text-xs text-muted-foreground">Allow search engines to show your profile.</p>
                                     </div>
-                                    <Switch checked={searchIndexing} onCheckedChange={setSearchIndexing} />
+                                    <Switch 
+                                        checked={searchIndexing} 
+                                        onCheckedChange={(val) => {
+                                            setSearchIndexing(val);
+                                            updatePrivacy({ searchIndexing: val });
+                                        }} 
+                                    />
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <div className="space-y-1">
@@ -169,7 +236,13 @@ export default function Privacy() {
                                         <p className="font-medium text-sm">Personalized Ads</p>
                                         <p className="text-xs text-muted-foreground">See ads based on your activity on and off the platform.</p>
                                     </div>
-                                    <Switch checked={personalizedAds} onCheckedChange={setPersonalizedAds} />
+                                    <Switch 
+                                        checked={personalizedAds} 
+                                        onCheckedChange={(val) => {
+                                            setPersonalizedAds(val);
+                                            updatePrivacy({ personalizedAds: val });
+                                        }} 
+                                    />
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <div className="space-y-1">
