@@ -381,10 +381,7 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                             <div className="h-10 w-10 rounded-full border-2 border-white/20 overflow-hidden">
                                 <img src={post.author?.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"} alt={authorName} className="w-full h-full object-cover" />
                             </div>
-                            <div className="flex flex-col">
-                                <span className="text-white font-bold text-sm">{authorName}</span>
-                                <span className="text-white/60 text-xs">{authorHandle}</span>
-                            </div>
+                            <span className="text-white font-bold text-sm">{authorName}</span>
                         </div>
 
                         <div className="flex items-center gap-6 text-white/80">
@@ -464,7 +461,6 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                             <Link to={`/profile/${post.userId?._id || post.author?._id || ""}`} className="font-bold text-foreground hover:text-primary transition-colors truncate">
                                 {authorName}
                             </Link>
-                            <span className="text-muted-foreground/60 truncate">{authorHandle}</span>
                             <span className="text-muted-foreground/40">·</span>
                             <span className="text-muted-foreground/60 text-xs">{timeAgo}</span>
                         </div>
