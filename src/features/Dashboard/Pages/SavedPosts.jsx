@@ -1,14 +1,47 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PostCard from "../../../components/blog/PostCard";
 import PageTransition from "@/components/layout/PageTransition.jsx";
 import { Bookmark, Compass, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import API from "@/lib/secureApi.js";
 
 export default function SavedPosts() {
-    const [posts] = useState([]);
-    const [loading] = useState(false);
+    const [posts, setPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchSavedPosts = () => {
+        API.get("/blogs/allblogs")
+            .then((res) => {
+                const blogData = res.data?.data?.blogs || res.data?.blogs || [];
+                try {
+                    const savedIds = JSON.parse(localStorage.getItem("mock_db_saved_blogs") || "[]");
+                    const filtered = blogData.filter(p => savedIds.includes(p._id));
+                    setPosts(filtered);
+                } catch {
+                    setPosts([]);
+                }
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Error fetching saved blogs:", err);
+                setLoading(false);
+            });
+    };
+
+    useEffect(() => {
+        fetchSavedPosts();
+
+        const handleSavedBlogsChange = () => {
+            fetchSavedPosts();
+        };
+
+        window.addEventListener("saved-blogs-change", handleSavedBlogsChange);
+        return () => {
+            window.removeEventListener("saved-blogs-change", handleSavedBlogsChange);
+        };
+    }, []);
 
     return (
         <PageTransition className="space-y-10">
@@ -52,7 +85,7 @@ export default function SavedPosts() {
             ) : (
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {posts.map((p, index) => (
-                        <PostCard key={p._id} post={p} index={index} />
+                        <PostCard key={p._id} post={p} index={index} isGrid={true} />
                     ))}
                 </div>
             )}

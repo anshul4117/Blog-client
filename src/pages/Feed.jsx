@@ -12,16 +12,24 @@ export default function Feed() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        API.get("/blogs/allblogs")
-            .then((res) => {
-                const blogData = res.data?.data?.blogs || res.data?.blogs || [];
-                setPosts(blogData);
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.error("Error fetching blogs:", err);
-                setLoading(false);
-            });
+        const fetchBlogs = () => {
+            API.get("/blogs/allblogs")
+                .then((res) => {
+                    const blogData = res.data?.data?.blogs || res.data?.blogs || [];
+                    setPosts(blogData);
+                    setLoading(false);
+                })
+                .catch((err) => {
+                    console.error("Error fetching blogs:", err);
+                    setLoading(false);
+                });
+        };
+        fetchBlogs();
+
+        window.addEventListener("blog-deleted", fetchBlogs);
+        return () => {
+            window.removeEventListener("blog-deleted", fetchBlogs);
+        };
     }, []);
 
     return (

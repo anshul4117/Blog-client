@@ -54,7 +54,16 @@ export default function Profile() {
       }
     };
     fetchMyBlogs();
-    return () => { mounted = false; };
+
+    const handleBlogDeleted = () => {
+      fetchMyBlogs();
+    };
+    window.addEventListener("blog-deleted", handleBlogDeleted);
+
+    return () => { 
+      mounted = false; 
+      window.removeEventListener("blog-deleted", handleBlogDeleted);
+    };
   }, []);
 
   const fallbackProfile = {
