@@ -2,13 +2,14 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, FilePlus, FileText, User, Settings, LogOut, LogIn, UserPlus, X, Bookmark,
-  ChevronDown, ChevronRight, Shield, Lock, HelpCircle, UserCog, Ban, Fingerprint, Sparkles
+  ChevronDown, ChevronRight, Shield, Lock, HelpCircle, UserCog, Ban, Fingerprint, Sparkles, Compass
 } from "lucide-react";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../../context/AuthContext";
 
 const links = [
+  { to: "/feed", label: "Discover", icon: Compass },
   { to: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { to: "/dashboard/posts", label: "My Posts", icon: FileText },
   { to: "/dashboard/saved", label: "Saved", icon: Bookmark },

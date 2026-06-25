@@ -43,7 +43,7 @@ export default function MobileBottomBar() {
     }, [isSearchOpen]);
 
     const navItems = [
-        { to: "/feed", icon: Compass, label: "Feed" },
+        { to: "/feed", icon: Compass, label: "Discover" },
         { to: "/dashboard/create", icon: FilePlus, label: "Create" },
         { type: "search", icon: Search, label: "Search" },
         { to: "/dashboard/settings", icon: Settings, label: "Settings" },
