@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Heart, MessageCircle, Bookmark, Share, MoreHorizontal, Sparkles } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Heart, MessageCircle, Bookmark, Share, MoreHorizontal, Sparkles, Edit, UserPlus, UserCheck } from "lucide-react";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext.jsx";
@@ -15,6 +15,7 @@ import {
 
 export default function PostCard({ post, index = 0, isGrid = false }) {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [liked, setLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(post.likeCount || (post.likes !== undefined ? post.likes : 120));
 
@@ -55,12 +56,34 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
     const [replyText, setReplyText] = useState("");
     const [activeReplyId, setActiveReplyId] = useState(null);
 
-    const [followed, setFollowed] = useState(false);
+    const [followed, setFollowed] = useState(() => {
+        try {
+            const followingIds = JSON.parse(localStorage.getItem("mock_db_following") || "[]");
+            return followingIds.includes(String(post.userId?._id || post.author?._id || ""));
+        } catch {
+            return false;
+        }
+    });
 
     const handleFollow = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        setFollowed(!followed);
+        try {
+            const targetId = String(post.userId?._id || post.author?._id || "");
+            if (!targetId) return;
+            const followingIds = JSON.parse(localStorage.getItem("mock_db_following") || "[]");
+            let newFollowingIds;
+            if (followed) {
+                newFollowingIds = followingIds.filter(id => id !== targetId);
+            } else {
+                newFollowingIds = [...followingIds, targetId];
+            }
+            localStorage.setItem("mock_db_following", JSON.stringify(newFollowingIds));
+            setFollowed(!followed);
+            window.dispatchEvent(new Event("following-change"));
+        } catch (err) {
+            console.error("Error toggling follow:", err);
+        }
     };
 
     const currentUserId = user?._id || user?.id || user?.userId;
@@ -194,6 +217,36 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
             } catch (err) {
                 console.error("Error deleting post:", err);
                 alert("Failed to delete the post.");
+            }
+        }
+    };
+
+    const handleShare = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const postLink = `${window.location.origin}/post/${post._id}`;
+        const shareData = {
+            title: post.title || "Check out this post on XDrop",
+            text: post.content?.substring(0, 120) || "An interesting post on XDrop",
+            url: postLink
+        };
+
+        try {
+            if (navigator.share && navigator.canShare?.(shareData)) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(postLink);
+                alert("Post link copied to clipboard! 📋");
+            }
+        } catch (err) {
+            // User cancelled share or error — fallback to clipboard
+            if (err.name !== "AbortError") {
+                try {
+                    await navigator.clipboard.writeText(postLink);
+                    alert("Post link copied to clipboard! 📋");
+                } catch {
+                    console.error("Share failed:", err);
+                }
             }
         }
     };
@@ -382,6 +435,18 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                                 <img src={post.author?.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"} alt={authorName} className="w-full h-full object-cover" />
                             </div>
                             <span className="text-white font-bold text-sm">{authorName}</span>
+                            {showFollowButton && (
+                                <button
+                                    onClick={handleFollow}
+                                    className={`text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full backdrop-blur-md transition-all ${
+                                        followed
+                                            ? "text-white bg-white/20 border border-white/30 hover:bg-red-500/30 hover:border-red-500/40"
+                                            : "text-white bg-white/10 border border-white/20 hover:bg-white/20"
+                                    }`}
+                                >
+                                    {followed ? "Following" : "Follow"}
+                                </button>
+                            )}
                         </div>
 
                         <div className="flex items-center gap-6 text-white/80">
@@ -403,6 +468,12 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                             >
                                 <Bookmark size={20} fill={saved ? "currentColor" : "none"} />
                             </button>
+                            <button
+                                onClick={handleShare}
+                                className="flex items-center gap-2 hover:text-primary transition-colors"
+                            >
+                                <Share size={20} />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -423,6 +494,196 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                             </button>
                         </div>
                         {/* Comments content */}
+                        <div className="flex-1 overflow-hidden">
+                            {renderCommentsPanel(true)}
+                        </div>
+                    </div>
+                )}
+            </motion.div>
+        );
+    }
+
+    if (isGrid) {
+        return (
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: (index % 5) * 0.08, type: "spring" }}
+                className="h-[480px] w-full flex flex-col p-5 rounded-[28px] glass-card border border-primary/5 hover:border-primary/20 shadow-lg hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 group relative justify-between overflow-hidden"
+            >
+                {/* Header */}
+                <div className="flex items-center justify-between mb-3 shrink-0">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                        <Link to={`/profile/${post.userId?._id || post.author?._id || ""}`} className="shrink-0">
+                            <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-border/40 group-hover:border-primary/50 transition-colors">
+                                <img
+                                    src={post.userId?.profilePicture || post.author?.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
+                                    alt={authorName}
+                                    className="h-full w-full object-cover"
+                                />
+                            </div>
+                        </Link>
+                        <div className="flex flex-col min-w-0">
+                            <Link to={`/profile/${post.userId?._id || post.author?._id || ""}`} className="font-bold text-foreground text-sm truncate hover:text-primary transition-colors leading-snug">
+                                {authorName}
+                            </Link>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 leading-none mt-0.5">{timeAgo}</span>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                        {showFollowButton && (
+                            <button
+                                onClick={handleFollow}
+                                className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full transition-all shrink-0 ${
+                                    followed
+                                        ? "text-primary bg-primary/10 border border-primary/20 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20"
+                                        : "text-primary hover:bg-primary/10"
+                                }`}
+                            >
+                                {followed ? "Following" : "Follow"}
+                            </button>
+                        )}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button 
+                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} 
+                                    className="text-muted-foreground hover:text-primary p-1.5 rounded-full hover:bg-primary/10 transition-all focus:outline-none"
+                                >
+                                    <MoreHorizontal size={16} />
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48 glass-panel mt-1 rounded-xl p-1 border-primary/20">
+                                <DropdownMenuItem 
+                                    onClick={handleCopyLink} 
+                                    className="rounded-lg font-bold cursor-pointer hover:bg-primary/10 focus:bg-primary/10 text-xs py-2 px-3"
+                                >
+                                    Copy Link
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                    onClick={handleSaveToggle} 
+                                    className="rounded-lg font-bold cursor-pointer hover:bg-primary/10 focus:bg-primary/10 text-xs py-2 px-3"
+                                >
+                                    {saved ? "Unsaved" : "Saved"}
+                                </DropdownMenuItem>
+                                {String(currentUserId) === String(postUserId) && (
+                                    <>
+                                        <DropdownMenuSeparator className="bg-primary/10 my-1" />
+                                        <DropdownMenuItem 
+                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/dashboard/edit/${post._id}`); }} 
+                                            className="rounded-lg font-bold cursor-pointer hover:bg-primary/10 focus:bg-primary/10 text-xs py-2 px-3"
+                                        >
+                                            Edit Post
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem 
+                                            onClick={handleDeletePost} 
+                                            className="rounded-lg font-bold cursor-pointer text-red-500 hover:bg-red-500/10 focus:bg-red-500/10 text-xs py-2 px-3"
+                                        >
+                                            Delete Post
+                                        </DropdownMenuItem>
+                                    </>
+                                )}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                </div>
+
+                {/* Content Area */}
+                <div className="flex-1 flex flex-col justify-start overflow-hidden min-w-0">
+                    <Link to={`/post/${post._id}`} className="block">
+                        <h3 className="text-[17px] font-extrabold mb-1.5 text-foreground group-hover:text-primary transition-colors leading-tight line-clamp-2">
+                            {post.title}
+                        </h3>
+                        <div className="h-[1px] w-8 bg-primary/30 mb-2.5 group-hover:w-full transition-all duration-500" />
+                    </Link>
+
+                    {/* Image / Placeholder */}
+                    <Link to={`/post/${post._id}`} className="block relative w-full h-[140px] rounded-2xl overflow-hidden border border-border/40 bg-muted/20 shrink-0 mb-3 group-hover:shadow-md transition-all duration-300">
+                        {post.image?.url || post.coverImage || (post.image && typeof post.image === 'string') ? (
+                            <OptimizedImage
+                                src={post.image?.url || post.coverImage || post.image}
+                                alt="Post cover"
+                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                        ) : (
+                            <div className="w-full h-full bg-gradient-to-tr from-emerald-950/40 via-teal-900/30 to-emerald-900/40 relative overflow-hidden flex items-center justify-center">
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 rounded-full bg-primary/10 filter blur-xl animate-pulse" />
+                                <Sparkles size={24} className="text-primary/30 animate-pulse" />
+                            </div>
+                        )}
+                    </Link>
+
+                    <p className="text-xs leading-relaxed text-muted-foreground line-clamp-3 mb-3">
+                        {post.content}
+                    </p>
+                </div>
+
+                {/* Tags */}
+                {post.tags && post.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-3 shrink-0">
+                        {post.tags.slice(0, 2).map(tag => (
+                            <span key={tag} className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-black uppercase tracking-widest border border-primary/20">
+                                #{tag}
+                            </span>
+                        ))}
+                    </div>
+                )}
+
+                {/* Action Bar */}
+                <div className="flex items-center justify-between pt-3 border-t border-border/10 text-muted-foreground shrink-0 mt-auto">
+                    <button
+                        onClick={handleCommentClick}
+                        className={`flex items-center gap-1.5 group/btn hover:text-blue-500 transition-colors text-[10px] font-black uppercase tracking-wider ${showCommentsPanel ? "text-blue-500" : ""}`}
+                    >
+                        <div className="p-1.5 rounded-full group-hover/btn:bg-blue-500/10 transition-all">
+                            <MessageCircle size={15} fill={showCommentsPanel ? "currentColor" : "none"} />
+                        </div>
+                        <span>{commentCount}</span>
+                    </button>
+
+                    <button
+                        onClick={handleLike}
+                        className={`flex items-center gap-1.5 group/btn hover:text-pink-500 transition-colors text-[10px] font-black uppercase tracking-wider ${liked ? "text-pink-500" : ""}`}
+                    >
+                        <div className="p-1.5 rounded-full group-hover/btn:bg-pink-500/10 transition-all">
+                            <Heart size={15} fill={liked ? "currentColor" : "none"} />
+                        </div>
+                        <span>{likeCount}</span>
+                    </button>
+
+                    <button
+                        onClick={handleSaveToggle}
+                        className={`flex items-center gap-1.5 group/btn hover:text-primary transition-colors ${saved ? "text-primary" : ""}`}
+                    >
+                        <div className="p-1.5 rounded-full group-hover/btn:bg-primary/10 transition-all">
+                            <Bookmark size={15} fill={saved ? "currentColor" : "none"} />
+                        </div>
+                    </button>
+
+                    <button 
+                        onClick={handleShare}
+                        className="flex items-center gap-1.5 group/btn hover:text-primary transition-colors"
+                    >
+                        <div className="p-1.5 rounded-full group-hover/btn:bg-primary/10 transition-all">
+                            <Share size={15} />
+                        </div>
+                    </button>
+                </div>
+
+                {/* Overlay Comments Drawer */}
+                {showCommentsPanel && (
+                    <div className="absolute inset-0 z-30 bg-background/95 backdrop-blur-xl p-4 flex flex-col overflow-hidden rounded-[28px]">
+                        <div className="flex items-center justify-between border-b border-border/20 pb-2 mb-3 shrink-0">
+                            <h4 className="font-bold text-xs uppercase tracking-wider text-primary flex items-center gap-1.5">
+                                <MessageCircle size={14} /> Comments ({commentCount})
+                            </h4>
+                            <button
+                                onClick={() => setShowCommentsPanel(false)}
+                                className="text-[9px] font-black uppercase tracking-wider text-muted-foreground hover:text-foreground px-2.5 py-0.5 rounded-lg bg-muted/40 hover:bg-muted/65 transition-all"
+                            >
+                                Close
+                            </button>
+                        </div>
                         <div className="flex-1 overflow-hidden">
                             {renderCommentsPanel(true)}
                         </div>
@@ -457,10 +718,25 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                 <div className="flex-1 min-w-0">
                     {/* Header */}
                     <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2 text-[14px]">
+                        <div className="flex items-center gap-2 text-[14px] min-w-0">
                             <Link to={`/profile/${post.userId?._id || post.author?._id || ""}`} className="font-bold text-foreground hover:text-primary transition-colors truncate">
                                 {authorName}
                             </Link>
+                            {showFollowButton && (
+                                <>
+                                    <span className="text-muted-foreground/40">·</span>
+                                    <button
+                                        onClick={handleFollow}
+                                        className={`text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full transition-all shrink-0 ${
+                                            followed
+                                                ? "text-primary bg-primary/10 border border-primary/20 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20"
+                                                : "text-primary hover:bg-primary/10"
+                                        }`}
+                                    >
+                                        {followed ? "Following" : "Follow"}
+                                    </button>
+                                </>
+                            )}
                             <span className="text-muted-foreground/40">·</span>
                             <span className="text-muted-foreground/60 text-xs">{timeAgo}</span>
                         </div>
@@ -492,6 +768,12 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                                     <>
                                         <DropdownMenuSeparator className="bg-primary/10 my-1" />
                                         <DropdownMenuItem 
+                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/dashboard/edit/${post._id}`); }} 
+                                            className="rounded-lg font-bold cursor-pointer hover:bg-primary/10 focus:bg-primary/10 text-xs py-2 px-3"
+                                        >
+                                            Edit Post
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem 
                                             onClick={handleDeletePost} 
                                             className="rounded-lg font-bold cursor-pointer text-red-500 hover:bg-red-500/10 focus:bg-red-500/10 text-xs py-2 px-3"
                                         >
@@ -506,7 +788,7 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                     {/* Post Content */}
                     <Link to={`/post/${post._id}`} className="block">
                         {post.title && (
-                            <h3 className="text-xl font-extrabold mb-2 text-foreground group-hover:text-primary transition-colors leading-tight">
+                            <h3 className="text-xl font-extrabold mb-2 text-foreground group-hover:text-primary transition-colors leading-tight line-clamp-2">
                                 {post.title}
                             </h3>
                         )}
@@ -517,12 +799,12 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                     </Link>
 
                     {/* Post Image */}
-                    {post.image?.url && (
-                        <div className="mt-4 rounded-2xl overflow-hidden border border-border/40 bg-muted/20">
+                    {(post.image?.url || post.coverImage || (post.image && typeof post.image === 'string')) && (
+                        <div className="mt-4 rounded-2xl overflow-hidden border border-border/40 bg-muted/20 aspect-[16/9] w-full max-h-[300px]">
                             <OptimizedImage
-                                src={post.image.url}
+                                src={post.image?.url || post.coverImage || post.image}
                                 alt="Post content"
-                                className="max-h-[400px] w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                             />
                         </div>
                     )}
@@ -567,7 +849,10 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                             </div>
                         </button>
 
-                        <button className="flex items-center gap-2 group/btn hover:text-primary transition-colors text-xs font-bold uppercase tracking-wider">
+                        <button 
+                            onClick={handleShare}
+                            className="flex items-center gap-2 group/btn hover:text-primary transition-colors text-xs font-bold uppercase tracking-wider"
+                        >
                             <div className="p-2 rounded-full group-hover/btn:bg-primary/10 group-active/btn:scale-90 transition-all">
                                 <Share size={18} />
                             </div>

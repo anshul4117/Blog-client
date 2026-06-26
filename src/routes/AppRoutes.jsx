@@ -20,6 +20,7 @@ const MyPosts = lazy(() => import("../features/Dashboard/Pages/MyPosts.jsx"));
 const CreatePost = lazy(() => import("../features/Dashboard/Pages/CreatePost.jsx"));
 const SavedPosts = lazy(() => import("../features/Dashboard/Pages/SavedPosts.jsx"));
 const PostDetails = lazy(() => import("../features/Dashboard/Pages/PostDetails.jsx"));
+const EditPost = lazy(() => import("../features/Dashboard/Pages/EditPost.jsx"));
 
 // Profile
 const Profile = lazy(() => import("../features/Profile/Pages/Profile.jsx"));
@@ -30,6 +31,7 @@ const UpdateProfile = lazy(() => import("../features/Profile/Pages/UpdateProfile
 const Security = lazy(() => import("../features/Profile/Pages/Security.jsx"));
 const Help = lazy(() => import("../features/Support/Pages/Help.jsx"));
 const Privacy = lazy(() => import("../features/Profile/Pages/Privacy.jsx"));
+const NotFound = lazy(() => import("../pages/NotFound.jsx"));
 
 const Loading = () => (
   <div className="flex h-screen w-full items-center justify-center">
@@ -67,6 +69,7 @@ export default function AppRoutes() {
               <Route path="posts" element={<MyPosts />} />
               <Route path="saved" element={<SavedPosts />} />
               <Route path="create" element={<CreatePost />} />
+              <Route path="edit/:id" element={<EditPost />} />
               <Route path="settings" element={<Settings />} />
               <Route path="settings/profile" element={<UpdateProfile />} />
               <Route path="settings/security" element={<Security />} />
@@ -77,6 +80,9 @@ export default function AppRoutes() {
             </Route>
           </Route>
         </Route>
+
+        {/* 🚫 404 Catch-All */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
   );

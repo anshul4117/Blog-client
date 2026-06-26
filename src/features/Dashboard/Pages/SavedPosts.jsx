@@ -37,9 +37,15 @@ export default function SavedPosts() {
             fetchSavedPosts();
         };
 
+        const handleBlogDeleted = () => {
+            fetchSavedPosts();
+        };
+
         window.addEventListener("saved-blogs-change", handleSavedBlogsChange);
+        window.addEventListener("blog-deleted", handleBlogDeleted);
         return () => {
             window.removeEventListener("saved-blogs-change", handleSavedBlogsChange);
+            window.removeEventListener("blog-deleted", handleBlogDeleted);
         };
     }, []);
 
@@ -60,9 +66,9 @@ export default function SavedPosts() {
             </div>
 
             {loading ? (
-                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
                     {[1, 2, 3].map((n) => (
-                        <div key={n} className="h-80 glass-panel animate-pulse rounded-[32px] border-primary/5 bg-primary/5" />
+                        <div key={n} className="h-[480px] glass-panel animate-pulse rounded-[28px] border-primary/5 bg-primary/5" />
                     ))}
                 </div>
             ) : posts.length === 0 ? (
@@ -83,7 +89,7 @@ export default function SavedPosts() {
                     </Link>
                 </motion.div>
             ) : (
-                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
                     {posts.map((p, index) => (
                         <PostCard key={p._id} post={p} index={index} isGrid={true} />
                     ))}

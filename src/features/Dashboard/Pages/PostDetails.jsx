@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import API from "../../../lib/api.js";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash, Edit, ArrowLeft, Clock, User, Calendar, Sparkles } from "lucide-react";
+import { Trash, Edit, ArrowLeft, Clock, User, Calendar, Sparkles, Heart, MessageCircle, Bookmark, Share, UserPlus, UserCheck } from "lucide-react";
 import PageTransition from "@/components/layout/PageTransition.jsx";
 import { motion } from "framer-motion";
 
@@ -14,6 +14,9 @@ export default function PostDetails() {
     const [loading, setLoading] = useState(true);
     const [deleted, setDeleted] = useState(false);
     const [countdown, setCountdown] = useState(3);
+    const [readProgress, setReadProgress] = useState(0);
+    const contentRef = useRef(null);
+    const scrollContainerRef = useRef(null);
 
     useEffect(() => {
         API.get(`/blogs/post/${id}`)
@@ -25,6 +28,25 @@ export default function PostDetails() {
                 setLoading(false);
             });
     }, [id]);
+
+    // Reading progress bar scroll handler
+    useEffect(() => {
+        const scrollContainer = scrollContainerRef.current;
+        if (!scrollContainer || !post) return;
+
+        const handleScroll = () => {
+            const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+            if (scrollHeight - clientHeight <= 0) {
+                setReadProgress(100);
+                return;
+            }
+            const progress = Math.min((scrollTop / (scrollHeight - clientHeight)) * 100, 100);
+            setReadProgress(progress);
+        };
+
+        scrollContainer.addEventListener("scroll", handleScroll, { passive: true });
+        return () => scrollContainer.removeEventListener("scroll", handleScroll);
+    }, [post]);
 
     useEffect(() => {
         if (deleted) {
@@ -91,72 +113,108 @@ export default function PostDetails() {
         </div>
     );
 
+    const readingTime = Math.max(1, Math.ceil((post.content?.split(' ').length || 0) / 200));
+
     return (
-        <PageTransition className="max-w-4xl mx-auto pb-20 px-4">
-            <div className="mb-8 flex items-center justify-between">
-                <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 rounded-xl hover:bg-primary/10">
-                    <ArrowLeft size={18} /> <span className="text-xs font-bold uppercase tracking-widest">Back</span>
-                </Button>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl border-primary/20 hover:bg-primary/5 hover:text-primary">
-                        <Edit size={18} />
-                    </Button>
-                    <Button variant="outline" size="icon" onClick={handleDelete} className="h-10 w-10 rounded-xl border-red-500/20 hover:bg-red-500/10 hover:text-red-500">
-                        <Trash size={18} />
-                    </Button>
-                </div>
+        <div className="relative h-full flex flex-col overflow-hidden">
+            {/* Reading Progress Bar — Fixed at top */}
+            <div className="sticky top-0 z-50 w-full h-1 bg-muted/20 shrink-0">
+                <motion.div
+                    className="h-full bg-gradient-to-r from-primary via-primary/80 to-primary rounded-r-full"
+                    style={{ width: `${readProgress}%` }}
+                    transition={{ duration: 0.1 }}
+                />
+                {readProgress > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="absolute right-3 -bottom-6 text-[9px] font-black uppercase tracking-widest text-primary/60 bg-background/80 backdrop-blur-sm px-2 py-0.5 rounded-full border border-primary/10"
+                    >
+                        {Math.round(readProgress)}%
+                    </motion.div>
+                )}
             </div>
 
-            <div className="rounded-[48px] glass-panel overflow-hidden border-primary/10 shadow-2xl">
-                <div className="relative h-[400px]">
-                    <img
-                        src={post.image || "/Woman.jpeg"}
-                        alt={post.title}
-                        className="h-full w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
-                </div>
-                
-                <CardContent className="p-8 md:p-12 -mt-20 relative z-10">
-                    <div className="glass-panel p-8 md:p-12 rounded-[40px] border-white/5 bg-background/40 backdrop-blur-3xl shadow-2xl">
-                        <div className="flex flex-wrap items-center gap-6 mb-8 text-xs font-black uppercase tracking-widest text-muted-foreground/60">
-                            <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/10">
-                                <User size={14} /> {post.author?.name || "Anonymous"}
-                            </span>
-                            <span className="flex items-center gap-2">
-                                <Calendar size={14} /> {new Date(post.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' })}
-                            </span>
-                            <span className="flex items-center gap-2">
-                                <Clock size={14} /> 4 min read
-                            </span>
-                        </div>
-
-                        <h1 className="text-4xl md:text-6xl font-black tracking-tighter leading-tight mb-8 text-foreground">
-                            {post.title}
-                        </h1>
-
-                        <div className="h-1 w-20 bg-primary mb-10 rounded-full" />
-
-                        <div className="prose prose-invert max-w-none">
-                            <p className="text-lg md:text-xl leading-relaxed text-muted-foreground font-medium">
-                                {post.content}
-                            </p>
+            {/* Scrollable Content */}
+            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto no-scrollbar">
+                <PageTransition className="max-w-4xl mx-auto pb-20 px-4">
+                    <div className="mb-8 flex items-center justify-between">
+                        <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 rounded-xl hover:bg-primary/10">
+                            <ArrowLeft size={18} /> <span className="text-xs font-bold uppercase tracking-widest">Back</span>
+                        </Button>
+                        <div className="flex gap-2">
+                            <Button variant="outline" size="icon" onClick={() => navigate(`/dashboard/edit/${id}`)} className="h-10 w-10 rounded-xl border-primary/20 hover:bg-primary/5 hover:text-primary">
+                                <Edit size={18} />
+                            </Button>
+                            <Button variant="outline" size="icon" onClick={handleDelete} className="h-10 w-10 rounded-xl border-red-500/20 hover:bg-red-500/10 hover:text-red-500">
+                                <Trash size={18} />
+                            </Button>
                         </div>
                     </div>
 
-                    <div className="mt-12 flex justify-center">
-                        <div className="flex items-center gap-1 p-2 rounded-2xl glass-panel border-primary/10">
-                             <Button variant="ghost" className="rounded-xl gap-2 font-bold px-6">
-                                <Clock size={16} /> History
-                             </Button>
-                             <div className="h-6 w-[1px] bg-primary/20 mx-2" />
-                             <Button variant="ghost" className="rounded-xl gap-2 font-bold px-6 text-primary">
-                                <Sparkles size={16} /> Analytics
-                             </Button>
+                    <div ref={contentRef} className="rounded-[48px] glass-panel overflow-hidden border-primary/10 shadow-2xl">
+                        <div className="relative h-[400px]">
+                            <img
+                                src={post.image || "/Woman.jpeg"}
+                                alt={post.title}
+                                className="h-full w-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
                         </div>
+                        
+                        <CardContent className="p-8 md:p-12 -mt-20 relative z-10">
+                            <div className="glass-panel p-8 md:p-12 rounded-[40px] border-white/5 bg-background/40 backdrop-blur-3xl shadow-2xl">
+                                <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-8 text-xs font-black uppercase tracking-widest text-muted-foreground/60">
+                                    <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/10">
+                                        <User size={14} /> {post.author?.name || "Anonymous"}
+                                    </span>
+                                    <span className="flex items-center gap-2">
+                                        <Calendar size={14} /> {new Date(post.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                                    </span>
+                                    <span className="flex items-center gap-2">
+                                        <Clock size={14} /> {readingTime} min read
+                                    </span>
+                                </div>
+
+                                <h1 className="text-4xl md:text-6xl font-black tracking-tighter leading-tight mb-8 text-foreground">
+                                    {post.title}
+                                </h1>
+
+                                <div className="h-1 w-20 bg-primary mb-10 rounded-full" />
+
+                                <div className="prose prose-invert max-w-none">
+                                    <p className="text-lg md:text-xl leading-relaxed text-muted-foreground font-medium">
+                                        {post.content}
+                                    </p>
+                                </div>
+
+                                {/* Tags */}
+                                {post.tags && post.tags.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mt-10 pt-8 border-t border-primary/10">
+                                        {post.tags.map(tag => (
+                                            <span key={tag} className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">
+                                                #{tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="mt-12 flex justify-center">
+                                <div className="flex items-center gap-1 p-2 rounded-2xl glass-panel border-primary/10">
+                                     <Button variant="ghost" className="rounded-xl gap-2 font-bold px-6">
+                                        <Clock size={16} /> History
+                                     </Button>
+                                     <div className="h-6 w-[1px] bg-primary/20 mx-2" />
+                                     <Button variant="ghost" className="rounded-xl gap-2 font-bold px-6 text-primary">
+                                        <Sparkles size={16} /> Analytics
+                                     </Button>
+                                </div>
+                            </div>
+                        </CardContent>
                     </div>
-                </CardContent>
+                </PageTransition>
             </div>
-        </PageTransition>
+        </div>
     );
 }
