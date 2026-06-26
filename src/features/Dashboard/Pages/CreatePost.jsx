@@ -140,7 +140,9 @@ export default function CreatePost() {
       localStorage.setItem("mock_db_drafts", JSON.stringify(updatedDrafts));
       fetchDrafts();
       alert("Draft saved successfully! 📝");
-      navigate(`/dashboard/create?draftId=${draftData._id}`);
+      reset({ title: "", content: "", tags: "" });
+      setCoverImage(null);
+      navigate("/dashboard/create");
     } catch (err) {
       console.error("Error saving draft:", err);
       alert("Failed to save draft.");
