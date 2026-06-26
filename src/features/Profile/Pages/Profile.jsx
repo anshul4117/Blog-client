@@ -5,25 +5,141 @@ import { useEffect, useState } from "react";
 import secureAPI from "@/lib/secureApi";
 import { MapPin, Calendar, Edit, Award, LayoutGrid, List, ArrowLeft, Compass, X, Share2, Github, Twitter, Globe, Link as LinkIcon, Sparkles, Heart, MessageSquare, Bookmark, HelpCircle, LogOut, ChevronRight } from "lucide-react";
 import PageTransition from "@/components/layout/PageTransition";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import PostCard from "@/components/blog/PostCard.jsx";
+
+const MOCK_SYSTEM_USERS = [
+  {
+    _id: "mock-user-admin",
+    name: "Anshul",
+    username: "anshul4117",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=250&q=80",
+    role: "Founder & Architect",
+    bio: "Creator of XDrop platform. Exploring next-gen user experience models."
+  },
+  {
+    _id: "mock-user-elara",
+    name: "Elara Vance",
+    username: "elaravance",
+    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=250&q=80",
+    role: "Lead Typographer",
+    bio: "Obsessed with variable type scales and responsive spacing curves."
+  },
+  {
+    _id: "mock-user-kaelen",
+    name: "Kaelen Voss",
+    username: "kaelenvoss",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=250&q=80",
+    role: "Systems Engineer",
+    bio: "Optimizing Vite runtimes and concurrent React compilation layers."
+  },
+  {
+    _id: "mock-user-lyra",
+    name: "Lyra Sterling",
+    username: "lyrasterling",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=250&q=80",
+    role: "UX Researcher",
+    bio: "Studying cognitive load in highly animated, dark-mode interfaces."
+  },
+  {
+    _id: "mock-user-soren",
+    name: "Soren Thorne",
+    username: "sorenthorne",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=250&q=80",
+    role: "Security Cryptographer",
+    bio: "Fusing decentralized identity concepts into standard web tokens."
+  }
+];
 
 export default function Profile() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const targetUserId = searchParams.get("userId");
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showImageModal, setShowImageModal] = useState(false);
   const [myBlogs, setMyBlogs] = useState([]);
   const [myBlogsLoading, setMyBlogsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("posts"); // "posts" or "analytics"
+  const [showFollowDialog, setShowFollowDialog] = useState(null); // null, "followers", or "following"
+
+  // Prevent background scroll when dialogs/modals are open
+  useEffect(() => {
+    if (showFollowDialog || showImageModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showFollowDialog, showImageModal]);
+
+  const [followerIds, setFollowerIds] = useState(() => {
+    try {
+      const stored = localStorage.getItem("mock_db_followers");
+      if (!stored) {
+        const initial = ["mock-user-admin", "mock-user-lyra", "mock-user-soren"];
+        localStorage.setItem("mock_db_followers", JSON.stringify(initial));
+        return initial;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return ["mock-user-admin", "mock-user-lyra", "mock-user-soren"];
+    }
+  });
+
+  const [followingIds, setFollowingIds] = useState(() => {
+    try {
+      const stored = localStorage.getItem("mock_db_following");
+      if (!stored) {
+        const initial = ["mock-user-admin", "mock-user-elara", "mock-user-kaelen"];
+        localStorage.setItem("mock_db_following", JSON.stringify(initial));
+        return initial;
+      }
+      return JSON.parse(stored);
+    } catch {
+      return ["mock-user-admin", "mock-user-elara", "mock-user-kaelen"];
+    }
+  });
+
+  useEffect(() => {
+    const handleFollowingChange = () => {
+      try {
+        const ids = JSON.parse(localStorage.getItem("mock_db_following") || "[]");
+        setFollowingIds(ids);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    window.addEventListener("following-change", handleFollowingChange);
+    return () => {
+      window.removeEventListener("following-change", handleFollowingChange);
+    };
+  }, []);
+
+  const handleFollowToggle = (targetId) => {
+    const isFollowing = followingIds.includes(targetId);
+    let updated;
+    if (isFollowing) {
+      updated = followingIds.filter(id => id !== targetId);
+    } else {
+      updated = [...followingIds, targetId];
+    }
+    setFollowingIds(updated);
+    localStorage.setItem("mock_db_following", JSON.stringify(updated));
+    window.dispatchEvent(new Event("following-change"));
+  };
   
   useEffect(() => {
     let mounted = true;
+    setLoading(true);
     const fetchProfile = async () => {
       try {
-        const res = await secureAPI.get("/users/profile");
+        const url = targetUserId ? `/users/profile?userId=${targetUserId}` : "/users/profile";
+        const res = await secureAPI.get(url);
         if (mounted) {
             const data = res.data?.data?.getProfile || res.data?.getProfile || res.data?.data || res.data || {};
             setProfile(data);
@@ -36,13 +152,15 @@ export default function Profile() {
     };
     fetchProfile();
     return () => { mounted = false; };
-  }, []);
+  }, [targetUserId]);
 
   useEffect(() => {
     let mounted = true;
+    setMyBlogsLoading(true);
     const fetchMyBlogs = async () => {
       try {
-        const res = await secureAPI.get("/blogs/myblogs");
+        const url = targetUserId ? `/blogs/myblogs?userId=${targetUserId}` : "/blogs/myblogs";
+        const res = await secureAPI.get(url);
         if (mounted) {
           const blogsData = res.data?.blogs || res.data?.data?.blogs || res.data?.data || [];
           setMyBlogs(blogsData);
@@ -64,7 +182,7 @@ export default function Profile() {
       mounted = false; 
       window.removeEventListener("blog-deleted", handleBlogDeleted);
     };
-  }, []);
+  }, [targetUserId]);
 
   const fallbackProfile = {
     name: user?.name || "John Doe",
@@ -110,9 +228,20 @@ export default function Profile() {
       <PageTransition className="relative z-10 pb-32 pt-6 sm:pt-8 space-y-8 px-4 max-w-7xl mx-auto">
       {/* Navigation Header */}
       <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 rounded-xl hover:bg-primary/10">
-          <ArrowLeft size={18} /> <span className="text-xs font-bold uppercase tracking-widest">Back</span>
-        </Button>
+        <div className="flex items-center gap-2">
+            <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 rounded-xl hover:bg-primary/10">
+              <ArrowLeft size={18} /> <span className="text-xs font-bold uppercase tracking-widest">Back</span>
+            </Button>
+            {targetUserId && targetUserId !== user?._id && (
+                <Button 
+                    variant="ghost" 
+                    onClick={() => navigate("/profile")} 
+                    className="gap-2 rounded-xl hover:bg-primary/10 text-primary font-bold text-xs"
+                >
+                    <Compass size={16} /> My Profile
+                </Button>
+            )}
+        </div>
         <div className="flex gap-2">
             <Button variant="outline" className="gap-2 rounded-xl border-primary/20 hover:bg-primary/5">
                 <Share2 size={16} /> <span className="hidden sm:inline">Share</span>
@@ -149,17 +278,32 @@ export default function Profile() {
                 className="w-40 h-40 rounded-[32px] object-cover border-8 border-background shadow-2xl cursor-pointer hover:rotate-3 transition-transform"
                 onClick={() => setShowImageModal(true)}
               />
-              <Link to="/dashboard/settings/profile">
-                <Button size="icon" className="absolute -bottom-2 -right-2 rounded-2xl w-10 h-10 shadow-xl">
-                  <Edit size={16} />
-                </Button>
-              </Link>
+              {(!targetUserId || targetUserId === user?._id) && (
+                <Link to="/dashboard/settings/profile">
+                  <Button size="icon" className="absolute -bottom-2 -right-2 rounded-2xl w-10 h-10 shadow-xl">
+                    <Edit size={16} />
+                  </Button>
+                </Link>
+              )}
             </motion.div>
-
+ 
             <div className="flex-1 pb-2 w-full">
                 <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3">
                     <h1 className="text-4xl font-extrabold tracking-tighter">{profileData.name}</h1>
-                    <div className="px-2 py-0.5 rounded-md bg-primary/20 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">Verified Identity</div>
+                    {targetUserId && targetUserId !== user?._id ? (
+                      <button
+                        onClick={() => handleFollowToggle(profileData._id)}
+                        className={`text-xs font-black uppercase tracking-wider px-4 py-1.5 rounded-full border transition-all duration-300 cursor-pointer ${
+                          followingIds.includes(profileData._id)
+                            ? "text-primary bg-primary/10 border-primary/20 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20"
+                            : "text-primary-foreground bg-primary border-transparent hover:bg-primary/95 shadow-md shadow-primary/20"
+                        }`}
+                      >
+                        {followingIds.includes(profileData._id) ? "Following" : "Follow"}
+                      </button>
+                    ) : (
+                      <div className="px-2 py-0.5 rounded-md bg-primary/20 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">Verified Identity</div>
+                    )}
                 </div>
                 <p className="text-primary font-bold text-lg mb-1">@{profileData.username}</p>
                 <p className="text-muted-foreground/80 font-semibold text-sm mb-4">{professionTitle}</p>
@@ -170,15 +314,21 @@ export default function Profile() {
                 </div>
             </div>
 
-            <div className="flex gap-8 px-8 py-6 rounded-3xl glass-panel bg-white/5 border-white/10">
-                <div className="text-center">
-                    <span className="block text-3xl font-black tracking-tighter">{profileData.followersCount}</span>
+            <div className="flex gap-8 px-8 py-6 rounded-3xl glass-panel bg-white/5 border-white/10 shrink-0">
+                <button 
+                    onClick={() => setShowFollowDialog("followers")}
+                    className="text-center hover:bg-white/5 px-4 py-2 rounded-2xl transition-all duration-300 focus:outline-none cursor-pointer"
+                >
+                    <span className="block text-3xl font-black tracking-tighter">{1417 + followerIds.length}</span>
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Audience</span>
-                </div>
-                <div className="text-center">
-                    <span className="block text-3xl font-black tracking-tighter">{profileData.followingCount}</span>
+                </button>
+                <button 
+                    onClick={() => setShowFollowDialog("following")}
+                    className="text-center hover:bg-white/5 px-4 py-2 rounded-2xl transition-all duration-300 focus:outline-none cursor-pointer"
+                >
+                    <span className="block text-3xl font-black tracking-tighter">{677 + followingIds.length}</span>
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Following</span>
-                </div>
+                </button>
             </div>
           </div>
 
@@ -359,6 +509,97 @@ export default function Profile() {
               />
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Follower/Following Modal Dialog */}
+      <AnimatePresence>
+        {showFollowDialog && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowFollowDialog(null)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+            />
+
+            {/* Dialog Content */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", duration: 0.4 }}
+              className="relative w-full max-w-md max-h-[80vh] flex flex-col rounded-[32px] glass-panel border border-primary/25 bg-background/90 backdrop-blur-2xl overflow-hidden shadow-2xl z-10"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-6 border-b border-primary/10 bg-primary/5 shrink-0">
+                <h3 className="font-extrabold text-xl tracking-tighter">
+                  {showFollowDialog === "followers" ? "Audience Connection" : "Following Connections"}
+                </h3>
+                <Button 
+                  size="icon" 
+                  variant="ghost" 
+                  onClick={() => setShowFollowDialog(null)}
+                  className="rounded-full hover:bg-primary/10 h-8 w-8 text-muted-foreground hover:text-foreground"
+                >
+                  <X size={18} />
+                </Button>
+              </div>
+
+              {/* List */}
+              <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-4">
+                {(showFollowDialog === "followers" ? MOCK_SYSTEM_USERS.filter(u => followerIds.includes(u._id)) : MOCK_SYSTEM_USERS).map((profile) => {
+                  const isFollowing = followingIds.includes(profile._id);
+                  return (
+                    <div key={profile._id} className="flex gap-3.5 items-start py-3.5 px-4 rounded-[20px] bg-primary/5 border border-primary/5 hover:border-primary/10 hover:bg-primary/10 transition-all duration-300 group">
+                      <div 
+                        onClick={() => {
+                          setShowFollowDialog(null);
+                          navigate(`/profile?userId=${profile._id}`);
+                        }}
+                        className="h-10 w-10 rounded-full overflow-hidden border border-primary/10 shrink-0 mt-0.5 cursor-pointer hover:border-primary/30 transition-all"
+                      >
+                        <img src={profile.avatar} alt={profile.name} className="w-full h-full object-cover" />
+                      </div>
+                      <div 
+                        onClick={() => {
+                          setShowFollowDialog(null);
+                          navigate(`/profile?userId=${profile._id}`);
+                        }}
+                        className="flex-1 min-w-0 cursor-pointer group/info text-left"
+                      >
+                        <p className="font-bold text-sm text-foreground truncate group-hover/info:text-primary transition-colors">{profile.name}</p>
+                        <p className="text-xs text-primary font-medium">@{profile.username}</p>
+                        <p className="text-[10px] text-muted-foreground font-semibold mt-0.5 leading-snug">{profile.bio}</p>
+                      </div>
+                      
+                      {/* Follow Toggle */}
+                      <button
+                        onClick={() => handleFollowToggle(profile._id)}
+                        className={`text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full border transition-all duration-300 self-center shrink-0 cursor-pointer ${
+                          isFollowing
+                            ? "text-primary bg-primary/10 border-primary/20 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20"
+                            : "text-primary-foreground bg-primary border-transparent hover:bg-primary/95 shadow-md shadow-primary/20"
+                        }`}
+                      >
+                        {isFollowing ? "Following" : "Follow"}
+                      </button>
+                    </div>
+                  );
+                })}
+
+                {/* Empty check */}
+                {showFollowDialog === "followers" && followerIds.length === 0 && (
+                  <p className="text-center text-sm text-muted-foreground italic py-8">No audience connection signals detected.</p>
+                )}
+                {showFollowDialog === "following" && followingIds.length === 0 && (
+                  <p className="text-center text-sm text-muted-foreground italic py-8">No outbound following links active.</p>
+                )}
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </PageTransition>

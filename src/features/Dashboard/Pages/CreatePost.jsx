@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,11 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import API from '../../../lib/secureApi.js';
-import { useNavigate } from "react-router-dom";
+import { initMockDb } from "../../../lib/mockDb.js";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import PageTransition from "@/components/layout/PageTransition.jsx";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { ImagePlus, Type, Hash, Sparkles, Eye, Send, ArrowLeft } from "lucide-react";
+import { ImagePlus, Type, Hash, Sparkles, Eye, Send, ArrowLeft, Trash2 } from "lucide-react";
 import PostCard from "@/components/blog/PostCard";
 import { useAuth } from "@/context/AuthContext";
 
@@ -22,7 +25,12 @@ const postSchema = z.object({
 
 export default function CreatePost() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const draftId = searchParams.get("draftId");
   const { user } = useAuth();
+  const [coverImage, setCoverImage] = useState(null);
+  const [isDraftsDialogOpen, setIsDraftsDialogOpen] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -40,15 +48,127 @@ export default function CreatePost() {
 
   const watchedValues = useWatch({ control });
 
+  const [drafts, setDrafts] = useState([]);
+
+  const fetchDrafts = () => {
+    try {
+      initMockDb();
+      const stored = JSON.parse(localStorage.getItem("mock_db_drafts") || "[]");
+      setDrafts(stored);
+    } catch {
+      setDrafts([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchDrafts();
+    if (draftId) {
+      try {
+        const storedDrafts = JSON.parse(localStorage.getItem("mock_db_drafts") || "[]");
+        const existingDraft = storedDrafts.find(d => d._id === draftId);
+        if (existingDraft) {
+          reset({
+            title: existingDraft.title || "",
+            content: existingDraft.content || "",
+            tags: existingDraft.tags || ""
+          });
+          setCoverImage(existingDraft.image || null);
+        }
+      } catch (err) {
+        console.error("Error loading draft:", err);
+      }
+    }
+  }, [draftId, reset]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCoverImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const triggerFileInput = () => {
+    document.getElementById("coverImageInput")?.click();
+  };
+
+  const removeCoverImage = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCoverImage(null);
+    const input = document.getElementById("coverImageInput");
+    if (input) input.value = "";
+  };
+
+  const startNewPost = () => {
+    reset({ title: "", content: "", tags: "" });
+    setCoverImage(null);
+    navigate("/dashboard/create");
+  };
+
+  const saveDraft = () => {
+    const titleVal = watchedValues.title;
+    const contentVal = watchedValues.content;
+    const tagsVal = watchedValues.tags;
+
+    if (!titleVal && !contentVal) {
+      alert("Please provide at least a title or some content to save a draft. ⚠️");
+      return;
+    }
+
+    try {
+      const storedDrafts = JSON.parse(localStorage.getItem("mock_db_drafts") || "[]");
+      const draftData = {
+        _id: draftId || "draft-" + Date.now(),
+        title: titleVal || "",
+        content: contentVal || "",
+        tags: tagsVal || "",
+        image: coverImage || "",
+        updatedAt: new Date().toISOString()
+      };
+
+      let updatedDrafts;
+      if (draftId) {
+        updatedDrafts = storedDrafts.map(d => d._id === draftId ? draftData : d);
+      } else {
+        updatedDrafts = [draftData, ...storedDrafts];
+      }
+
+      localStorage.setItem("mock_db_drafts", JSON.stringify(updatedDrafts));
+      fetchDrafts();
+      alert("Draft saved successfully! 📝");
+      navigate(`/dashboard/create?draftId=${draftData._id}`);
+    } catch (err) {
+      console.error("Error saving draft:", err);
+      alert("Failed to save draft.");
+    }
+  };
+
   const onSubmit = async (data) => {
     try {
-      // Split tags by comma
       const formattedData = {
           ...data,
-          tags: data.tags ? data.tags.split(',').map(t => t.trim()) : []
+          tags: data.tags ? data.tags.split(',').map(t => t.trim()) : [],
+          image: coverImage
       };
       await API.post("/blogs/create", formattedData);
+      
+      // If publishing a draft, remove it from drafts
+      if (draftId) {
+        try {
+          const storedDrafts = JSON.parse(localStorage.getItem("mock_db_drafts") || "[]");
+          const filteredDrafts = storedDrafts.filter(d => d._id !== draftId);
+          localStorage.setItem("mock_db_drafts", JSON.stringify(filteredDrafts));
+        } catch (e) {
+          console.error("Failed to clean up draft:", e);
+        }
+      }
+
       reset();
+      setCoverImage(null);
       navigate("/dashboard/posts");
     } catch (err) {
       alert(err.response?.data?.message || "Failed to create post ❌");
@@ -61,7 +181,7 @@ export default function CreatePost() {
       content: watchedValues.content || "Your story will appear here as you type...",
       author: user,
       createdAt: new Date().toISOString(),
-      image: { url: "" },
+      image: coverImage || { url: "" },
       tags: typeof watchedValues.tags === 'string' ? watchedValues.tags.split(',').map(t => t.trim()) : []
   };
 
@@ -74,8 +194,18 @@ export default function CreatePost() {
                 <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 hover:bg-primary/10 rounded-xl">
                     <ArrowLeft size={18} /> Back
                 </Button>
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">
-                    <Sparkles size={12} /> Composition Mode
+                <div className="flex items-center gap-2">
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      onClick={() => setIsDraftsDialogOpen(true)}
+                      className="lg:hidden flex items-center gap-1.5 h-8 px-3 rounded-xl border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary text-[10px] font-black uppercase tracking-wider"
+                    >
+                      <Sparkles size={12} className="animate-pulse" /> Drafts ({drafts.length})
+                    </Button>
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">
+                        <Sparkles size={12} /> Composition Mode
+                    </div>
                 </div>
             </div>
 
@@ -86,16 +216,37 @@ export default function CreatePost() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
                 <div className="space-y-6">
-                    {/* Image Placeholder Dropzone */}
-                    <motion.div 
-                        whileHover={{ scale: 1.01 }}
-                        className="h-36 sm:h-48 rounded-[24px] sm:rounded-[32px] border-2 border-dashed border-primary/20 bg-primary/5 flex flex-col items-center justify-center gap-2 sm:gap-3 group cursor-pointer hover:border-primary/40 transition-all p-4 text-center"
-                    >
-                        <div className="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform shrink-0">
-                            <ImagePlus size={24} className="sm:w-8 sm:h-8" />
-                        </div>
-                        <p className="text-xs sm:text-sm font-bold text-muted-foreground px-2">Drop a cover image or click to browse</p>
-                    </motion.div>
+                    {/* Image Attachment Dropzone */}
+                    <div className="space-y-2">
+                        <input
+                            type="file"
+                            id="coverImageInput"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleImageChange}
+                        />
+                        {coverImage ? (
+                            <div className="relative h-44 sm:h-56 rounded-[24px] sm:rounded-[32px] overflow-hidden border border-primary/20 group">
+                                <img src={coverImage} alt="Cover preview" className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-3">
+                                    <Button type="button" onClick={triggerFileInput} variant="outline" className="text-white border-white/40 hover:bg-white/20">Change Image</Button>
+                                    <Button type="button" onClick={removeCoverImage} variant="destructive">Remove</Button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div onClick={triggerFileInput}>
+                                <motion.div 
+                                    whileHover={{ scale: 1.01 }}
+                                    className="h-36 sm:h-48 rounded-[24px] sm:rounded-[32px] border-2 border-dashed border-primary/20 bg-primary/5 flex flex-col items-center justify-center gap-2 sm:gap-3 group cursor-pointer hover:border-primary/40 transition-all p-4 text-center"
+                                >
+                                    <div className="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform shrink-0">
+                                        <ImagePlus size={24} className="sm:w-8 sm:h-8" />
+                                    </div>
+                                    <p className="text-xs sm:text-sm font-bold text-muted-foreground px-2">Drop a cover image or click to browse</p>
+                                </motion.div>
+                            </div>
+                        )}
+                    </div>
 
                     <div className="space-y-4">
                         <div className="relative">
@@ -124,23 +275,14 @@ export default function CreatePost() {
                             </div>
                         </div>
 
-                        <div className="relative rounded-[24px] sm:rounded-[32px] border border-primary/10 bg-muted/20 flex flex-col focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/5 transition-all">
+                        <div className="relative rounded-[24px] sm:rounded-[32px] border border-primary/10 bg-muted/20 flex flex-col focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/5 transition-all pt-4">
                             <Label htmlFor="content" className="absolute -top-2.5 left-4 px-2 bg-background text-[10px] font-black uppercase tracking-[0.2em] text-primary z-10">Story Content</Label>
                             
-                            {/* Toolbar Placeholder */}
-                            <div className="flex gap-1 p-2 bg-primary/5 border-b border-primary/10 pt-4 sm:pt-4 rounded-t-[23px] sm:rounded-t-[31px]">
-                                <div className="flex gap-1 ml-2">
-                                    <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg"><Type size={14} /></Button>
-                                    <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg font-bold">B</Button>
-                                    <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg italic">I</Button>
-                                </div>
-                            </div>
-
                             <Textarea
                                 id="content"
                                 placeholder="Start writing your story here..."
                                 rows={12}
-                                className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-none focus:ring-0 focus:outline-none bg-transparent p-4 sm:p-6 resize-none leading-relaxed text-sm sm:text-lg shadow-none rounded-b-[23px] sm:rounded-b-[31px]"
+                                className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-none focus:ring-0 focus:outline-none bg-transparent p-4 sm:p-6 resize-none leading-relaxed text-sm sm:text-lg shadow-none rounded-[23px] sm:rounded-[31px]"
                                 {...register("content")}
                             />
                         </div>
@@ -163,7 +305,8 @@ export default function CreatePost() {
                         type="button" 
                         variant="outline" 
                         size="lg" 
-                        className="h-13 sm:h-16 rounded-xl sm:rounded-2xl px-8 border-primary/10 hover:bg-primary/5 font-bold text-sm sm:text-base"
+                        onClick={saveDraft}
+                        className="h-13 sm:h-16 rounded-xl sm:rounded-2xl px-8 border-primary/10 hover:bg-primary/5 font-bold text-sm sm:text-base cursor-pointer"
                     >
                         Save Draft
                     </Button>
@@ -204,8 +347,100 @@ export default function CreatePost() {
                     </div>
                 </div>
             </div>
+
+            {/* Active Drafts Widget */}
+            <div className="mt-8 p-6 rounded-[32px] glass-panel border border-primary/10">
+                <h4 className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-4 flex items-center justify-between">
+                    <span>Active Drafts ({drafts.length})</span>
+                    <Sparkles size={14} className="text-primary animate-pulse" />
+                </h4>
+                {drafts.length === 0 ? (
+                    <p className="text-xs text-muted-foreground/60 italic">No saved drafts available.</p>
+                ) : (
+                    <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1 no-scrollbar">
+                        {drafts.map((d) => (
+                            <div 
+                                key={d._id} 
+                                onClick={() => navigate(`/dashboard/create?draftId=${d._id}`)}
+                                className={`p-3 rounded-2xl border text-left transition-all duration-300 cursor-pointer ${
+                                    draftId === d._id 
+                                        ? "bg-primary/15 border-primary/40 shadow-inner" 
+                                        : "bg-muted/10 border-primary/5 hover:border-primary/20 hover:bg-primary/5"
+                                }`}
+                            >
+                                <div className="flex justify-between items-start gap-2">
+                                    <p className="font-extrabold text-xs truncate leading-tight text-foreground flex-1">{d.title || "Untitled Draft"}</p>
+                                    {draftId === d._id && <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 mt-1" />}
+                                </div>
+                                <p className="text-[9px] text-muted-foreground/60 mt-1 font-semibold">
+                                    Saved {new Date(d.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                )}
+                {draftId && (
+                    <Button 
+                        type="button" 
+                        onClick={startNewPost}
+                        className="w-full mt-4 h-10 rounded-xl font-bold uppercase tracking-wider text-[10px] bg-primary/10 text-primary border border-primary/10 hover:bg-primary hover:text-primary-foreground transition-all"
+                    >
+                        Create New Draft +
+                    </Button>
+                )}
+            </div>
         </div>
       </div>
+
+      <Dialog open={isDraftsDialogOpen} onOpenChange={setIsDraftsDialogOpen}>
+        <DialogContent className="glass-panel border-primary/15 max-w-md w-[90%] rounded-[32px] p-6 bg-background/95 backdrop-blur-xl">
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-xl font-extrabold tracking-tighter flex items-center gap-2">
+              <Sparkles size={18} className="text-primary animate-pulse" /> Active Drafts ({drafts.length})
+            </DialogTitle>
+          </DialogHeader>
+          {drafts.length === 0 ? (
+            <p className="text-sm text-muted-foreground/60 italic text-center py-6">No saved drafts available.</p>
+          ) : (
+            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1 no-scrollbar">
+              {drafts.map((d) => (
+                <div 
+                  key={d._id} 
+                  onClick={() => {
+                    navigate(`/dashboard/create?draftId=${d._id}`);
+                    setIsDraftsDialogOpen(false);
+                  }}
+                  className={`p-3.5 rounded-2xl border text-left transition-all duration-300 cursor-pointer ${
+                    draftId === d._id 
+                      ? "bg-primary/15 border-primary/40 shadow-inner" 
+                      : "bg-muted/10 border-primary/5 hover:border-primary/20 hover:bg-primary/5"
+                  }`}
+                >
+                  <div className="flex justify-between items-start gap-2">
+                    <p className="font-extrabold text-sm truncate leading-tight text-foreground flex-1">{d.title || "Untitled Draft"}</p>
+                    {draftId === d._id && <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 mt-1" />}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground/60 mt-1.5 font-semibold">
+                    Saved {new Date(d.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+          {draftId ? (
+            <Button 
+              type="button" 
+              onClick={() => {
+                startNewPost();
+                setIsDraftsDialogOpen(false);
+              }}
+              className="w-full mt-4 h-12 rounded-xl font-bold uppercase tracking-wider text-xs bg-primary/10 text-primary border border-primary/10 hover:bg-primary hover:text-primary-foreground transition-all"
+            >
+              Create New Draft +
+            </Button>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </PageTransition>
   );
 }

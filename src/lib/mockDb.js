@@ -97,6 +97,25 @@ const MOCK_DEFAULT_USER = {
   interests: ["React 19", "Vite", "Tailwind v4", "Framer Motion", "Autonomic systems"]
 };
 
+const MOCK_INITIAL_DRAFTS = [
+  {
+    _id: "mock-draft-1",
+    title: "Draft: Optimizing LCP in Concurrent React 19 Applications",
+    content: "Concurrent mode in React 19 introduces automated batching and transitions. But how do we optimize Largest Contentful Paint (LCP) for slower 3G connections? In this article, we dive deep into server-side HTML streaming, lazy loading secondary UI components, and caching expensive calculation fragments.",
+    tags: "React19, LCP, WebPerf",
+    image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
+    updatedAt: new Date(Date.now() - 3600000 * 2).toISOString() // 2 hours ago
+  },
+  {
+    _id: "mock-draft-2",
+    title: "Draft: Designing Harmonious Dark Mode Interfaces",
+    content: "Dark mode is more than just flipping light backgrounds to black. We need to construct custom color maps (e.g. HSL tailored Forest Green), design fine borders with 10% opacity, and layer glassmorphic cards with smooth shadows to maintain visual depth and accessibility.",
+    tags: "Design, CSS, UI/UX",
+    image: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=800&q=80",
+    updatedAt: new Date(Date.now() - 3600000 * 24).toISOString() // 1 day ago
+  }
+];
+
 // Initialize DB if not exists
 export function initMockDb() {
   if (!localStorage.getItem("mock_db_initialized")) {
@@ -104,6 +123,11 @@ export function initMockDb() {
     localStorage.setItem("mock_db_users", JSON.stringify([MOCK_DEFAULT_USER]));
     localStorage.setItem("mock_db_initialized", "true");
     console.log("Mock Database initialized successfully in LocalStorage.");
+  }
+  // Initialize mock drafts if they don't exist
+  if (!localStorage.getItem("mock_db_drafts")) {
+    localStorage.setItem("mock_db_drafts", JSON.stringify(MOCK_INITIAL_DRAFTS));
+    console.log("Mock Drafts seeded in LocalStorage.");
   }
 }
 
@@ -247,8 +271,85 @@ export async function handleMockRequest(config) {
     };
   }
 
-  // 3. GET: /users/profile (Current Profile)
-  if (path === "/users/profile" && method.toLowerCase() === "get") {
+  // 3. GET: /users/profile (Current Profile or Other Profile)
+  if (path.startsWith("/users/profile") && method.toLowerCase() === "get") {
+    const urlObj = new URL(url, "http://localhost");
+    const queryUserId = urlObj.searchParams.get("userId");
+    const users = getUsers();
+
+    if (queryUserId) {
+      // Check if it is a system mock user
+      let profile = users.find(u => u._id === queryUserId);
+      if (!profile) {
+        const sysUsers = [
+          {
+            _id: "mock-user-admin",
+            name: "Anshul",
+            username: "anshul4117",
+            profilePicture: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=250&q=80",
+            role: "Founder & Architect",
+            bio: "Creator of XDrop platform. Exploring next-gen user experience models."
+          },
+          {
+            _id: "mock-user-elara",
+            name: "Elara Vance",
+            username: "elaravance",
+            profilePicture: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=250&q=80",
+            role: "Lead Typographer",
+            bio: "Obsessed with variable type scales and responsive spacing curves."
+          },
+          {
+            _id: "mock-user-kaelen",
+            name: "Kaelen Voss",
+            username: "kaelenvoss",
+            profilePicture: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=250&q=80",
+            role: "Systems Engineer",
+            bio: "Optimizing Vite runtimes and concurrent React compilation layers."
+          },
+          {
+            _id: "mock-user-lyra",
+            name: "Lyra Sterling",
+            username: "lyrasterling",
+            profilePicture: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=250&q=80",
+            role: "UX Researcher",
+            bio: "Studying cognitive load in highly animated, dark-mode interfaces."
+          },
+          {
+            _id: "mock-user-soren",
+            name: "Soren Thorne",
+            username: "sorenthorne",
+            profilePicture: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=250&q=80",
+            role: "Security Cryptographer",
+            bio: "Fusing decentralized identity concepts into standard web tokens."
+          }
+        ];
+        const sysUser = sysUsers.find(u => u._id === queryUserId);
+        if (sysUser) {
+          profile = {
+            ...sysUser,
+            followersCount: 142,
+            followingCount: 95,
+            location: "Network Node",
+            profession: sysUser.role,
+            techStack: ["React 19", "CSS", "Design"],
+            interests: ["Design Systems", "Web UI", "Typography"],
+            socialLinks: { github: "https://github.com", twitter: "https://twitter.com", website: "https://xdrop.dev" }
+          };
+        }
+      }
+      if (profile) {
+        return {
+          status: 200,
+          statusText: "OK",
+          headers: {},
+          config,
+          data: {
+            getProfile: profile
+          }
+        };
+      }
+    }
+
     const currentSession = getCurrentUser();
     if (!currentSession) {
       return Promise.reject({
@@ -256,7 +357,6 @@ export async function handleMockRequest(config) {
       });
     }
 
-    const users = getUsers();
     const profile = users.find(u => u._id === currentSession._id || u.email === currentSession.email) || MOCK_DEFAULT_USER;
     
     return {
@@ -333,10 +433,30 @@ export async function handleMockRequest(config) {
   }
 
   // 6. GET: /blogs/myblogs
-  if (path === "/blogs/myblogs" && method.toLowerCase() === "get") {
-    const currentSession = getCurrentUser();
+  if (path.startsWith("/blogs/myblogs") && method.toLowerCase() === "get") {
+    const urlObj = new URL(url, "http://localhost");
+    const queryUserId = urlObj.searchParams.get("userId");
     const blogs = getBlogs();
-    
+
+    if (queryUserId) {
+      // Filter blogs authored by the requested user
+      const userBlogs = blogs.filter(b => 
+        b.userId?._id === queryUserId || 
+        b.userId?.username === queryUserId ||
+        (queryUserId === "mock-user-admin" && b.userId?._id === "mock-user-admin")
+      );
+      return {
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config,
+        data: {
+          blogs: userBlogs
+        }
+      };
+    }
+
+    const currentSession = getCurrentUser();
     // Filter blogs authored by logged-in user
     const userBlogs = blogs.filter(b => 
       b.userId?._id === currentSession?._id || 
@@ -382,7 +502,7 @@ export async function handleMockRequest(config) {
   if (path === "/blogs/create" && method.toLowerCase() === "post") {
     const currentSession = getCurrentUser();
     const blogs = getBlogs();
-    const { title, content, tags } = data || {};
+    const { title, content, tags, image } = data || {};
 
     const newBlog = {
       _id: "blog-" + Date.now(),
@@ -396,7 +516,7 @@ export async function handleMockRequest(config) {
       commentCount: 0,
       bookmarks: 0,
       bookmarkCount: 0,
-      image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=800&q=80",
+      image: image || "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=800&q=80",
       userId: {
         _id: currentSession?._id || "mock-user-123",
         name: currentSession?.name || "Demo User",
@@ -423,7 +543,45 @@ export async function handleMockRequest(config) {
     };
   }
 
-  // 9. DELETE: /blogs/del-blog/:id
+  // 9. PUT: /blogs/update/:id (Edit/Update a blog)
+  if (path.startsWith("/blogs/update/") && method.toLowerCase() === "put") {
+    const id = path.split("/").pop();
+    const blogs = getBlogs();
+    const blogIndex = blogs.findIndex(b => b._id === id);
+
+    if (blogIndex !== -1) {
+      const { title, content, tags, image } = data || {};
+      const updatedBlog = {
+        ...blogs[blogIndex],
+        title: title || blogs[blogIndex].title,
+        content: content || blogs[blogIndex].content,
+        tags: tags || blogs[blogIndex].tags,
+        image: image !== undefined ? image : blogs[blogIndex].image,
+        updatedAt: new Date().toISOString(),
+      };
+
+      blogs[blogIndex] = updatedBlog;
+      saveBlogs(blogs);
+
+      return {
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config,
+        data: {
+          success: true,
+          blog: updatedBlog,
+          message: "Broadcast signal updated successfully."
+        }
+      };
+    } else {
+      return Promise.reject({
+        response: { status: 404, data: { message: "Signal not found for update." } }
+      });
+    }
+  }
+
+  // 10. DELETE: /blogs/del-blog/:id
   if (path.startsWith("/blogs/del-blog/") && method.toLowerCase() === "delete") {
     const id = path.split("/").pop();
     const blogs = getBlogs();
