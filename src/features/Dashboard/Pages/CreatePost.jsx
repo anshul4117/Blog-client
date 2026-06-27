@@ -13,9 +13,10 @@ import PageTransition from "@/components/layout/PageTransition.jsx";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { ImagePlus, Type, Hash, Sparkles, Eye, Send, ArrowLeft, Trash2 } from "lucide-react";
+import { ImagePlus, Type, Hash, Sparkles, Eye, Send, ArrowLeft, Trash2, Check, AlertTriangle } from "lucide-react";
 import PostCard from "@/components/blog/PostCard";
 import { useAuth } from "@/context/AuthContext";
+import toast from "react-hot-toast";
 
 const postSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters"),
@@ -115,7 +116,7 @@ export default function CreatePost() {
     const tagsVal = watchedValues.tags;
 
     if (!titleVal && !contentVal) {
-      alert("Please provide at least a title or some content to save a draft. ⚠️");
+      toast.error("Please provide at least a title or some content to save a draft. ⚠️");
       return;
     }
 
@@ -139,13 +140,13 @@ export default function CreatePost() {
 
       localStorage.setItem("mock_db_drafts", JSON.stringify(updatedDrafts));
       fetchDrafts();
-      alert("Draft saved successfully! 📝");
+      toast.success("Draft saved successfully! 📝");
       reset({ title: "", content: "", tags: "" });
       setCoverImage(null);
       navigate("/dashboard/create");
     } catch (err) {
       console.error("Error saving draft:", err);
-      alert("Failed to save draft.");
+      toast.error("Failed to save draft. ❌");
     }
   };
 
@@ -169,11 +170,12 @@ export default function CreatePost() {
         }
       }
 
+      toast.success("Publication posted successfully! 🚀");
       reset();
       setCoverImage(null);
       navigate("/dashboard/posts");
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to create post ❌");
+      toast.error(err.response?.data?.message || "Failed to create post ❌");
     }
   };
 
@@ -443,6 +445,7 @@ export default function CreatePost() {
           ) : null}
         </DialogContent>
       </Dialog>
+
     </PageTransition>
   );
 }

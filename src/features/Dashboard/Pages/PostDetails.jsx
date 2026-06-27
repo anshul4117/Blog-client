@@ -3,9 +3,11 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import API from "../../../lib/api.js";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash, Edit, ArrowLeft, Clock, User, Calendar, Sparkles, Heart, MessageCircle, Bookmark, Share, UserPlus, UserCheck } from "lucide-react";
+import { Trash, Edit, ArrowLeft, Clock, User, Calendar, Sparkles, Heart, MessageCircle, Bookmark, Share, UserPlus, UserCheck, ShieldAlert, Check } from "lucide-react";
 import PageTransition from "@/components/layout/PageTransition.jsx";
 import { motion } from "framer-motion";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import toast from "react-hot-toast";
 
 export default function PostDetails() {
     const { id } = useParams();
@@ -15,6 +17,7 @@ export default function PostDetails() {
     const [deleted, setDeleted] = useState(false);
     const [countdown, setCountdown] = useState(3);
     const [readProgress, setReadProgress] = useState(0);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const contentRef = useRef(null);
     const scrollContainerRef = useRef(null);
 
@@ -64,14 +67,15 @@ export default function PostDetails() {
         }
     }, [deleted, navigate]);
 
-    const handleDelete = async () => {
-        if (!confirm("Are you sure you want to delete this post?")) return;
-
+    const handleConfirmDelete = async () => {
         try {
             await API.delete(`/blogs/del-blog/${id}`);
+            setIsDeleteDialogOpen(false);
             setDeleted(true);
+            toast.success("Broadcast terminated successfully. 🗑️");
         } catch {
-            alert("Failed to delete post ❌");
+            setIsDeleteDialogOpen(false);
+            toast.error("Failed to delete post ❌");
         }
     };
 
@@ -146,7 +150,7 @@ export default function PostDetails() {
                             <Button variant="outline" size="icon" onClick={() => navigate(`/dashboard/edit/${id}`)} className="h-10 w-10 rounded-xl border-primary/20 hover:bg-primary/5 hover:text-primary">
                                 <Edit size={18} />
                             </Button>
-                            <Button variant="outline" size="icon" onClick={handleDelete} className="h-10 w-10 rounded-xl border-red-500/20 hover:bg-red-500/10 hover:text-red-500">
+                            <Button variant="outline" size="icon" onClick={() => setIsDeleteDialogOpen(true)} className="h-10 w-10 rounded-xl border-red-500/20 hover:bg-red-500/10 hover:text-red-500">
                                 <Trash size={18} />
                             </Button>
                         </div>
@@ -215,6 +219,36 @@ export default function PostDetails() {
                     </div>
                 </PageTransition>
             </div>
+
+            {/* Custom Delete Dialog */}
+            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogContent className="glass-panel border-primary/15 max-w-sm w-[90%] rounded-[32px] p-6 bg-background/95 backdrop-blur-xl">
+                    <DialogHeader className="mb-4 space-y-2">
+                        <DialogTitle className="text-xl font-extrabold tracking-tighter flex items-center gap-2">
+                            <ShieldAlert size={18} className="text-red-500 animate-pulse" /> Delete Publication?
+                        </DialogTitle>
+                        <DialogDescription className="text-muted-foreground font-semibold text-xs leading-normal">
+                            Are you sure you want to permanently terminate this broadcast? This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex gap-3 mt-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsDeleteDialogOpen(false)}
+                            className="flex-1 h-12 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/10 hover:bg-primary/5"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleConfirmDelete}
+                            className="flex-1 h-12 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20"
+                        >
+                            Delete
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
         </div>
     );
 }

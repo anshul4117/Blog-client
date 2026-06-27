@@ -11,7 +11,7 @@ import { useAuth } from "../../../context/AuthContext.jsx";
 import API from "../../../lib/secureApi.js";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
-import { Mail, Lock, ArrowRight, Github, Chrome, Twitter, Sparkles } from "lucide-react";
+import { Mail, Lock, ArrowRight, Github, Chrome, Twitter, Sparkles, ShieldAlert } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -27,6 +27,7 @@ export default function Login() {
     setValue,
     formState: { errors },
   } = useForm({ resolver: zodResolver(loginSchema) });
+  const [errorMsg, setErrorMsg] = useState("");
 
   const onSubmit = async (data) => {
     try {
@@ -43,7 +44,8 @@ export default function Login() {
       }
       navigate("/feed");
     } catch (err) {
-      alert(err.response?.data?.message || "Login failed ❌");
+      setErrorMsg(err.response?.data?.message || "Login failed ❌");
+      setTimeout(() => setErrorMsg(""), 4000);
     }
   };
 
@@ -64,6 +66,12 @@ export default function Login() {
         onSubmit={handleSubmit(onSubmit)} 
         className="space-y-6"
       >
+        {errorMsg && (
+          <div className="p-3.5 rounded-xl border border-red-500/20 bg-red-500/10 text-red-500 text-xs font-bold flex items-center gap-2">
+            <ShieldAlert size={16} className="shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
         {/* Sandbox Indicator */}
         <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 text-xs text-muted-foreground space-y-2 relative overflow-hidden font-medium">
           <div className="flex items-center gap-1.5 font-bold text-primary text-[10px] uppercase tracking-wider">

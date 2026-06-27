@@ -1,10 +1,11 @@
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Search, Sparkles, User, LogOut, LayoutDashboard, Settings, Globe, Shield, UserPlus } from "lucide-react";
+import { Menu, X, Search, Sparkles, User, LogOut, LayoutDashboard, Settings, Globe, Shield, UserPlus, Check, AlertTriangle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext.jsx";
 import { ModeToggle } from "@/components/mode-toggle";
 import { motion, AnimatePresence } from "framer-motion";
+import toast from "react-hot-toast";
 
 import {
   DropdownMenu,
@@ -18,6 +19,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
+  // Toast notifications managed by react-hot-toast
   const location = useLocation();
   const isHomePage = location.pathname === "/";
   const { user, logout } = useAuth();
@@ -49,13 +51,15 @@ export default function Navbar() {
         localStorage.setItem("blog_app_demo_mode", "false");
         setIsDemoMode(false);
         window.dispatchEvent(new Event("connection-change"));
-        alert("Connected to Live Server! 🟢 Switching to Live Mode.");
-        window.location.reload();
+        toast.success("Connected to Live Server! 🟢 Switching to Live Mode.");
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       } else {
         throw new Error("Offline");
       }
     } catch {
-      alert("Live Server is offline. Check if your backend is running on http://localhost:2000 ❌");
+      toast.error("Live Server is offline. Check if your backend is running on http://localhost:2000 ❌");
     } finally {
       setCheckingConnection(false);
     }
@@ -245,6 +249,6 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
-  );
-}
+      </nav>
+    );
+  }

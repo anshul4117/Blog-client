@@ -13,6 +13,7 @@ const Contact = lazy(() => import("../pages/Contact.jsx"));
 // Auth
 const Login = lazy(() => import("../features/Auth/Pages/Login.jsx"));
 const Register = lazy(() => import("../features/Auth/Pages/Register.jsx"));
+const ForgotPassword = lazy(() => import("../features/Auth/Pages/ForgotPassword.jsx"));
 
 // Dashboard / Features
 const DashboardHome = lazy(() => import("../features/Dashboard/Pages/DashboardHome.jsx"));
@@ -27,6 +28,8 @@ const Profile = lazy(() => import("../features/Profile/Pages/Profile.jsx"));
 const Settings = lazy(() => import("../features/Profile/Pages/Setting.jsx"));
 const SettingsPlaceholder = lazy(() => import("../features/Dashboard/Pages/SettingsPlaceholder.jsx"));
 const UpdateProfile = lazy(() => import("../features/Profile/Pages/UpdateProfile.jsx"));
+const BlockedUsers = lazy(() => import("../features/Profile/Pages/BlockedUsers.jsx"));
+const AccountCenter = lazy(() => import("../features/Profile/Pages/AccountCenter.jsx"));
 
 const Security = lazy(() => import("../features/Profile/Pages/Security.jsx"));
 const Help = lazy(() => import("../features/Support/Pages/Help.jsx"));
@@ -56,6 +59,7 @@ export default function AppRoutes() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
         </Route>
 
         {/* 🔐 Dashboard (Protected Layout) */}
@@ -73,6 +77,8 @@ export default function AppRoutes() {
               <Route path="settings" element={<Settings />} />
               <Route path="settings/profile" element={<UpdateProfile />} />
               <Route path="settings/security" element={<Security />} />
+              <Route path="settings/blocked" element={<BlockedUsers />} />
+              <Route path="settings/account-center" element={<AccountCenter />} />
               <Route path="help" element={<Help />} />
               <Route path="settings/help" element={<Help />} />
               <Route path="settings/privacy" element={<Privacy />} />

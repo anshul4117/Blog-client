@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Heart, MessageCircle, Bookmark, Share, MoreHorizontal, Sparkles, Edit, UserPlus, UserCheck } from "lucide-react";
+import { Heart, MessageCircle, Bookmark, Share, MoreHorizontal, Sparkles, Edit, UserPlus, UserCheck, Check, ShieldAlert } from "lucide-react";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext.jsx";
 import API from "@/lib/secureApi";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import toast from "react-hot-toast";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -27,6 +30,8 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
             return false;
         }
     });
+
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
     const [commentsList, setCommentsList] = useState(() => {
         try {
@@ -199,25 +204,31 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
         const postLink = `${window.location.origin}/post/${post._id}`;
         navigator.clipboard.writeText(postLink)
             .then(() => {
-                alert("Post link copied to clipboard! 📋");
+                toast.success("Post link copied to clipboard! 📋");
             })
             .catch((err) => {
                 console.error("Failed to copy link:", err);
             });
     };
 
-    const handleDeletePost = async (e) => {
+    const handleDeletePost = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (window.confirm("Are you sure you want to terminate this broadcast? ⚠️")) {
-            try {
-                await API.delete(`/blogs/del-blog/${post._id}`);
-                alert("Broadcast terminated successfully.");
+        setIsDeleteDialogOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        try {
+            await API.delete(`/blogs/del-blog/${post._id}`);
+            setIsDeleteDialogOpen(false);
+            toast.success("Broadcast terminated successfully. 🗑️");
+            setTimeout(() => {
                 window.dispatchEvent(new Event("blog-deleted"));
-            } catch (err) {
-                console.error("Error deleting post:", err);
-                alert("Failed to delete the post.");
-            }
+            }, 500);
+        } catch (err) {
+            console.error("Error deleting post:", err);
+            setIsDeleteDialogOpen(false);
+            toast.error("Failed to delete the post. ❌");
         }
     };
 
@@ -236,14 +247,14 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                 await navigator.share(shareData);
             } else {
                 await navigator.clipboard.writeText(postLink);
-                alert("Post link copied to clipboard! 📋");
+                toast.success("Post link copied to clipboard! 📋");
             }
         } catch (err) {
             // User cancelled share or error — fallback to clipboard
             if (err.name !== "AbortError") {
                 try {
                     await navigator.clipboard.writeText(postLink);
-                    alert("Post link copied to clipboard! 📋");
+                    toast.success("Post link copied to clipboard! 📋");
                 } catch {
                     console.error("Share failed:", err);
                 }
@@ -873,6 +884,36 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                     )}
                 </div>
             </div>
+
+            {/* Custom Delete Dialog */}
+            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogContent className="glass-panel border-primary/15 max-w-sm w-[90%] rounded-[32px] p-6 bg-background/95 backdrop-blur-xl">
+                    <DialogHeader className="mb-4 space-y-2">
+                        <DialogTitle className="text-xl font-extrabold tracking-tighter flex items-center gap-2">
+                            <ShieldAlert size={18} className="text-red-500 animate-pulse" /> Delete Broadcast?
+                        </DialogTitle>
+                        <DialogDescription className="text-muted-foreground font-semibold text-xs leading-normal">
+                            Are you sure you want to permanently terminate this broadcast? This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex gap-3 mt-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsDeleteDialogOpen(false)}
+                            className="flex-1 h-12 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/10 hover:bg-primary/5"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleConfirmDelete}
+                            className="flex-1 h-12 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20"
+                        >
+                            Delete
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
         </motion.div>
     );
 }

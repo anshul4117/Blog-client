@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import API from "../../../lib/secureApi.js";
 import { initMockDb } from "../../../lib/mockDb.js";
 import PageTransition from "@/components/layout/PageTransition.jsx";
-import { FileText, PlusCircle, ArrowUpRight, Activity, Sparkles } from "lucide-react";
+import { FileText, PlusCircle, ArrowUpRight, Activity, Sparkles, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import PostCard from "@/components/blog/PostCard.jsx";
 import { useAuth } from "@/context/AuthContext";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export default function MyPosts() {
   const [posts, setPosts] = useState([]);
@@ -17,6 +18,8 @@ export default function MyPosts() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "publications"; // "publications" or "drafts"
   const [drafts, setDrafts] = useState([]);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [pendingDeleteDraftId, setPendingDeleteDraftId] = useState("");
 
   const fetchPosts = () => {
     API.get("/blogs/myblogs")
@@ -57,15 +60,22 @@ export default function MyPosts() {
   }, []);
 
   const handleDeleteDraft = (draftId) => {
-    if (window.confirm("Are you sure you want to delete this draft? ⚠️")) {
-      try {
-        const storedDrafts = JSON.parse(localStorage.getItem("mock_db_drafts") || "[]");
-        const filtered = storedDrafts.filter(d => d._id !== draftId);
-        localStorage.setItem("mock_db_drafts", JSON.stringify(filtered));
-        setDrafts(filtered);
-      } catch (err) {
-        console.error("Error deleting draft:", err);
-      }
+    setPendingDeleteDraftId(draftId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDeleteDraft = () => {
+    if (!pendingDeleteDraftId) return;
+    try {
+      const storedDrafts = JSON.parse(localStorage.getItem("mock_db_drafts") || "[]");
+      const filtered = storedDrafts.filter(d => d._id !== pendingDeleteDraftId);
+      localStorage.setItem("mock_db_drafts", JSON.stringify(filtered));
+      setDrafts(filtered);
+      setIsDeleteDialogOpen(false);
+      setPendingDeleteDraftId("");
+    } catch (err) {
+      console.error("Error deleting draft:", err);
+      setIsDeleteDialogOpen(false);
     }
   };
 
@@ -271,6 +281,34 @@ export default function MyPosts() {
               <Button variant="outline" className="rounded-xl border-primary/20 hover:bg-primary/10 px-8 h-12 font-black uppercase tracking-widest text-xs relative z-10">Analyze Waveforms</Button>
           </div>
       )}
+      {/* Custom Delete Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="glass-panel border-primary/15 max-w-sm w-[90%] rounded-[32px] p-6 bg-background/95 backdrop-blur-xl">
+          <DialogHeader className="mb-4 space-y-2">
+            <DialogTitle className="text-xl font-extrabold tracking-tighter flex items-center gap-2">
+              <ShieldAlert size={18} className="text-red-500 animate-pulse" /> Delete Draft?
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground font-semibold text-xs leading-normal">
+              Are you sure you want to permanently delete this local composer draft? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 mt-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              className="flex-1 h-12 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/10 hover:bg-primary/5"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmDeleteDraft}
+              className="flex-1 h-12 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20"
+            >
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </PageTransition>
   );
 }

@@ -9,10 +9,11 @@ import API from '../../../lib/secureApi.js';
 import { useNavigate, useParams } from "react-router-dom";
 import PageTransition from "@/components/layout/PageTransition.jsx";
 import { motion, AnimatePresence } from "framer-motion";
-import { ImagePlus, Type, Hash, Sparkles, Eye, Save, ArrowLeft, Loader2, Trash2 } from "lucide-react";
+import { ImagePlus, Type, Hash, Sparkles, Eye, Save, ArrowLeft, Loader2, Trash2, Check, AlertTriangle } from "lucide-react";
 import PostCard from "@/components/blog/PostCard";
 import { useAuth } from "@/context/AuthContext";
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
 const postSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters"),
@@ -52,9 +53,11 @@ export default function EditPost() {
       .then((res) => {
         const post = res.data.blog;
         if (post) {
-          setValue("title", post.title || "");
-          setValue("content", post.content || "");
-          setValue("tags", Array.isArray(post.tags) ? post.tags.join(", ") : (post.tags || ""));
+          reset({
+            title: post.title || "",
+            content: post.content || "",
+            tags: Array.isArray(post.tags) ? post.tags.join(", ") : (post.tags || "")
+          });
           setCoverImage(post.image?.url || post.coverImage || post.image || null);
         }
         setLoading(false);
@@ -63,7 +66,7 @@ export default function EditPost() {
         setNotFound(true);
         setLoading(false);
       });
-  }, [id, setValue]);
+  }, [id, reset]);
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
@@ -95,11 +98,12 @@ export default function EditPost() {
         tags: data.tags ? data.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
         image: coverImage
       };
-      await API.put(`/blogs/update/${id}`, formattedData);
+      await API.patch(`/blogs/edit/${id}`, formattedData);
+      toast.success("Publication updated successfully! 📝");
       window.dispatchEvent(new Event("blog-deleted")); // Re-use event to trigger feed refresh
       navigate("/dashboard/posts");
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to update post ❌");
+      toast.error(err.response?.data?.message || "Failed to update post ❌");
     }
   };
 

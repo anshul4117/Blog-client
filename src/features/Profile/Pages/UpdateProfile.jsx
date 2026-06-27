@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import API from "@/lib/secureApi.js";
 import { useAuth } from "@/context/AuthContext";
 import PageTransition from "@/components/layout/PageTransition";
-import { User, Mail, Link as LinkIcon, ArrowLeft, Briefcase, Heart, Calendar, Github, Twitter, Linkedin, Globe, Sparkles } from "lucide-react";
+import { User, Mail, Link as LinkIcon, ArrowLeft, Briefcase, Heart, Calendar, Github, Twitter, Linkedin, Globe, Sparkles, CheckCircle2, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const parseDate = (dateStr) => {
@@ -34,6 +34,8 @@ export default function UpdateProfile() {
   });
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -102,9 +104,11 @@ export default function UpdateProfile() {
           username: updatedUser.username || user?.username,
         });
       }
-      alert("Profile updated successfully ✅");
+      setSuccessMsg("Profile updated successfully ✅");
+      setTimeout(() => setSuccessMsg(""), 3000);
     } catch (err) {
-      alert(err.response?.data?.message || "Update failed ❌");
+      setErrorMsg(err.response?.data?.message || "Update failed ❌");
+      setTimeout(() => setErrorMsg(""), 3000);
       console.error(err);
     } finally {
       setLoading(false);
@@ -141,6 +145,18 @@ export default function UpdateProfile() {
           <CardDescription>Update your photo and personal details here.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6 pt-6">
+          {successMsg && (
+            <div className="p-3.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-500 text-xs font-bold flex items-center gap-2">
+              <CheckCircle2 size={16} />
+              <span>{successMsg}</span>
+            </div>
+          )}
+          {errorMsg && (
+            <div className="p-3.5 rounded-xl border border-red-500/20 bg-red-500/10 text-red-500 text-xs font-bold flex items-center gap-2">
+              <AlertTriangle size={16} />
+              <span>{errorMsg}</span>
+            </div>
+          )}
           <div className="flex flex-col md:flex-row gap-6 pb-6 border-b border-border/20">
             <div className="relative h-20 w-20 shrink-0">
               <img

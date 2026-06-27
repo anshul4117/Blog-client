@@ -11,7 +11,7 @@ import { useNavigate, Link } from "react-router-dom";
 import API from "../../../lib/secureApi.js";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Mail, Lock, ArrowRight, ArrowLeft, Check, ShieldCheck } from "lucide-react";
+import { User, Mail, Lock, ArrowRight, ArrowLeft, Check, ShieldCheck, ShieldAlert } from "lucide-react";
 
 const INTEREST_OPTIONS = ["Tech", "Design", "Writing", "Coding", "Lifestyle", "Crypto", "Gaming", "Marketing"];
 
@@ -47,6 +47,7 @@ export default function Register() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const {
     register,
@@ -106,12 +107,19 @@ export default function Register() {
       await API.post("/users/create", formattedData);
       navigate("/login");
     } catch (err) {
-      alert(err.response?.data?.message || "Registration failed ❌");
+      setErrorMsg(err.response?.data?.message || "Registration failed ❌");
+      setTimeout(() => setErrorMsg(""), 4000);
     }
   };
 
   return (
     <AuthLayout title="Create Account 📝" subtitle="Join our community of writers today">
+      {errorMsg && (
+        <div className="mb-6 p-3.5 rounded-xl border border-red-500/20 bg-red-500/10 text-red-500 text-xs font-bold flex items-center gap-2">
+          <ShieldAlert size={16} className="shrink-0" />
+          <span>{errorMsg}</span>
+        </div>
+      )}
       {/* Step Progress Timeline */}
       <div className="relative flex items-center justify-between mb-8 px-2">
         {/* Background connection bar */}

@@ -271,6 +271,79 @@ export async function handleMockRequest(config) {
     };
   }
 
+  // 2.1 POST: /users/forgot-password (Forgot Password)
+  if (path === "/users/forgot-password" && method.toLowerCase() === "post") {
+    const { email } = data || {};
+    const users = getUsers();
+    const exists = users.some(u => u.email === email);
+
+    if (exists) {
+      return {
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config,
+        data: {
+          success: true,
+          message: "Simulation: Reset link generated.",
+          resetToken: "RESET-123456"
+        }
+      };
+    } else {
+      return Promise.reject({
+        response: {
+          status: 404,
+          data: { message: "No account found with this email address ❌" }
+        }
+      });
+    }
+  }
+
+  // 2.2 POST: /users/reset-password (Reset Password)
+  if (path === "/users/reset-password" && method.toLowerCase() === "post") {
+    const { email, token, password } = data || {};
+    const users = getUsers();
+    
+    if (token !== "RESET-123456") {
+      return Promise.reject({
+        response: {
+          status: 400,
+          data: { message: "Invalid or expired reset token ❌" }
+        }
+      });
+    }
+
+    const userIndex = users.findIndex(u => u.email === email);
+    if (userIndex !== -1) {
+      users[userIndex].password = password;
+      saveUsers(users);
+
+      const session = getCurrentUser();
+      if (session && session.email === email) {
+        session.password = password;
+        localStorage.setItem("currentUser", JSON.stringify(session));
+      }
+
+      return {
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config,
+        data: {
+          success: true,
+          message: "Password reset successfully! 🔑"
+        }
+      };
+    } else {
+      return Promise.reject({
+        response: {
+          status: 404,
+          data: { message: "Reset failed: user not found." }
+        }
+      });
+    }
+  }
+
   // 3. GET: /users/profile (Current Profile or Other Profile)
   if (path.startsWith("/users/profile") && method.toLowerCase() === "get") {
     const urlObj = new URL(url, "http://localhost");
@@ -543,8 +616,8 @@ export async function handleMockRequest(config) {
     };
   }
 
-  // 9. PUT: /blogs/update/:id (Edit/Update a blog)
-  if (path.startsWith("/blogs/update/") && method.toLowerCase() === "put") {
+  // 9. PATCH/PUT: /blogs/edit/:id or /blogs/update/:id (Edit/Update a blog)
+  if ((path.startsWith("/blogs/update/") || path.startsWith("/blogs/edit/")) && (method.toLowerCase() === "put" || method.toLowerCase() === "patch")) {
     const id = path.split("/").pop();
     const blogs = getBlogs();
     const blogIndex = blogs.findIndex(b => b._id === id);
