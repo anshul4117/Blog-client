@@ -9,13 +9,16 @@ import App from "./App";
 import "./index.css";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { ThemeProvider } from "./components/theme-provider";
+import { NotificationProvider } from "./context/NotificationContext.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-          <App />
+        <ThemeProvider defaultTheme="system" storageKey="xdrop-theme">
+          <NotificationProvider>
+            <App />
+          </NotificationProvider>
         </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>

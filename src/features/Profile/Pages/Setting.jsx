@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import PageTransition from "@/components/layout/PageTransition";
-import { Compass, ArrowLeft, UserCog, Lock, Ban, HelpCircle, Shield, Fingerprint, LayoutGrid, Bookmark, LogOut, ChevronRight } from "lucide-react";
+import { Compass, ArrowLeft, UserCog, Lock, Ban, HelpCircle, Shield, Fingerprint, LayoutGrid, Bookmark, LogOut, ChevronRight, Sun } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Settings() {
@@ -70,6 +70,10 @@ export default function Settings() {
           
           <Link to="/dashboard/settings/account-center" className="flex items-center justify-between p-3 rounded-2xl hover:bg-primary/5 transition-all group font-bold">
             <span className="flex items-center gap-3 text-sm text-foreground"><Fingerprint size={18} className="text-primary" /> Account Center</span>
+            <ChevronRight size={16} className="text-muted-foreground/60 group-hover:translate-x-1 transition-transform" />
+          </Link>
+          <Link to="/dashboard/settings/appearance" className="flex items-center justify-between p-3 rounded-2xl hover:bg-primary/5 transition-all group font-bold">
+            <span className="flex items-center gap-3 text-sm text-foreground"><Sun size={18} className="text-primary" /> Appearance</span>
             <ChevronRight size={16} className="text-muted-foreground/60 group-hover:translate-x-1 transition-transform" />
           </Link>
 

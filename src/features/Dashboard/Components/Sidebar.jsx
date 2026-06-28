@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, FilePlus, FileText, User, Settings, LogOut, LogIn, UserPlus, X, Bookmark,
-  ChevronDown, ChevronRight, Shield, Lock, HelpCircle, UserCog, Ban, Fingerprint, Sparkles, Compass
+  ChevronDown, ChevronRight, Shield, Lock, HelpCircle, UserCog, Ban, Fingerprint, Sparkles, Compass, Sun, Bell, Search
 } from "lucide-react";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../../context/AuthContext";
+import { useNotifications } from "../../../context/NotificationContext";
 
 const links = [
   { to: "/feed", label: "Discover", icon: Compass },
@@ -14,6 +15,7 @@ const links = [
   { to: "/dashboard/posts", label: "My Posts", icon: FileText },
   { to: "/dashboard/saved", label: "Saved", icon: Bookmark },
   { to: "/dashboard/create", label: "Create Post", icon: FilePlus },
+  { to: "/dashboard/notifications", label: "Notifications", icon: Bell },
 ];
 
 const bottomLinks = [
@@ -29,6 +31,7 @@ const bottomLinks = [
       { to: "/dashboard/settings/privacy", label: "Privacy Hub", icon: Shield },
       { to: "/dashboard/settings/account-center", label: "Account Center", icon: Fingerprint },
       { to: "/dashboard/settings/profile", label: "Update Profile", icon: UserCog },
+      { to: "/dashboard/settings/appearance", label: "Appearance", icon: Sun },
     ]
   },
   { to: "/dashboard/help", label: "Support", icon: HelpCircle },
@@ -86,6 +89,22 @@ export default function Sidebar({ className = "", mobile = false, onClose, showD
       )}
 
       <div className="flex-1 py-8 px-6 space-y-10 overflow-y-auto no-scrollbar overflow-x-hidden">
+        {user && (
+          <div className="px-2 relative group mb-6">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={16} />
+            <input 
+              type="text" 
+              placeholder="Search universe..." 
+              onClick={() => window.dispatchEvent(new Event("open-spotlight-search"))}
+              readOnly
+              className="w-full bg-muted/20 border border-primary/5 focus:border-primary/20 rounded-2xl pl-11 pr-4 py-2.5 text-xs font-bold outline-none cursor-pointer hover:bg-muted/30 transition-all font-sans"
+            />
+            <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[9px] font-black text-muted-foreground/45 bg-muted/40 px-1.5 py-0.5 rounded border border-primary/5 select-none font-mono">
+              ⌘K
+            </span>
+          </div>
+        )}
+
         {!user ? (
           <div className="space-y-4">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 px-2">Access Portal</p>
@@ -128,6 +147,7 @@ export default function Sidebar({ className = "", mobile = false, onClose, showD
 }
 
 function SidebarItem({ link, activePath, expanded, onToggle, onCloseMobile }) {
+  const { unreadCount } = useNotifications();
   const hasSubItems = link.subItems && link.subItems.length > 0;
   const isExpanded = expanded[link.label];
   const isActive = activePath === link.to || (hasSubItems && link.subItems.some(sub => activePath === sub.to));
@@ -163,6 +183,11 @@ function SidebarItem({ link, activePath, expanded, onToggle, onCloseMobile }) {
             </div>
             {link.label}
           </div>
+          {link.label === "Notifications" && unreadCount > 0 && (
+            <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-[10px] font-black tracking-wider border border-primary/30 shrink-0">
+              {unreadCount}
+            </span>
+          )}
           {hasSubItems && (
             <motion.div animate={{ rotate: isExpanded ? 90 : 0 }} className="text-muted-foreground/40">
               <ChevronRight size={16} />

@@ -116,6 +116,84 @@ const MOCK_INITIAL_DRAFTS = [
   }
 ];
 
+const MOCK_INITIAL_NOTIFICATIONS = [
+  {
+    _id: "notif-1",
+    type: "like",
+    userId: "mock-user-123",
+    actorId: "mock-user-elara",
+    actor: {
+      name: "Elara Vance",
+      username: "elaravance",
+      profilePicture: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=250&q=80"
+    },
+    message: "liked your post 'Vite 7 vs Webpack: The Build Speed Showdown'",
+    isRead: false,
+    createdAt: new Date(Date.now() - 3600000 * 0.5).toISOString(),
+    targetId: "mock-blog-1"
+  },
+  {
+    _id: "notif-2",
+    type: "comment",
+    userId: "mock-user-123",
+    actorId: "mock-user-kaelen",
+    actor: {
+      name: "Kaelen Voss",
+      username: "kaelenvoss",
+      profilePicture: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=250&q=80"
+    },
+    message: "commented: 'Excellent analysis of concurrent renders in React 19!'",
+    isRead: false,
+    createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+    targetId: "mock-blog-1"
+  },
+  {
+    _id: "notif-3",
+    type: "follow",
+    userId: "mock-user-123",
+    actorId: "mock-user-lyra",
+    actor: {
+      name: "Lyra Sterling",
+      username: "lyrasterling",
+      profilePicture: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=250&q=80"
+    },
+    message: "started following you",
+    isRead: true,
+    createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
+    targetId: "mock-user-lyra"
+  },
+  {
+    _id: "notif-4",
+    type: "draft",
+    userId: "mock-user-123",
+    actorId: "system",
+    actor: {
+      name: "System Agent",
+      username: "system",
+      profilePicture: null
+    },
+    message: "Reminder: You have an unfinished draft: 'Optimizing React 19 Runtimes'",
+    isRead: false,
+    createdAt: new Date(Date.now() - 3600000 * 48).toISOString(),
+    targetId: "mock-draft-1"
+  },
+  {
+    _id: "notif-5",
+    type: "welcome",
+    userId: "mock-user-123",
+    actorId: "system",
+    actor: {
+      name: "System Agent",
+      username: "system",
+      profilePicture: null
+    },
+    message: "Welcome to XDrop! Start broadcasting your thoughts to the network.",
+    isRead: true,
+    createdAt: new Date(Date.now() - 3600000 * 240).toISOString(),
+    targetId: "welcome-system"
+  }
+];
+
 // Initialize DB if not exists
 export function initMockDb() {
   if (!localStorage.getItem("mock_db_initialized")) {
@@ -129,6 +207,11 @@ export function initMockDb() {
     localStorage.setItem("mock_db_drafts", JSON.stringify(MOCK_INITIAL_DRAFTS));
     console.log("Mock Drafts seeded in LocalStorage.");
   }
+  // Initialize mock notifications if they don't exist
+  if (!localStorage.getItem("mock_db_notifications")) {
+    localStorage.setItem("mock_db_notifications", JSON.stringify(MOCK_INITIAL_NOTIFICATIONS));
+    console.log("Mock Notifications seeded in LocalStorage.");
+  }
 }
 
 // Helper: read lists from storage
@@ -139,6 +222,16 @@ const getBlogs = () => {
 
 const saveBlogs = (blogs) => {
   localStorage.setItem("mock_db_blogs", JSON.stringify(blogs));
+};
+
+const getNotifications = () => {
+  initMockDb();
+  return JSON.parse(localStorage.getItem("mock_db_notifications") || "[]");
+};
+
+const saveNotifications = (notifs) => {
+  localStorage.setItem("mock_db_notifications", JSON.stringify(notifs));
+  window.dispatchEvent(new Event("notifications-update"));
 };
 
 const getUsers = () => {
@@ -677,6 +770,81 @@ export async function handleMockRequest(config) {
         response: { status: 404, data: { message: "Failed to delete: signal not found." } }
       });
     }
+  }
+
+  // 11. GET: /notifications
+  if (path.startsWith("/notifications") && method.toLowerCase() === "get" && !path.includes("/read") && !path.includes("/delete") && !path.includes("/clear-all")) {
+    const notifications = getNotifications();
+    return {
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config,
+      data: {
+        success: true,
+        notifications: notifications
+      }
+    };
+  }
+
+  // 12. PATCH: /notifications/read/:id
+  if (path.startsWith("/notifications/read/") && method.toLowerCase() === "patch") {
+    const id = path.split("/").pop();
+    const notifications = getNotifications();
+    const notifIndex = notifications.findIndex(n => n._id === id);
+    if (notifIndex !== -1) {
+      notifications[notifIndex].isRead = true;
+      saveNotifications(notifications);
+      return {
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config,
+        data: { success: true, notification: notifications[notifIndex] }
+      };
+    }
+    return Promise.reject({ response: { status: 404, data: { message: "Notification not found." } } });
+  }
+
+  // 13. PATCH: /notifications/read-all
+  if (path === "/notifications/read-all" && method.toLowerCase() === "patch") {
+    const notifications = getNotifications();
+    notifications.forEach(n => { n.isRead = true; });
+    saveNotifications(notifications);
+    return {
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config,
+      data: { success: true, message: "All notifications marked as read." }
+    };
+  }
+
+  // 14. DELETE: /notifications/delete/:id
+  if (path.startsWith("/notifications/delete/") && method.toLowerCase() === "delete") {
+    const id = path.split("/").pop();
+    let notifications = getNotifications();
+    const updated = notifications.filter(n => n._id !== id);
+    saveNotifications(updated);
+    return {
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config,
+      data: { success: true, message: "Notification deleted." }
+    };
+  }
+
+  // 15. DELETE: /notifications/clear-all
+  if (path === "/notifications/clear-all" && method.toLowerCase() === "delete") {
+    saveNotifications([]);
+    return {
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config,
+      data: { success: true, message: "All notifications cleared." }
+    };
   }
 
   // Fallback for unmocked routes

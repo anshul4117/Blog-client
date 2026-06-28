@@ -1,11 +1,13 @@
 import './App.css'
 import AppRoutes from "@/routes/AppRoutes";
 import { Toaster } from "react-hot-toast";
+import SpotlightSearch from "@/components/ui/SpotlightSearch";
 
 function App() {
   return (
     <>
       <AppRoutes />
+      <SpotlightSearch />
       <Toaster 
         position="bottom-right"
         toastOptions={{

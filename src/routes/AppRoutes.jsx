@@ -34,6 +34,8 @@ const AccountCenter = lazy(() => import("../features/Profile/Pages/AccountCenter
 const Security = lazy(() => import("../features/Profile/Pages/Security.jsx"));
 const Help = lazy(() => import("../features/Support/Pages/Help.jsx"));
 const Privacy = lazy(() => import("../features/Profile/Pages/Privacy.jsx"));
+const Appearance = lazy(() => import("../features/Profile/Pages/Appearance.jsx"));
+const NotificationsPage = lazy(() => import("../features/Dashboard/Pages/NotificationsPage.jsx"));
 const NotFound = lazy(() => import("../pages/NotFound.jsx"));
 
 const Loading = () => (
@@ -74,6 +76,7 @@ export default function AppRoutes() {
               <Route path="saved" element={<SavedPosts />} />
               <Route path="create" element={<CreatePost />} />
               <Route path="edit/:id" element={<EditPost />} />
+              <Route path="notifications" element={<NotificationsPage />} />
               <Route path="settings" element={<Settings />} />
               <Route path="settings/profile" element={<UpdateProfile />} />
               <Route path="settings/security" element={<Security />} />
@@ -82,6 +85,7 @@ export default function AppRoutes() {
               <Route path="help" element={<Help />} />
               <Route path="settings/help" element={<Help />} />
               <Route path="settings/privacy" element={<Privacy />} />
+              <Route path="settings/appearance" element={<Appearance />} />
               <Route path="settings/:category" element={<SettingsPlaceholder />} />
             </Route>
           </Route>

@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FilePlus, User, Settings, Compass, Search, X, MessageSquare, Heart, ArrowRight } from "lucide-react";
+import { FilePlus, User, Settings, Compass, Search, X, MessageSquare, Heart, ArrowRight, Bell } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
+import { useNotifications } from "@/context/NotificationContext";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -9,6 +10,7 @@ export default function MobileBottomBar() {
     const { pathname } = useLocation();
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { unreadCount } = useNotifications();
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);
@@ -44,9 +46,9 @@ export default function MobileBottomBar() {
 
     const navItems = [
         { to: "/feed", icon: Compass, label: "Discover" },
-        { to: "/dashboard/create", icon: FilePlus, label: "Create" },
         { type: "search", icon: Search, label: "Search" },
-        { to: "/dashboard/settings", icon: Settings, label: "Settings" },
+        { to: "/dashboard/create", icon: FilePlus, label: "Create" },
+        { to: "/dashboard/notifications", icon: Bell, label: "Inbox", badge: unreadCount },
         { to: "/profile", icon: User, label: "Profile" },
     ];
 
@@ -74,11 +76,16 @@ export default function MobileBottomBar() {
                                 key={item.to}
                                 to={item.to}
                                 className={cn(
-                                    "flex flex-col items-center justify-center w-full h-full gap-1 transition-colors",
+                                    "flex flex-col items-center justify-center w-full h-full gap-1 transition-colors relative",
                                     isActive ? "text-primary font-bold" : "text-muted-foreground hover:text-foreground"
                                 )}
                             >
                                 <item.icon size={20} className={cn(isActive && "text-primary")} />
+                                {item.badge > 0 && (
+                                    <span className="absolute top-2 left-1/2 translate-x-1 px-1.5 py-0.5 rounded-full bg-primary text-white text-[8px] font-black leading-none border border-background scale-90 min-w-[16px] text-center">
+                                        {item.badge}
+                                    </span>
+                                )}
                                 <span className="text-[10px]">{item.label}</span>
                             </Link>
                         );

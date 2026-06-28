@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,9 +10,9 @@ import AuthLayout from "../Components/AuthLayout.jsx";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext.jsx";
 import API from "../../../lib/secureApi.js";
-// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
-import { Mail, Lock, ArrowRight, Github, Chrome, Twitter, Sparkles, ShieldAlert } from "lucide-react";
+import { Mail, Lock, ArrowRight, Github, Chrome, Twitter, Sparkles, ShieldAlert, Loader2 } from "lucide-react";
+import toast from "react-hot-toast";
 
 const loginSchema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -25,8 +26,14 @@ export default function Login() {
     register,
     handleSubmit,
     setValue,
-    formState: { errors },
-  } = useForm({ resolver: zodResolver(loginSchema) });
+    formState: { errors, isSubmitting },
+  } = useForm({ 
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: ""
+    }
+  });
   const [errorMsg, setErrorMsg] = useState("");
 
   const onSubmit = async (data) => {
@@ -42,19 +49,34 @@ export default function Login() {
       } else {
         login(userData);
       }
+      toast.success("Welcome back! ✨");
       navigate("/feed");
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || "Login failed ❌");
+      const message = err.response?.data?.message || "Login failed ❌";
+      setErrorMsg(message);
+      toast.error(message);
       setTimeout(() => setErrorMsg(""), 4000);
     }
   };
 
-  const handleAutofillDemo = () => {
+  const handleAutofillDemo = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (isSubmitting) return;
     setValue("email", "demo@example.com", { shouldValidate: true });
     setValue("password", "password123", { shouldValidate: true });
     setTimeout(() => {
       handleSubmit(onSubmit)();
     }, 100);
+  };
+
+  const handleSocialLogin = (platform) => {
+    toast.success(`${platform} authentication simulated in Sandbox mode. Prefilling credentials... ✨`);
+    setTimeout(() => {
+      handleAutofillDemo();
+    }, 600);
   };
 
   return (
@@ -84,7 +106,8 @@ export default function Login() {
             type="button"
             variant="outline"
             onClick={handleAutofillDemo}
-            className="w-full h-9 rounded-lg border-primary/25 hover:bg-primary/10 text-[11px] font-black uppercase tracking-wider text-primary gap-1 cursor-pointer"
+            disabled={isSubmitting}
+            className="w-full h-9 rounded-lg border-primary/25 hover:bg-primary/10 text-[11px] font-black uppercase tracking-wider text-primary gap-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Autofill & Sign In
           </Button>
@@ -97,9 +120,11 @@ export default function Login() {
           <Input
             id="email"
             type="email"
+            autoFocus
+            disabled={isSubmitting}
             {...register("email")}
             placeholder="name@example.com"
-            className="h-13 pl-11 bg-muted/20 border-primary/10 focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all rounded-xl text-foreground font-medium"
+            className="h-13 pl-11 bg-muted/20 border-primary/10 focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all rounded-xl text-foreground font-medium disabled:opacity-50"
           />
           {errors.email && (
             <p className="text-red-500 text-xs font-semibold mt-1 ml-2">{errors.email.message}</p>
@@ -112,9 +137,10 @@ export default function Login() {
           <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 group-focus-within:text-primary transition-colors z-10" />
           <PasswordInput
             id="password"
+            disabled={isSubmitting}
             {...register("password")}
             placeholder="••••••••"
-            className="h-13 pl-11 bg-muted/20 border-primary/10 focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all rounded-xl text-foreground font-medium"
+            className="h-13 pl-11 bg-muted/20 border-primary/10 focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all rounded-xl text-foreground font-medium disabled:opacity-50"
           />
           {errors.password && (
             <p className="text-red-500 text-xs font-semibold mt-1 ml-2">{errors.password.message}</p>
@@ -130,10 +156,20 @@ export default function Login() {
         {/* Submit */}
         <Button
           type="submit"
-          className="w-full h-13 text-sm font-black uppercase tracking-widest rounded-xl shadow-lg hover:shadow-primary/25 transition-all flex items-center justify-center gap-2 cursor-pointer bg-primary text-white"
+          disabled={isSubmitting}
+          className="w-full h-13 text-sm font-black uppercase tracking-widest rounded-xl shadow-lg hover:shadow-primary/25 transition-all flex items-center justify-center gap-2 cursor-pointer bg-primary text-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Sign In
-          <ArrowRight className="h-4 w-4" />
+          {isSubmitting ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Signing In...
+            </>
+          ) : (
+            <>
+              Sign In
+              <ArrowRight className="h-4 w-4" />
+            </>
+          )}
         </Button>
 
         {/* Divider */}
@@ -150,13 +186,28 @@ export default function Login() {
 
         {/* Social Buttons */}
         <div className="grid grid-cols-3 gap-3">
-          <button type="button" className="flex items-center justify-center h-11 rounded-xl border border-primary/10 bg-muted/10 hover:bg-muted/30 transition-all group cursor-pointer">
+          <button 
+            type="button" 
+            disabled={isSubmitting}
+            onClick={() => handleSocialLogin("Google")}
+            className="flex items-center justify-center h-11 rounded-xl border border-primary/10 bg-muted/10 hover:bg-muted/30 transition-all group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <Chrome className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
           </button>
-          <button type="button" className="flex items-center justify-center h-11 rounded-xl border border-primary/10 bg-muted/10 hover:bg-muted/30 transition-all group cursor-pointer">
+          <button 
+            type="button" 
+            disabled={isSubmitting}
+            onClick={() => handleSocialLogin("GitHub")}
+            className="flex items-center justify-center h-11 rounded-xl border border-primary/10 bg-muted/10 hover:bg-muted/30 transition-all group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <Github className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
           </button>
-          <button type="button" className="flex items-center justify-center h-11 rounded-xl border border-primary/10 bg-muted/10 hover:bg-muted/30 transition-all group cursor-pointer">
+          <button 
+            type="button" 
+            disabled={isSubmitting}
+            onClick={() => handleSocialLogin("Twitter")}
+            className="flex items-center justify-center h-11 rounded-xl border border-primary/10 bg-muted/10 hover:bg-muted/30 transition-all group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <Twitter className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
           </button>
         </div>

@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { 
   User, Settings, Lock, Shield, Activity, LogOut, Compass, Trash2, Edit, Fingerprint, 
   Globe, Github, Twitter, Chrome, CloudDownload, Share2, Key, Sparkles, Check, 
-  CheckCircle2, AlertTriangle, AlertCircle, Laptop, Smartphone, FileDown
+  CheckCircle2, AlertTriangle, AlertCircle, Laptop, Smartphone, FileDown, ArrowLeft
 } from "lucide-react";
 
 export default function AccountCenter() {
@@ -193,8 +193,6 @@ export default function AccountCenter() {
     setTimeout(() => {
       logout();
       navigate("/");
-    }, 2000);
-  };igate("/");
     }, 2000);
   };
 
