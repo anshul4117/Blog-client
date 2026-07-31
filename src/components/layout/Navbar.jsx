@@ -123,7 +123,9 @@ export default function Navbar() {
               <input 
                 type="text" 
                 placeholder="Search universe..." 
-                className="bg-muted/30 border border-transparent focus:border-primary/30 rounded-full pl-10 pr-4 py-2 text-sm w-40 focus:w-64 transition-all duration-500 outline-none backdrop-blur-md"
+                onClick={() => window.dispatchEvent(new Event("open-spotlight-search"))}
+                readOnly
+                className="bg-muted/30 border border-transparent focus:border-primary/30 rounded-full pl-10 pr-4 py-2 text-sm w-40 focus:w-64 transition-all duration-500 outline-none backdrop-blur-md cursor-pointer hover:bg-muted/40"
               />
             </div>
           )}
