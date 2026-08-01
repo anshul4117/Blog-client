@@ -1,24 +1,24 @@
+import { useState, useEffect, useRef } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import API from '../../../lib/secureApi.js';
 import { useNavigate, useParams } from "react-router-dom";
 import PageTransition from "@/components/layout/PageTransition.jsx";
+import BackgroundMesh from "@/components/ui/BackgroundMesh.jsx";
 import { motion, AnimatePresence } from "framer-motion";
-import { ImagePlus, Type, Hash, Sparkles, Eye, Save, ArrowLeft, Loader2, Trash2, Check, AlertTriangle } from "lucide-react";
+import { 
+  ImagePlus, Sparkles, Save, ArrowLeft, Loader2, Hash, FileText
+} from "lucide-react";
 import PostCard from "@/components/blog/PostCard";
 import { useAuth } from "@/context/AuthContext";
-import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import { cn } from "@/lib/utils";
 
 const postSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters"),
   content: z.string().min(10, "Content must be at least 10 characters"),
-  tags: z.string().optional(),
 });
 
 export default function EditPost() {
@@ -28,6 +28,10 @@ export default function EditPost() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [coverImage, setCoverImage] = useState(null);
+  const [showTagsInput, setShowTagsInput] = useState(false);
+  const [tagsList, setTagsList] = useState([]);
+  const [tagInput, setTagInput] = useState("");
+  const contentRef = useRef(null);
 
   const {
     register,
@@ -40,8 +44,7 @@ export default function EditPost() {
     resolver: zodResolver(postSchema),
     defaultValues: {
       title: "",
-      content: "",
-      tags: ""
+      content: ""
     }
   });
 
@@ -55,9 +58,21 @@ export default function EditPost() {
         if (post) {
           reset({
             title: post.title || "",
-            content: post.content || "",
-            tags: Array.isArray(post.tags) ? post.tags.join(", ") : (post.tags || "")
+            content: post.content || ""
           });
+          
+          // Load tags properly
+          const initialTags = post.tags 
+            ? (Array.isArray(post.tags) 
+                ? post.tags 
+                : typeof post.tags === "string" 
+                  ? post.tags.split(",").map(t => t.trim()).filter(Boolean)
+                  : [])
+            : [];
+          setTagsList(initialTags);
+          if (initialTags.length > 0) {
+            setShowTagsInput(true);
+          }
           setCoverImage(post.image?.url || post.coverImage || post.image || null);
         }
         setLoading(false);
@@ -91,16 +106,70 @@ export default function EditPost() {
     if (input) input.value = "";
   };
 
+  const handleAddTag = (e) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      const cleaned = tagInput.trim().replace(/,/g, "");
+      if (cleaned && !tagsList.includes(cleaned)) {
+        setTagsList([...tagsList, cleaned]);
+      }
+      setTagInput("");
+    }
+  };
+
+  const handleRemoveTag = (indexToRemove) => {
+    setTagsList(tagsList.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  // Helper function to inject Markdown tags
+  const insertMarkdown = (syntax, placeholder = "text") => {
+    const textarea = contentRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const selectedText = text.substring(start, end);
+    
+    let replacement = "";
+    if (syntax === "h1") {
+      replacement = `\n# ${selectedText || placeholder}\n`;
+    } else if (syntax === "h2") {
+      replacement = `\n## ${selectedText || placeholder}\n`;
+    } else if (syntax === "bold") {
+      replacement = `**${selectedText || placeholder}**`;
+    } else if (syntax === "italic") {
+      replacement = `*${selectedText || placeholder}*`;
+    } else if (syntax === "quote") {
+      replacement = `\n> ${selectedText || placeholder}\n`;
+    } else if (syntax === "code") {
+      replacement = `\n\`\`\`javascript\n${selectedText || placeholder}\n\`\`\`\n`;
+    } else if (syntax === "list") {
+      replacement = `\n- ${selectedText || placeholder}\n`;
+    }
+
+    const newValue = text.substring(0, start) + replacement + text.substring(end);
+    
+    setValue("content", newValue, { shouldValidate: true, shouldDirty: true });
+
+    // Focus & position cursor
+    setTimeout(() => {
+      textarea.focus();
+      const newCursorPos = start + replacement.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    }, 0);
+  };
+
   const onSubmit = async (data) => {
     try {
       const formattedData = {
         ...data,
-        tags: data.tags ? data.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+        tags: tagsList,
         image: coverImage
       };
       await API.patch(`/blogs/edit/${id}`, formattedData);
       toast.success("Publication updated successfully! 📝");
-      window.dispatchEvent(new Event("blog-deleted")); // Re-use event to trigger feed refresh
+      window.dispatchEvent(new Event("blog-deleted")); // Refresh feeds
       navigate("/dashboard/posts");
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to update post ❌");
@@ -108,14 +177,38 @@ export default function EditPost() {
   };
 
   const previewPost = {
-    _id: "preview-edit",
+    _id: id,
     title: watchedValues.title || "Post Title Preview",
     content: watchedValues.content || "Your updated story will appear here...",
     author: user,
     createdAt: new Date().toISOString(),
     image: coverImage || { url: "" },
-    tags: typeof watchedValues.tags === 'string' ? watchedValues.tags.split(',').map(t => t.trim()).filter(Boolean) : []
+    tags: tagsList
   };
+
+  // Compute readability rating based on length & tags
+  const getReadabilityScore = () => {
+    const text = watchedValues.content || "";
+    const words = text.split(/\s+/).filter(x => x.length > 0).length;
+    const paragraphs = text.split(/\n+/).filter(x => x.trim().length > 0).length;
+    if (words === 0) return 0;
+    if (words < 15) return 20;
+    if (words < 50) return 45;
+    if (words < 150) return 75;
+    return Math.min(100, 80 + Math.floor(words / 100) + (paragraphs >= 3 ? 10 : 0));
+  };
+
+  const readabilityScore = getReadabilityScore();
+  const wordsCount = (watchedValues.content || "").split(/\s+/).filter(x => x.length > 0).length || 0;
+  const readingTime = Math.ceil(wordsCount / 200) || 0;
+
+  // SVG Progress Circle configuration
+  const radius = 22;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (readabilityScore / 100) * circumference;
+
+  // Merge hookform ref with custom contentRef
+  const { ref: hookFormContentRef, ...contentRest } = register("content");
 
   if (loading) {
     return (
@@ -135,163 +228,308 @@ export default function EditPost() {
   }
 
   return (
-    <PageTransition className="max-w-7xl mx-auto px-4">
-      <div className="flex flex-col lg:flex-row gap-12">
-        {/* Editor Side */}
-        <div className="flex-1 space-y-8">
-          <div className="flex items-center justify-between">
-            <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 hover:bg-primary/10 rounded-xl">
-              <ArrowLeft size={18} /> Back
-            </Button>
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-widest border border-amber-500/20">
-              <Sparkles size={12} /> Edit Mode
+    <PageTransition className="relative min-h-screen w-full flex flex-col items-center justify-start py-8 px-4 md:px-8 max-w-7xl mx-auto overflow-hidden">
+      <BackgroundMesh />
+      
+      <div className="flex flex-col lg:flex-row gap-12 w-full justify-center">
+        
+        {/* Editor Main Canvas Sheet */}
+        <div className="flex-1 max-w-[760px] w-full flex flex-col">
+          
+          <div className="w-full rounded-[36px] bg-background/40 backdrop-blur-md border border-primary/5 p-6 sm:p-10 shadow-2xl relative">
+            
+            {/* Contextual Notion-style Header Actions */}
+            <div className="flex items-center gap-3 mb-6 border-b border-primary/5 pb-4">
+              <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 hover:bg-primary/10 rounded-xl px-3 h-9 text-xs font-bold uppercase tracking-wider">
+                <ArrowLeft size={14} /> Back
+              </Button>
+              
+              <div className="ml-auto flex items-center gap-2">
+                {!coverImage && (
+                  <button 
+                    type="button" 
+                    onClick={triggerFileInput} 
+                    className="text-xs font-black uppercase tracking-wider text-muted-foreground/60 hover:text-primary transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-primary/5 cursor-pointer"
+                  >
+                    <ImagePlus size={14} /> Cover
+                  </button>
+                )}
+                
+                {!showTagsInput && tagsList.length === 0 && (
+                  <button 
+                    type="button" 
+                    onClick={() => setShowTagsInput(true)} 
+                    className="text-xs font-black uppercase tracking-wider text-muted-foreground/60 hover:text-primary transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-primary/5 cursor-pointer"
+                  >
+                    <Hash size={14} /> Tags
+                  </button>
+                )}
+
+                <div className="h-4 w-[1px] bg-primary/10 mx-1" />
+
+                <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full">
+                  <Sparkles size={10} /> Edit Mode
+                </span>
+              </div>
             </div>
-          </div>
 
-          <div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tighter">Refine Your <span className="text-gradient">Broadcast</span></h1>
-            <p className="text-muted-foreground mt-2">Polish, update, and perfect your signal.</p>
-          </div>
+            {/* Input file for Image cover */}
+            <input
+              type="file"
+              id="coverImageInput"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+            />
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-            <div className="space-y-6">
-              {/* Image Attachment Dropzone */}
-              <div className="space-y-2">
-                <input
-                  type="file"
-                  id="coverImageInput"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageChange}
+            {/* Banner Cover Image Display */}
+            {coverImage && (
+              <div className="relative aspect-[21/9] w-full rounded-2xl overflow-hidden border border-primary/10 group mb-6 shadow-md">
+                <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-2.5">
+                  <button type="button" onClick={triggerFileInput} className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer">Change</button>
+                  <button type="button" onClick={removeCoverImage} className="px-4 py-2 bg-red-500/85 hover:bg-red-500 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer">Remove</button>
+                </div>
+              </div>
+            )}
+
+            {/* Floating Markdown Helper Bar inside Canvas */}
+            <div className="flex items-center justify-between border-b border-primary/5 pb-3.5 mb-6">
+              <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/20 border border-primary/5">
+                {[
+                  { label: "Heading 1", syntax: "h1", icon: <span className="font-extrabold text-[10px] font-mono">H1</span> },
+                  { label: "Heading 2", syntax: "h2", icon: <span className="font-extrabold text-[10px] font-mono">H2</span> },
+                  { label: "Bold", syntax: "bold", icon: <span className="font-black text-xs font-mono">B</span> },
+                  { label: "Italic", syntax: "italic", icon: <span className="italic font-bold text-xs font-mono">I</span> },
+                  { label: "Quote", syntax: "quote", icon: <span className="font-black text-xs">”</span> },
+                  { label: "Code", syntax: "code", icon: <span className="font-mono text-[9px]">&lt;/&gt;</span> },
+                  { label: "List", syntax: "list", icon: <span className="font-black text-xs">•</span> },
+                ].map((tool) => (
+                  <button
+                    key={tool.syntax}
+                    type="button"
+                    onClick={() => insertMarkdown(tool.syntax)}
+                    title={tool.label}
+                    className="h-7.5 w-7.5 rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors border border-transparent hover:border-primary/5 cursor-pointer"
+                  >
+                    {tool.icon}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Immersive Inputs (Title and Content) */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              
+              {/* Title Canvas */}
+              <div className="relative">
+                <textarea
+                  rows={1}
+                  id="title"
+                  placeholder="Give your story a title..."
+                  className="w-full bg-transparent border-none text-3xl sm:text-5xl font-black placeholder-muted-foreground/20 focus:outline-none focus-visible:ring-0 focus:ring-0 outline-none leading-tight shadow-none p-0 text-foreground resize-none font-sans"
+                  {...register("title")}
+                  onInput={(e) => {
+                    e.target.style.height = "auto";
+                    e.target.style.height = `${e.target.scrollHeight}px`;
+                  }}
                 />
-                {coverImage ? (
-                  <div className="relative h-44 sm:h-56 rounded-[24px] sm:rounded-[32px] overflow-hidden border border-primary/20 group">
-                    <img src={coverImage} alt="Cover preview" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-3">
-                      <Button type="button" onClick={triggerFileInput} variant="outline" className="text-white border-white/40 hover:bg-white/20">Change Image</Button>
-                      <Button type="button" onClick={removeCoverImage} variant="destructive">Remove</Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div onClick={triggerFileInput}>
-                    <motion.div
-                      whileHover={{ scale: 1.01 }}
-                      className="h-36 sm:h-48 rounded-[24px] sm:rounded-[32px] border-2 border-dashed border-primary/20 bg-primary/5 flex flex-col items-center justify-center gap-2 sm:gap-3 group cursor-pointer hover:border-primary/40 transition-all p-4 text-center"
-                    >
-                      <div className="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform shrink-0">
-                        <ImagePlus size={24} className="sm:w-8 sm:h-8" />
-                      </div>
-                      <p className="text-xs sm:text-sm font-bold text-muted-foreground px-2">Drop a cover image or click to browse</p>
-                    </motion.div>
-                  </div>
+                {errors.title && (
+                  <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-xs font-bold mt-2">{errors.title.message}</motion.p>
                 )}
               </div>
 
-              <div className="space-y-4">
-                <div className="relative">
-                  <Label htmlFor="title" className="absolute -top-2.5 left-4 px-2 bg-background text-[10px] font-black uppercase tracking-[0.2em] text-primary z-10">Title</Label>
-                  <Input
-                    id="title"
-                    placeholder="The title of your next big idea..."
-                    className="h-13 sm:h-16 text-base sm:text-xl font-bold rounded-xl sm:rounded-2xl border-primary/10 focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all bg-muted/20"
-                    {...register("title")}
+              {/* Tag pills composer (Fades in dynamically) */}
+              {(showTagsInput || tagsList.length > 0) && (
+                <div className="flex flex-wrap gap-2 items-center p-3 rounded-2xl bg-muted/10 border border-primary/5 focus-within:border-primary/10 focus-within:ring-2 focus-within:ring-primary/5 transition-all">
+                  {tagsList.map((tag, idx) => (
+                    <span 
+                      key={idx} 
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-primary/10 text-primary text-[10px] font-black uppercase tracking-wider border border-primary/10"
+                    >
+                      <span>#{tag}</span>
+                      <button 
+                        type="button" 
+                        onClick={() => handleRemoveTag(idx)} 
+                        className="text-primary/60 hover:text-red-500 transition-colors cursor-pointer text-[10px]"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ))}
+                  <input
+                    type="text"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={handleAddTag}
+                    placeholder="Add tag..."
+                    className="flex-1 min-w-[100px] bg-transparent border-none text-xs font-bold text-foreground outline-none placeholder-muted-foreground/30"
                   />
-                  {errors.title && (
-                    <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-xs font-bold mt-2 ml-2">{errors.title.message}</motion.p>
+                  {tagsList.length === 0 && (
+                    <button 
+                      type="button" 
+                      onClick={() => setShowTagsInput(false)} 
+                      className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/45 hover:text-foreground cursor-pointer"
+                    >
+                      Cancel
+                    </button>
                   )}
                 </div>
+              )}
 
-                <div className="relative">
-                  <Label htmlFor="tags" className="absolute -top-2.5 left-4 px-2 bg-background text-[10px] font-black uppercase tracking-[0.2em] text-primary z-10">Tags (comma separated)</Label>
-                  <div className="relative">
-                    <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-                    <Input
-                      id="tags"
-                      placeholder="design, coding, lifestyle"
-                      className="h-11 sm:h-14 pl-10 sm:pl-12 text-sm sm:text-base rounded-xl sm:rounded-2xl border-primary/10 focus:border-primary transition-all bg-muted/20"
-                      {...register("tags")}
-                    />
-                  </div>
-                </div>
+              <div className="h-[1px] w-full bg-primary/5 my-4" />
 
-                <div className="relative rounded-[24px] sm:rounded-[32px] border border-primary/10 bg-muted/20 flex flex-col focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/5 transition-all pt-4">
-                  <Label htmlFor="content" className="absolute -top-2.5 left-4 px-2 bg-background text-[10px] font-black uppercase tracking-[0.2em] text-primary z-10">Story Content</Label>
-
-                  <Textarea
-                    id="content"
-                    placeholder="Start writing your story here..."
-                    rows={12}
-                    className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-none focus:ring-0 focus:outline-none bg-transparent p-4 sm:p-6 resize-none leading-relaxed text-sm sm:text-lg shadow-none rounded-[23px] sm:rounded-[31px]"
-                    {...register("content")}
-                  />
-                </div>
+              {/* Content Canvas */}
+              <div className="relative">
+                <textarea
+                  id="content"
+                  placeholder="Start broadcasting your signal into the void..."
+                  rows={14}
+                  className="w-full bg-transparent border-none text-sm sm:text-base md:text-lg placeholder-muted-foreground/20 focus:outline-none focus-visible:ring-0 focus:ring-0 outline-none leading-relaxed shadow-none p-0 text-foreground/90 resize-none mt-2 no-scrollbar"
+                  {...contentRest}
+                  ref={(e) => {
+                    hookFormContentRef(e);
+                    contentRef.current = e;
+                  }}
+                />
                 {errors.content && (
-                  <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-xs font-bold mt-2 ml-2">{errors.content.message}</motion.p>
+                  <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-red-500 text-xs font-bold mt-2">{errors.content.message}</motion.p>
                 )}
               </div>
-            </div>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-              <Button
-                type="submit"
-                size="lg"
+              {/* Mobile Publish Buttons */}
+              <div className="lg:hidden flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-6 border-t border-primary/5">
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting} 
+                  className="flex-1 h-12 rounded-xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all gap-2 text-xs"
+                >
+                  {isSubmitting ? (
+                    <><Loader2 size={14} className="animate-spin" /> Updating...</>
+                  ) : (
+                    <><Save size={14} /> Update Story</>
+                  )}
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => navigate(-1)}
+                  className="h-12 rounded-xl px-6 border-primary/15 hover:bg-primary/5 font-bold text-xs uppercase tracking-wider cursor-pointer"
+                >
+                  Cancel
+                </Button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+        {/* Figma-style Inspector Panel (Right side) */}
+        <div className="hidden lg:block w-[320px] shrink-0 sticky top-28 space-y-6 h-fit">
+          
+          {/* Section 1: Publish Commands */}
+          <div className="p-6 rounded-[28px] bg-background/40 backdrop-blur-md border border-primary/5 shadow-xl space-y-4">
+            <div className="flex items-center gap-2 text-primary">
+              <Sparkles size={14} className="animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Publish Protocol</span>
+            </div>
+            
+            <div className="space-y-2.5">
+              <Button 
+                onClick={handleSubmit(onSubmit)}
                 disabled={isSubmitting}
-                className="flex-1 h-13 sm:h-16 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all gap-3 text-sm sm:text-base"
+                className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-black uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 text-xs cursor-pointer"
               >
                 {isSubmitting ? (
-                  <><Loader2 size={18} className="animate-spin" /> Updating...</>
+                  <><Loader2 size={14} className="animate-spin" /> Updating...</>
                 ) : (
-                  <><Save size={18} /> Update Story</>
+                  <><Save size={14} /> Update Story</>
                 )}
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                className="h-13 sm:h-16 rounded-xl sm:rounded-2xl px-8 border-primary/10 hover:bg-primary/5 font-bold text-sm sm:text-base"
+              
+              <Button 
+                type="button" 
                 onClick={() => navigate(-1)}
+                className="w-full h-12 rounded-xl bg-muted/20 border border-primary/10 hover:bg-primary/5 text-foreground font-bold text-xs uppercase tracking-widest transition-all cursor-pointer"
               >
                 Cancel
               </Button>
             </div>
-          </form>
-        </div>
-
-        {/* Preview Side */}
-        <div className="hidden lg:block w-[400px] shrink-0 sticky top-32 h-fit">
-          <div className="mb-6 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Eye size={18} className="text-primary" />
-              <span className="text-sm font-black uppercase tracking-widest text-muted-foreground/60">Live Preview</span>
-            </div>
-            <div className="flex gap-1">
-              <div className="w-2 h-2 rounded-full bg-red-500" />
-              <div className="w-2 h-2 rounded-full bg-yellow-500" />
-              <div className="w-2 h-2 rounded-full bg-green-500" />
-            </div>
           </div>
 
-          <div className="scale-90 origin-top">
-            <AnimatePresence mode="wait">
-              <PostCard post={previewPost} index={1} />
-            </AnimatePresence>
-          </div>
-
-          <div className="mt-8 p-6 rounded-[32px] glass-panel border-dashed border-primary/20">
-            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-3">SEO Insights</h4>
-            <div className="space-y-3">
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Reading Time</span>
-                <span className="font-bold">{Math.ceil(watchedValues.content?.split(' ').length / 200) || 0} min</span>
+          {/* Section 2: Real-time SVG Circular Score Analysis */}
+          <div className="p-6 rounded-[28px] bg-background/40 backdrop-blur-md border border-primary/5 shadow-xl">
+            <div className="flex items-center gap-4">
+              
+              {/* SVG Circular progress */}
+              <div className="relative flex items-center justify-center shrink-0 w-16 h-16">
+                <svg className="w-full h-full transform -rotate-90">
+                  <circle cx="32" cy="32" r={radius} className="text-muted/10" strokeWidth="4" stroke="currentColor" fill="transparent" />
+                  <motion.circle 
+                    cx="32" 
+                    cy="32" 
+                    r={radius} 
+                    className="text-primary" 
+                    strokeWidth="4" 
+                    stroke="currentColor" 
+                    fill="transparent" 
+                    strokeDasharray={circumference}
+                    animate={{ strokeDashoffset }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                  />
+                </svg>
+                <span className="absolute text-xs font-black tracking-tighter text-foreground font-mono">{readabilityScore}%</span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Word Count</span>
-                <span className="font-bold">{watchedValues.content?.split(' ').filter(x => x.length > 0).length || 0} words</span>
+
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/50">Readability Index</p>
+                <p className="text-xs font-black text-foreground mt-0.5">
+                  {readabilityScore < 40 ? "Needs structure" : readabilityScore < 75 ? "Optimal signals" : "Senior grade quality"}
+                </p>
+                <p className="text-[9px] text-muted-foreground/60 leading-tight mt-0.5">
+                  {readabilityScore < 40 
+                    ? "Add more contents." 
+                    : readabilityScore < 75 
+                      ? "Good length, keep going." 
+                      : "Masterfully structured."}
+                </p>
+              </div>
+            </div>
+
+            <div className="h-[1px] w-full bg-primary/5 my-4" />
+
+            <div className="grid grid-cols-2 gap-3.5">
+              <div className="p-3 rounded-2xl bg-muted/10 border border-primary/5 text-center">
+                <p className="text-[8px] font-black uppercase tracking-wider text-muted-foreground/50">Word Count</p>
+                <p className="text-sm font-black text-foreground mt-0.5 font-mono">
+                  {wordsCount}
+                </p>
+              </div>
+              <div className="p-3 rounded-2xl bg-muted/10 border border-primary/5 text-center">
+                <p className="text-[8px] font-black uppercase tracking-wider text-muted-foreground/50">Reading Est.</p>
+                <p className="text-sm font-black text-foreground mt-0.5 font-mono">
+                  {readingTime} <span className="text-[8px] text-muted-foreground/50 font-sans font-bold">MIN</span>
+                </p>
               </div>
             </div>
           </div>
+
+          {/* Live Preview card */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-muted-foreground">
+              <span className="text-[10px] font-black uppercase tracking-widest">Live Preview</span>
+              <Eye size={12} className="text-primary" />
+            </div>
+            <div className="scale-95 origin-top">
+              <AnimatePresence mode="wait">
+                <PostCard post={previewPost} index={1} />
+              </AnimatePresence>
+            </div>
+          </div>
+
         </div>
       </div>
+
     </PageTransition>
   );
 }
