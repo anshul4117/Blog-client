@@ -97,6 +97,72 @@ const MOCK_DEFAULT_USER = {
   interests: ["React 19", "Vite", "Tailwind v4", "Framer Motion", "Autonomic systems"]
 };
 
+const MOCK_USER_2 = {
+  _id: "mock-user-2",
+  name: "Elena Rostova",
+  username: "elena_ui",
+  email: "elena@example.com",
+  password: "password123",
+  role: "Design Lead",
+  profilePicture: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=250&q=80",
+  location: "Berlin, Germany",
+  profession: "Design Advocate & Product Strategist",
+  bio: "Pioneering creative interfaces. Writing on design systems, human-centered UX, and aesthetics.",
+  followersCount: 890,
+  followingCount: 310,
+  dateOfJoin: "2025-01-20T00:00:00.000Z",
+  socialLinks: {
+    github: "https://github.com",
+    twitter: "https://twitter.com",
+    website: "https://elena.design"
+  },
+  interests: ["Design Systems", "Framer Motion", "UI Design"]
+};
+
+const MOCK_USER_3 = {
+  _id: "mock-user-3",
+  name: "Kenji Sato",
+  username: "kenji_dev",
+  email: "kenji@example.com",
+  password: "password123",
+  role: "Core Engineer",
+  profilePicture: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=250&q=80",
+  location: "Kyoto, Japan",
+  profession: "Full-stack Web3 Architect",
+  bio: "Building robust distributed systems. React 19 core enthusiast, Rust developer, and open-source maintainer.",
+  followersCount: 2150,
+  followingCount: 940,
+  dateOfJoin: "2024-10-05T00:00:00.000Z",
+  socialLinks: {
+    github: "https://github.com",
+    twitter: "https://twitter.com",
+    website: "https://kenji.dev"
+  },
+  interests: ["React 19", "Web3", "Rust", "Node.js"]
+};
+
+const MOCK_USER_4 = {
+  _id: "mock-user-4",
+  name: "Sophia Martinez",
+  username: "sophia_m",
+  email: "sophia@example.com",
+  password: "password123",
+  role: "Creative Director",
+  profilePicture: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=250&q=80",
+  location: "San Francisco, CA",
+  profession: "Design Systems Architect",
+  bio: "Curating sleek user experiences. Scaling modern typography, micro-interactions, and design workflows.",
+  followersCount: 3120,
+  followingCount: 420,
+  dateOfJoin: "2025-02-15T00:00:00.000Z",
+  socialLinks: {
+    github: "https://github.com",
+    twitter: "https://twitter.com",
+    website: "https://sophia.design"
+  },
+  interests: ["Aesthetics", "Typography", "CSS Animations"]
+};
+
 const MOCK_INITIAL_DRAFTS = [
   {
     _id: "mock-draft-1",
@@ -198,7 +264,7 @@ const MOCK_INITIAL_NOTIFICATIONS = [
 export function initMockDb() {
   if (!localStorage.getItem("mock_db_initialized")) {
     localStorage.setItem("mock_db_blogs", JSON.stringify(MOCK_INITIAL_BLOGS));
-    localStorage.setItem("mock_db_users", JSON.stringify([MOCK_DEFAULT_USER]));
+    localStorage.setItem("mock_db_users", JSON.stringify([MOCK_DEFAULT_USER, MOCK_USER_2, MOCK_USER_3, MOCK_USER_4]));
     localStorage.setItem("mock_db_initialized", "true");
     console.log("Mock Database initialized successfully in LocalStorage.");
   }
@@ -217,7 +283,34 @@ export function initMockDb() {
 // Helper: read lists from storage
 const getBlogs = () => {
   initMockDb();
-  return JSON.parse(localStorage.getItem("mock_db_blogs") || "[]");
+  let blogs = [];
+  try {
+    blogs = JSON.parse(localStorage.getItem("mock_db_blogs") || "[]");
+  } catch {
+    blogs = [];
+  }
+  
+  // Self-healing check for array-based likes
+  let modified = false;
+  blogs.forEach(b => {
+    if (!Array.isArray(b.likes)) {
+      if (b._id === "mock-blog-1") {
+        b.likes = ["mock-user-admin", "mock-user-2", "mock-user-3"];
+      } else if (b._id === "mock-blog-2") {
+        b.likes = ["mock-user-123", "mock-user-3", "mock-user-4"];
+      } else if (b._id === "mock-blog-3") {
+        b.likes = ["mock-user-admin", "mock-user-123", "mock-user-2", "mock-user-4"];
+      } else {
+        b.likes = [];
+      }
+      b.likeCount = b.likes.length;
+      modified = true;
+    }
+  });
+  if (modified) {
+    localStorage.setItem("mock_db_blogs", JSON.stringify(blogs));
+  }
+  return blogs;
 };
 
 const saveBlogs = (blogs) => {
@@ -242,10 +335,23 @@ const getUsers = () => {
   } catch {
     users = [];
   }
+  
+  let modified = false;
   if (!users.some(u => u.email === "demo@example.com")) {
     users.push(MOCK_DEFAULT_USER);
+    modified = true;
+  }
+  
+  // Self-healing check for additional mock users
+  if (!users.some(u => u._id === "mock-user-2")) {
+    users.push(MOCK_USER_2, MOCK_USER_3, MOCK_USER_4);
+    modified = true;
+  }
+  
+  if (modified) {
     localStorage.setItem("mock_db_users", JSON.stringify(users));
   }
+  
   return users;
 };
 
@@ -845,6 +951,93 @@ export async function handleMockRequest(config) {
       config,
       data: { success: true, message: "All notifications cleared." }
     };
+  }
+
+  // 16. POST: /blogs/like/:id
+  if (path.startsWith("/blogs/like/") && method.toLowerCase() === "post") {
+    const id = path.split("/").pop();
+    const blogs = getBlogs();
+    const blogIndex = blogs.findIndex(b => b._id === id);
+    const currentUser = getCurrentUser();
+    const userId = currentUser ? currentUser._id : "mock-user-123";
+
+    if (blogIndex !== -1) {
+      const blog = blogs[blogIndex];
+      if (!Array.isArray(blog.likes)) {
+        blog.likes = [];
+      }
+      
+      const likedIndex = blog.likes.indexOf(userId);
+      let liked = false;
+      if (likedIndex !== -1) {
+        blog.likes.splice(likedIndex, 1);
+        liked = false;
+      } else {
+        blog.likes.push(userId);
+        liked = true;
+      }
+      blog.likeCount = blog.likes.length;
+      saveBlogs(blogs);
+
+      return {
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config,
+        data: {
+          success: true,
+          liked,
+          likeCount: blog.likeCount
+        }
+      };
+    }
+    return Promise.reject({ response: { status: 404, data: { message: "Blog not found." } } });
+  }
+
+  // 17. GET: /blogs/post/:id/likes
+  if (path.startsWith("/blogs/post/") && path.endsWith("/likes") && method.toLowerCase() === "get") {
+    const parts = path.split("/");
+    const id = parts[parts.length - 2];
+    const blogs = getBlogs();
+    const blog = blogs.find(b => b._id === id);
+    
+    if (blog) {
+      const likesUserIds = Array.isArray(blog.likes) ? blog.likes : [];
+      const users = getUsers();
+      const likedUsersList = likesUserIds.map(uid => {
+        const foundUser = users.find(u => u._id === uid);
+        if (foundUser) {
+          return {
+            _id: foundUser._id,
+            name: foundUser.name,
+            username: foundUser.username,
+            profilePicture: foundUser.profilePicture,
+            profession: foundUser.profession || foundUser.role || "Creator",
+            bio: foundUser.bio || ""
+          };
+        }
+        return {
+          _id: uid,
+          name: uid === "mock-user-admin" ? "Anshul" : "Anonymous Fan",
+          username: uid === "mock-user-admin" ? "anshul4117" : "anonymous",
+          profilePicture: null,
+          profession: "Creator",
+          bio: ""
+        };
+      });
+
+      return {
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config,
+        data: {
+          success: true,
+          likes: likedUsersList
+        }
+      };
+    }
+    return Promise.reject({ response: { status: 404, data: { message: "Blog not found." } } });
   }
 
   // Fallback for unmocked routes

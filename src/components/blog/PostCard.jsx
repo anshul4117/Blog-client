@@ -19,8 +19,33 @@ import {
 export default function PostCard({ post, index = 0, isGrid = false }) {
     const { user } = useAuth();
     const navigate = useNavigate();
-    const [liked, setLiked] = useState(false);
-    const [likeCount, setLikeCount] = useState(post.likeCount || (post.likes !== undefined ? post.likes : 120));
+    
+    const [liked, setLiked] = useState(() => {
+        const currentUserId = user?._id || user?.id || user?.userId;
+        if (Array.isArray(post.likes)) {
+            return post.likes.includes(currentUserId);
+        }
+        return false;
+    });
+    
+    const [likeCount, setLikeCount] = useState(() => {
+        if (Array.isArray(post.likes)) {
+            return post.likes.length;
+        }
+        return post.likeCount || (post.likes !== undefined && typeof post.likes === "number" ? post.likes : 120);
+    });
+
+    const [isLikesDialogOpen, setIsLikesDialogOpen] = useState(false);
+    const [likesLoading, setLikesLoading] = useState(false);
+    const [likedUsers, setLikedUsers] = useState([]);
+    
+    const [followingList, setFollowingList] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem("mock_db_following") || "[]");
+        } catch {
+            return [];
+        }
+    });
 
     const [saved, setSaved] = useState(() => {
         try {
@@ -95,16 +120,83 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
     const postUserId = post.userId?._id || post.userId || post.author?._id || post.author || "";
     const showFollowButton = !!user && String(currentUserId) !== String(postUserId) && postUserId !== "";
 
-    const handleLike = (e) => {
+    const handleLike = async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (liked) {
-            setLikeCount(prev => prev - 1);
-        } else {
-            setLikeCount(prev => prev + 1);
+        try {
+            const res = await API.post(`/blogs/like/${post._id}`);
+            if (res.data.success) {
+                setLiked(res.data.liked);
+                setLikeCount(res.data.likeCount);
+            }
+        } catch (err) {
+            console.error("Error liking post:", err);
+            // Fallback locally
+            if (liked) {
+                setLikeCount(prev => prev - 1);
+            } else {
+                setLikeCount(prev => prev + 1);
+            }
+            setLiked(!liked);
         }
-        setLiked(!liked);
     };
+
+    const handleOpenLikesModal = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsLikesDialogOpen(true);
+        setLikesLoading(true);
+        try {
+            const res = await API.get(`/blogs/post/${post._id}/likes`);
+            if (res.data.success) {
+                setLikedUsers(res.data.likes);
+            }
+        } catch (err) {
+            console.error("Error fetching likes list:", err);
+            setLikedUsers([]);
+        } finally {
+            setLikesLoading(false);
+        }
+    };
+
+    const handleToggleFollowInLikes = (e, targetUserId) => {
+        e.preventDefault();
+        e.stopPropagation();
+        try {
+            const followingIds = JSON.parse(localStorage.getItem("mock_db_following") || "[]");
+            let newFollowingIds;
+            if (followingList.includes(targetUserId)) {
+                newFollowingIds = followingIds.filter(id => id !== targetUserId);
+            } else {
+                newFollowingIds = [...followingIds, targetUserId];
+            }
+            localStorage.setItem("mock_db_following", JSON.stringify(newFollowingIds));
+            setFollowingList(newFollowingIds);
+            
+            // If card's author matches the toggled user, update card's follow status
+            const postUserId = post.userId?._id || post.userId || post.author?._id || post.author || "";
+            if (String(postUserId) === String(targetUserId)) {
+                setFollowed(newFollowingIds.includes(targetUserId));
+            }
+            
+            window.dispatchEvent(new Event("following-change"));
+        } catch (err) {
+            console.error("Error toggling follow in likes list:", err);
+        }
+    };
+
+    // Keep following and profile-likes lists in sync
+    useEffect(() => {
+        const syncFollowing = () => {
+            try {
+                const followingIds = JSON.parse(localStorage.getItem("mock_db_following") || "[]");
+                setFollowed(followingIds.includes(String(post.userId?._id || post.author?._id || "")));
+                setFollowingList(followingIds);
+            } catch {}
+        };
+        window.addEventListener("following-change", syncFollowing);
+        return () => window.removeEventListener("following-change", syncFollowing);
+    }, [post.userId?._id, post.author?._id]);
 
     const handleSaveToggle = (e) => {
         if (e) {
@@ -461,12 +553,20 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                         </div>
 
                         <div className="flex items-center gap-6 text-white/80">
-                            <button
-                                onClick={handleLike}
-                                className={`flex items-center gap-2 hover:text-pink-500 transition-colors ${liked ? "text-pink-500" : ""}`}
-                            >
-                                <Heart size={20} fill={liked ? "currentColor" : "none"} /> <span className="text-sm font-bold">{likeCount}</span>
-                            </button>
+                            <div className="flex items-center gap-1.5">
+                                <button
+                                    onClick={handleLike}
+                                    className={`hover:text-pink-500 transition-colors ${liked ? "text-pink-500" : ""}`}
+                                >
+                                    <Heart size={20} fill={liked ? "currentColor" : "none"} />
+                                </button>
+                                <span 
+                                    onClick={handleOpenLikesModal}
+                                    className="text-sm font-bold hover:underline cursor-pointer"
+                                >
+                                    {likeCount}
+                                </span>
+                            </div>
                             <button
                                 onClick={handleCommentClick}
                                 className={`flex items-center gap-2 hover:text-blue-400 transition-colors ${showCommentsPanel ? "text-blue-400" : ""}`}
@@ -652,15 +752,22 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                         <span>{commentCount}</span>
                     </button>
 
-                    <button
-                        onClick={handleLike}
-                        className={`flex items-center gap-1.5 group/btn hover:text-pink-500 transition-colors text-[10px] font-black uppercase tracking-wider ${liked ? "text-pink-500" : ""}`}
-                    >
-                        <div className="p-1.5 rounded-full group-hover/btn:bg-pink-500/10 transition-all">
-                            <Heart size={15} fill={liked ? "currentColor" : "none"} />
-                        </div>
-                        <span>{likeCount}</span>
-                    </button>
+                    <div className="flex items-center gap-1 group/btn hover:text-pink-500 transition-colors text-[10px] font-black uppercase tracking-wider">
+                        <button
+                            onClick={handleLike}
+                            className={`flex items-center ${liked ? "text-pink-500" : ""}`}
+                        >
+                            <div className="p-1.5 rounded-full hover:bg-pink-500/10 transition-all">
+                                <Heart size={15} fill={liked ? "currentColor" : "none"} />
+                            </div>
+                        </button>
+                        <span 
+                            onClick={handleOpenLikesModal}
+                            className="hover:underline cursor-pointer font-bold px-1"
+                        >
+                            {likeCount}
+                        </span>
+                    </div>
 
                     <button
                         onClick={handleSaveToggle}
@@ -841,15 +948,22 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                             <span>{commentCount}</span>
                         </button>
 
-                        <button
-                            onClick={handleLike}
-                            className={`flex items-center gap-2 group/btn hover:text-pink-500 transition-colors text-xs font-bold uppercase tracking-wider ${liked ? "text-pink-500" : ""}`}
-                        >
-                            <div className="p-2 rounded-full group-hover/btn:bg-pink-500/10 group-active/btn:scale-90 transition-all">
-                                <Heart size={18} fill={liked ? "currentColor" : "none"} />
-                            </div>
-                            <span>{likeCount}</span>
-                        </button>
+                        <div className="flex items-center gap-1 group/btn hover:text-pink-500 transition-colors text-xs font-bold uppercase tracking-wider">
+                            <button
+                                onClick={handleLike}
+                                className={`flex items-center ${liked ? "text-pink-500" : ""}`}
+                            >
+                                <div className="p-2 rounded-full hover:bg-pink-500/10 group-active/btn:scale-90 transition-all">
+                                    <Heart size={18} fill={liked ? "currentColor" : "none"} />
+                                </div>
+                            </button>
+                            <span 
+                                onClick={handleOpenLikesModal}
+                                className="hover:underline cursor-pointer font-bold px-1.5"
+                            >
+                                {likeCount}
+                            </span>
+                        </div>
 
                         <button
                             onClick={handleSaveToggle}
@@ -911,6 +1025,75 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                             Delete
                         </Button>
                     </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Custom Liked by Dialog */}
+            <Dialog open={isLikesDialogOpen} onOpenChange={setIsLikesDialogOpen}>
+                <DialogContent className="glass-panel border-primary/15 max-w-sm w-[90%] rounded-[32px] p-6 bg-background/95 backdrop-blur-xl">
+                    <DialogHeader className="mb-4">
+                        <DialogTitle className="text-lg font-extrabold tracking-tighter flex items-center gap-2">
+                            <Heart size={16} fill="currentColor" className="text-pink-500" /> Liked by
+                        </DialogTitle>
+                        <DialogDescription className="text-[10px] text-muted-foreground/60 font-semibold uppercase tracking-wider">
+                            {likeCount} {likeCount === 1 ? "person" : "people"} appreciated this broadcast
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    {likesLoading ? (
+                        <div className="flex h-36 items-center justify-center">
+                            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                        </div>
+                    ) : likedUsers.length === 0 ? (
+                        <p className="text-center text-xs text-muted-foreground/60 py-8 italic">No likes recorded yet.</p>
+                    ) : (
+                        <div className="space-y-3.5 max-h-[300px] overflow-y-auto pr-1 no-scrollbar">
+                            {likedUsers.map((likedUser) => {
+                                const isMe = String(likedUser._id) === String(currentUserId);
+                                const isFollowingUser = followingList.includes(String(likedUser._id));
+                                
+                                return (
+                                    <div key={likedUser._id} className="flex items-center justify-between gap-3 p-2 rounded-2xl hover:bg-primary/5 transition-all">
+                                        <div 
+                                            onClick={() => {
+                                                setIsLikesDialogOpen(false);
+                                                navigate(`/profile/${likedUser._id}`);
+                                            }}
+                                            className="flex items-center gap-2.5 min-w-0 cursor-pointer"
+                                        >
+                                            <div className="h-10 w-10 rounded-full overflow-hidden border border-border/40 shrink-0">
+                                                {likedUser.profilePicture ? (
+                                                    <img src={likedUser.profilePicture} alt={likedUser.name} className="h-full w-full object-cover" />
+                                                ) : (
+                                                    <div className="h-full w-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold font-mono">
+                                                        {likedUser.name.charAt(0)}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="text-xs font-black text-foreground truncate">{likedUser.name}</p>
+                                                <p className="text-[10px] text-muted-foreground/60 truncate">@{likedUser.username}</p>
+                                                <p className="text-[9px] text-muted-foreground/80 truncate mt-0.5">{likedUser.profession}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        {!isMe && likedUser._id !== "anonymous" && (
+                                            <button
+                                                onClick={(e) => handleToggleFollowInLikes(e, String(likedUser._id))}
+                                                className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full transition-all shrink-0 border ${
+                                                    isFollowingUser
+                                                        ? "bg-primary/10 text-primary border-primary/20 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20"
+                                                        : "bg-primary text-primary-foreground border-transparent hover:bg-primary/90"
+                                                }`}
+                                            >
+                                                {isFollowingUser ? "Following" : "Follow"}
+                                            </button>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
                 </DialogContent>
             </Dialog>
 
