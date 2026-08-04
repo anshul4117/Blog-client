@@ -747,6 +747,52 @@ export async function handleMockRequest(config) {
     };
   }
 
+  // 7a. GET: /blogs/post/:id/likes (More specific likes lookup first)
+  if (path.startsWith("/blogs/post/") && path.endsWith("/likes") && method.toLowerCase() === "get") {
+    const parts = path.split("/");
+    const id = parts[parts.length - 2];
+    const blogs = getBlogs();
+    const blog = blogs.find(b => b._id === id);
+    
+    if (blog) {
+      const likesUserIds = Array.isArray(blog.likes) ? blog.likes : [];
+      const users = getUsers();
+      const likedUsersList = likesUserIds.map(uid => {
+        const foundUser = users.find(u => u._id === uid);
+        if (foundUser) {
+          return {
+            _id: foundUser._id,
+            name: foundUser.name,
+            username: foundUser.username,
+            profilePicture: foundUser.profilePicture,
+            profession: foundUser.profession || foundUser.role || "Creator",
+            bio: foundUser.bio || ""
+          };
+        }
+        return {
+          _id: uid,
+          name: uid === "mock-user-admin" ? "Anshul" : "Anonymous Fan",
+          username: uid === "mock-user-admin" ? "anshul4117" : "anonymous",
+          profilePicture: null,
+          profession: "Creator",
+          bio: ""
+        };
+      });
+
+      return {
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config,
+        data: {
+          success: true,
+          likes: likedUsersList
+        }
+      };
+    }
+    return Promise.reject({ response: { status: 404, data: { message: "Blog not found." } } });
+  }
+
   // 7. GET: /blogs/post/:id (Single post lookup)
   if (path.startsWith("/blogs/post/") && method.toLowerCase() === "get") {
     const id = path.split("/").pop();
@@ -994,51 +1040,7 @@ export async function handleMockRequest(config) {
     return Promise.reject({ response: { status: 404, data: { message: "Blog not found." } } });
   }
 
-  // 17. GET: /blogs/post/:id/likes
-  if (path.startsWith("/blogs/post/") && path.endsWith("/likes") && method.toLowerCase() === "get") {
-    const parts = path.split("/");
-    const id = parts[parts.length - 2];
-    const blogs = getBlogs();
-    const blog = blogs.find(b => b._id === id);
-    
-    if (blog) {
-      const likesUserIds = Array.isArray(blog.likes) ? blog.likes : [];
-      const users = getUsers();
-      const likedUsersList = likesUserIds.map(uid => {
-        const foundUser = users.find(u => u._id === uid);
-        if (foundUser) {
-          return {
-            _id: foundUser._id,
-            name: foundUser.name,
-            username: foundUser.username,
-            profilePicture: foundUser.profilePicture,
-            profession: foundUser.profession || foundUser.role || "Creator",
-            bio: foundUser.bio || ""
-          };
-        }
-        return {
-          _id: uid,
-          name: uid === "mock-user-admin" ? "Anshul" : "Anonymous Fan",
-          username: uid === "mock-user-admin" ? "anshul4117" : "anonymous",
-          profilePicture: null,
-          profession: "Creator",
-          bio: ""
-        };
-      });
-
-      return {
-        status: 200,
-        statusText: "OK",
-        headers: {},
-        config,
-        data: {
-          success: true,
-          likes: likedUsersList
-        }
-      };
-    }
-    return Promise.reject({ response: { status: 404, data: { message: "Blog not found." } } });
-  }
+  // (Likes list lookup route moved above to avoid route collisions)
 
   // Fallback for unmocked routes
   return Promise.reject({
