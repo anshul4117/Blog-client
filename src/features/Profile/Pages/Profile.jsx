@@ -3,11 +3,14 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext.jsx";
 import { useEffect, useState } from "react";
 import secureAPI from "@/lib/secureApi";
-import { MapPin, Calendar, Edit, Award, LayoutGrid, List, ArrowLeft, Compass, X, Share2, Github, Twitter, Globe, Link as LinkIcon, Sparkles, Heart, MessageSquare, Bookmark, HelpCircle, LogOut, ChevronRight } from "lucide-react";
+import { MapPin, Calendar, Edit, Award, LayoutGrid, List, ArrowLeft, Compass, X, Share2, Github, Twitter, Globe, Link as LinkIcon, Sparkles, ImagePlus } from "lucide-react";
 import PageTransition from "@/components/layout/PageTransition";
+import BackgroundMesh from "@/components/ui/BackgroundMesh.jsx";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import PostCard from "@/components/blog/PostCard.jsx";
+import toast from "react-hot-toast";
+import { cn } from "@/lib/utils";
 
 const MOCK_SYSTEM_USERS = [
   {
@@ -57,15 +60,22 @@ export default function Profile() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const targetUserId = searchParams.get("userId");
+  
+  // Profile states
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showImageModal, setShowImageModal] = useState(false);
   const [myBlogs, setMyBlogs] = useState([]);
   const [myBlogsLoading, setMyBlogsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("posts"); // "posts" or "analytics"
-  const [showFollowDialog, setShowFollowDialog] = useState(null); // null, "followers", or "following"
+  const [activeTab, setActiveTab] = useState("posts");
+  const [isGridView, setIsGridView] = useState(true);
+  const [showFollowDialog, setShowFollowDialog] = useState(null);
 
-  // Prevent background scroll when dialogs/modals are open
+  // Cover image banner state
+  const [profileCover, setProfileCover] = useState(() => {
+    return localStorage.getItem(`profile_cover_${targetUserId || "me"}`) || null;
+  });
+
   useEffect(() => {
     if (showFollowDialog || showImageModal) {
       document.body.style.overflow = "hidden";
@@ -143,6 +153,8 @@ export default function Profile() {
         if (mounted) {
             const data = res.data?.data?.getProfile || res.data?.getProfile || res.data?.data || res.data || {};
             setProfile(data);
+            // Sync cover from storage
+            setProfileCover(localStorage.getItem(`profile_cover_${targetUserId || "me"}`) || null);
         }
       } catch (err) {
         console.error("Error loading profile:", err);
@@ -184,6 +196,25 @@ export default function Profile() {
     };
   }, [targetUserId]);
 
+  const handleCoverImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileCover(reader.result);
+        localStorage.setItem(`profile_cover_${targetUserId || "me"}`, reader.result);
+        toast.success("Cover banner updated successfully! 🎨");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const triggerCoverInput = () => {
+    if (!targetUserId || targetUserId === user?._id) {
+      document.getElementById("coverImageInput")?.click();
+    }
+  };
+
   const fallbackProfile = {
     name: user?.name || "John Doe",
     username: user?.username || "johndoe",
@@ -214,7 +245,10 @@ export default function Profile() {
   const professionTitle = profileData.profession || profileData.role || "Digital Visionary";
 
   const totalPosts = myBlogs.length;
-  const totalLikes = myBlogs.reduce((acc, curr) => acc + (curr.likeCount || 0), 0);
+  const totalLikes = myBlogs.reduce((acc, curr) => {
+    if (Array.isArray(curr.likes)) return acc + curr.likes.length;
+    return acc + (curr.likeCount || 0);
+  }, 0);
   const totalComments = myBlogs.reduce((acc, curr) => acc + (curr.commentCount || 0), 0);
 
   if (loading) return (
@@ -225,7 +259,10 @@ export default function Profile() {
 
   return (
     <div className="relative min-h-screen bg-background w-full overflow-x-hidden">
+      <BackgroundMesh />
+      
       <PageTransition className="relative z-10 pb-32 pt-6 sm:pt-8 space-y-8 px-4 max-w-7xl mx-auto">
+      
       {/* Navigation Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -254,12 +291,41 @@ export default function Profile() {
         </div>
       </div>
 
+      {/* Hidden Cover Image input */}
+      <input
+        type="file"
+        id="coverImageInput"
+        accept="image/*"
+        className="hidden"
+        onChange={handleCoverImageChange}
+      />
+
       {/* Profile Identity Card */}
       <div className="relative rounded-[40px] overflow-hidden glass-panel border-primary/20 shadow-2xl">
+        
         {/* Cover Section */}
-        <div className="h-64 relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/80 to-secondary/80 opacity-80" />
-            <div className="absolute inset-0 mesh-gradient opacity-40" />
+        <div 
+          onClick={triggerCoverInput}
+          className={cn(
+            "h-64 relative group overflow-hidden",
+            (!targetUserId || targetUserId === user?._id) ? "cursor-pointer" : ""
+          )}
+        >
+            {profileCover ? (
+              <img src={profileCover} alt="Cover Banner" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.01]" />
+            ) : (
+              <>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/80 to-secondary/80 opacity-80" />
+                <div className="absolute inset-0 mesh-gradient opacity-40" />
+              </>
+            )}
+            {(!targetUserId || targetUserId === user?._id) && (
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span className="px-4 py-2 bg-white/10 border border-white/20 backdrop-blur-md rounded-xl text-xs font-black uppercase tracking-wider text-white shadow-lg flex items-center gap-2">
+                  <ImagePlus size={14} /> Change Cover Banner
+                </span>
+              </div>
+            )}
             <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
         </div>
 
@@ -286,7 +352,7 @@ export default function Profile() {
                 </Link>
               )}
             </motion.div>
- 
+  
             <div className="flex-1 pb-2 w-full">
                 <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3">
                     <h1 className="text-4xl font-extrabold tracking-tighter">{profileData.name}</h1>
@@ -306,7 +372,10 @@ export default function Profile() {
                     )}
                 </div>
                 <p className="text-primary font-bold text-lg mb-1">@{profileData.username}</p>
-                <p className="text-muted-foreground/80 font-semibold text-sm mb-4">{professionTitle}</p>
+                <p className="text-muted-foreground/80 font-semibold text-sm mb-2">{professionTitle}</p>
+                {profileData.bio && (
+                  <p className="text-xs text-muted-foreground/85 max-w-2xl mb-4 leading-relaxed font-medium">{profileData.bio}</p>
+                )}
                 
                 <div className="flex flex-wrap justify-center md:justify-start gap-6 text-sm text-muted-foreground font-medium">
                     <span className="flex items-center gap-1.5"><MapPin size={16} className="text-primary/60" /> {profileData.location || "Earth"}</span>
@@ -352,66 +421,54 @@ export default function Profile() {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8">
-        {/* Sidebar Intel */}
-        <div className="space-y-6">
-          <Card className="rounded-[32px] glass-panel border-primary/5 overflow-hidden">
-            <CardHeader className="bg-primary/5 border-b border-primary/5">
-              <CardTitle className="text-xs font-black uppercase tracking-widest text-primary">Mission Brief</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6 text-sm text-muted-foreground leading-relaxed font-medium">
-              {profileData.bio || "No mission bio set yet."}
-            </CardContent>
-          </Card>
+      {/* Main Publications & Analytics Area */}
+      <div className="w-full space-y-8">
+          
+          {/* Tab Header with Grid/List Toggles */}
+          <div className="flex flex-wrap items-center justify-between border-b border-white/5 pb-1 gap-4">
+            <div className="flex items-center gap-4 sm:gap-6">
+              <button 
+                onClick={() => setActiveTab("posts")}
+                className={`flex items-center gap-2 pb-3 sm:pb-4 font-black uppercase tracking-widest text-[9px] sm:text-[11px] border-b-4 transition-all ${activeTab === "posts" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+              >
+                <LayoutGrid size={16} /> Recent Publications
+              </button>
+              <button 
+                onClick={() => setActiveTab("analytics")}
+                className={`flex items-center gap-2 pb-3 sm:pb-4 font-black uppercase tracking-widest text-[9px] sm:text-[11px] border-b-4 transition-all ${activeTab === "analytics" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+              >
+                <List size={16} /> Performance Analytics
+              </button>
+            </div>
 
-          <Card className="rounded-[32px] glass-panel border-primary/5 overflow-hidden">
-            <CardHeader className="bg-primary/5 border-b border-primary/5">
-              <CardTitle className="text-xs font-black uppercase tracking-widest text-primary">Core Interests</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6 flex flex-wrap gap-2">
-              {(profileData.interests && profileData.interests.length > 0 ? profileData.interests : fallbackProfile.techStack).map((tech) => (
-                <span key={tech} className="px-3 py-1.5 rounded-xl bg-primary/10 text-primary text-[11px] font-bold border border-primary/10">
-                  {tech}
-                </span>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-[32px] glass-panel border-primary/5 overflow-hidden">
-            <CardHeader className="bg-primary/5 border-b border-primary/5">
-              <CardTitle className="text-xs font-black uppercase tracking-widest text-primary">Achievements</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6 space-y-5">
-              {fallbackProfile.badges.map((badge, idx) => (
-                <div key={idx} className="flex items-center gap-4 group cursor-help">
-                  <div className="p-3 rounded-2xl bg-yellow-500/10 text-yellow-500 group-hover:bg-yellow-500 group-hover:text-white transition-all">
-                    {badge.icon}
-                  </div>
-                  <div>
-                    <p className="font-bold text-sm text-foreground">{badge.name}</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">{badge.earnedOn}</p>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Production Area */}
-        <div className="md:col-span-2 space-y-8">
-          <div className="flex flex-wrap items-center gap-4 sm:gap-6 border-b border-white/5 pb-1">
-            <button 
-              onClick={() => setActiveTab("posts")}
-              className={`flex items-center gap-2 pb-3 sm:pb-4 font-black uppercase tracking-widest text-[9px] sm:text-[11px] border-b-4 transition-all ${activeTab === "posts" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-            >
-              <LayoutGrid size={16} /> Recent Publications
-            </button>
-            <button 
-              onClick={() => setActiveTab("analytics")}
-              className={`flex items-center gap-2 pb-3 sm:pb-4 font-black uppercase tracking-widest text-[9px] sm:text-[11px] border-b-4 transition-all ${activeTab === "analytics" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-            >
-              <List size={16} /> Performance Analytics
-            </button>
+            {activeTab === "posts" && myBlogs.length > 0 && (
+              <div className="flex items-center gap-1 bg-muted/20 border border-primary/5 p-1 rounded-xl mb-2.5">
+                <button
+                  type="button"
+                  onClick={() => setIsGridView(true)}
+                  className={cn(
+                    "p-1.5 rounded-lg transition-all cursor-pointer",
+                    isGridView 
+                      ? "bg-primary text-primary-foreground shadow-md" 
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <LayoutGrid size={14} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsGridView(false)}
+                  className={cn(
+                    "p-1.5 rounded-lg transition-all cursor-pointer",
+                    !isGridView 
+                      ? "bg-primary text-primary-foreground shadow-md" 
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <List size={14} />
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 gap-6">
@@ -431,10 +488,16 @@ export default function Profile() {
                         <Button className="rounded-2xl h-12 px-8 font-black uppercase tracking-widest shadow-xl shadow-primary/20">Initiate Project</Button>
                     </Link>
                  </div>
+               ) : isGridView ? (
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {myBlogs.map((p, index) => (
+                        <PostCard key={p._id} post={p} index={index} isGrid={true} />
+                    ))}
+                 </div>
                ) : (
                  <div className="space-y-6">
                     {myBlogs.map((p, index) => (
-                        <PostCard key={p._id} post={p} index={index} />
+                        <PostCard key={p._id} post={p} index={index} isGrid={false} />
                     ))}
                  </div>
                )
@@ -475,7 +538,6 @@ export default function Profile() {
              )}
           </div>
         </div>
-      </div>
 
       {/* Profile Picture Modal */}
       <AnimatePresence>
@@ -576,16 +638,18 @@ export default function Profile() {
                       </div>
                       
                       {/* Follow Toggle */}
-                      <button
-                        onClick={() => handleFollowToggle(profile._id)}
-                        className={`text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full border transition-all duration-300 self-center shrink-0 cursor-pointer ${
-                          isFollowing
-                            ? "text-primary bg-primary/10 border-primary/20 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20"
-                            : "text-primary-foreground bg-primary border-transparent hover:bg-primary/95 shadow-md shadow-primary/20"
-                        }`}
-                      >
-                        {isFollowing ? "Following" : "Follow"}
-                      </button>
+                      {profile._id !== user?._id && (
+                        <button
+                          onClick={() => handleFollowToggle(profile._id)}
+                          className={`text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full border transition-all duration-300 self-center shrink-0 cursor-pointer ${
+                            isFollowing
+                              ? "text-primary bg-primary/10 border-primary/20 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20"
+                              : "text-primary-foreground bg-primary border-transparent hover:bg-primary/95 shadow-md shadow-primary/20"
+                          }`}
+                        >
+                          {isFollowing ? "Following" : "Follow"}
+                        </button>
+                      )}
                     </div>
                   );
                 })}
