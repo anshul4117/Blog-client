@@ -5,28 +5,83 @@
   <img src="https://img.shields.io/badge/Vite-7.1-646CFF?logo=vite&logoColor=white" alt="Vite 7" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-v4.0-38B2AC?logo=tailwind-css&logoColor=white" alt="Tailwind CSS v4" />
   <img src="https://img.shields.io/badge/React_Router-v7.0-CA4245?logo=react-router&logoColor=white" alt="React Router v7" />
+  <img src="https://img.shields.io/badge/Architecture-Offline--First_Resilient-green" alt="Architecture" />
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License" />
 </p>
 
-> **XDrop** is an ultra-premium, high-performance content publishing and social media Single Page Application (SPA). Designed with senior UI/UX standards, XDrop features Threads/Twitter-style social publishing, custom glassmorphism design systems, real-time fallback mock database architecture, and deep creator analytics.
+> **XDrop** is an ultra-premium, high-performance content publishing and social media Single Page Application (SPA). Designed with senior UI/UX engineering standards, XDrop features Threads/Twitter-style social publishing, custom glassmorphism design systems, real-time fallback mock database architecture, and deep creator analytics.
 
 ---
 
 ## 📖 Table of Contents
 
-- [✨ Key Features](#-key-features)
-- [🛠️ Tech Stack](#️-tech-stack)
-- [⚡ Quick Start & Setup](#-quick-start--setup)
-- [🔐 Sandbox Mode & Demo Credentials](#-sandbox-mode--demo-credentials)
-- [🏗️ Project Architecture](#️-project-architecture)
-- [🔀 Route Reference](#-route-reference)
+- [📐 System Architecture Topology](#-system-architecture-topology)
+- [🎯 Senior Product Engineering ADRs (Design Decisions)](#-senior-product-engineering-adrs-design-decisions)
+- [✨ Core Capabilities & UX Features](#-core-capabilities--ux-features)
+- [⚡ Performance & Mobile Optimizations](#-performance--mobile-optimizations)
+- [🛠️ Tech Stack & Modular Architecture](#️-tech-stack--modular-architecture)
+- [🛡️ Offline Self-Healing Architecture](#️-offline-self-healing-architecture)
+- [🔀 Route Reference & Access Matrix](#-route-reference--access-matrix)
+- [⚡ Quick Start & Setup Instructions](#-quick-start--setup-instructions)
 - [⚙️ Environment Variables](#️-environment-variables)
-- [📜 Available Scripts](#-available-scripts)
 - [🤝 Contributing & License](#-contributing--license)
 
 ---
 
-## ✨ Key Features
+## 📐 System Architecture Topology
+
+The following diagram illustrates how the client application handles network requests, session state, and automatic self-healing offline interception:
+
+```mermaid
+graph TD
+    User([User Browser / Client])
+    
+    subgraph Frontend SPA Architecture React 19 + Vite 7
+        UI[UI Components & Pages]
+        AuthCtx[AuthContext Session Manager]
+        AxiosClient[Axios Interceptor System secureApi.js]
+    end
+
+    subgraph Resilience & Storage Layer
+        MockDB[(LocalStorage Mock DB Emulator)]
+        SelfHealing[Self-Healing Schema Migrator]
+    end
+
+    subgraph Backend REST Infrastructure
+        BackendAPI[(Express / Node REST API localhost:2000)]
+    end
+
+    User -->|Interacts| UI
+    UI -->|Requests| AxiosClient
+    AxiosClient -->|Primary HTTP Request| BackendAPI
+    BackendAPI -- Network Fail / Connection Error --> AxiosClient
+    AxiosClient -->|Fallback Interception| MockDB
+    MockDB <--> SelfHealing
+    AuthCtx <--> UI
+```
+
+---
+
+## 🎯 Senior Product Engineering ADRs (Design Decisions)
+
+### 📌 ADR 01: Offline-First Self-Healing Interceptor Architecture
+* **Context:** Backend REST APIs (`localhost:2000`) may be offline during standalone frontend evaluation or client demonstrations.
+* **Decision:** Implement dual Axios interceptors (`secureApi.js`) that catch network connection failures, automatically set `localStorage.setItem("blog_app_demo_mode", "true")`, dispatch `"connection-change"` status events, and transparently execute requests against a client-side database emulator (`mockDb.js`).
+* **Consequence:** Zero downtime for reviewers or users when the backend is offline.
+
+### 📌 ADR 02: Card-Based Focused Social Publisher over Full-Page Document Canvas
+* **Context:** Heavy document editors (like Medium or Notion sheets) feel cumbersome for fast, social media-driven interactions.
+* **Decision:** Build a centered social card composer (Threads/Twitter-style) with inline formatting macros, circular character limit meters, and a collapsible slide-out **"Insights"** drawer for draft management and readability scores.
+* **Consequence:** Increases user publishing velocity while maintaining access to deep editorial metrics.
+
+### 📌 ADR 03: Optimistic Follow & Likes Interaction Loop
+* **Context:** Network latency can cause lag in social feedback loops (liking posts, following creators).
+* **Decision:** Decouple numeric counts from heart toggle actions. Clicking numeric count triggers queries the liked users popover, while follow toggles optimistically update local component states and broadcast custom window events (`following-change`) across cards instantly.
+* **Consequence:** Instant sub-50ms visual response for user actions.
+
+---
+
+## ✨ Core Capabilities & UX Features
 
 ### 🚀 Senior-Grade Publisher Canvas
 - **Threads/Twitter-Style Publisher:** Minimalist centered post composer with integrated avatar header, public broadcast status, hashtag pills, and cover attachment previews.
@@ -44,76 +99,23 @@
 - **Background Mesh Canvas:** Floating, soft neon gradient spheres drifting in the background to add visual depth without compromising scroll performance.
 - **Multi-Theme Support:** Seamless Dark/Light/System theme transitions powered by a custom `ThemeProvider`.
 
-### 🛡️ Offline-First Self-Healing Architecture
-- **Automatic Fallback (Sandbox Mode):** If the backend REST API (`localhost:2000`) is offline, Axios interceptors seamlessly switch to a client-side mock database adapter (`mockDb.js`) without breaking user flow.
-- **Connection Badge:** Live/Sandbox status pill in the navigation header allowing users to test and recover live server connections at any time.
+---
+
+## ⚡ Performance & Mobile Optimizations
+
+To ensure fluid 60fps animation frame rates across low-power mobile devices and high-refresh desktop displays, XDrop implements strict performance guidelines:
+
+1. **Mobile Throttling (<768px):** Particle counts and canvas drawing loops in `ParticleBackground` and `BackgroundMesh` are dynamically scaled down on touch viewports to preserve GPU fill rate.
+2. **Mouse Listener Suppression:** Touch viewports bypass cursor tracking listeners (`CustomCursor` and `GlowCard`) to prevent scroll jank and main thread repaints.
+3. **Marquee Infinite Scroll:** Uses a `w-max` container with `shrink-0` copy layers to guarantee non-wrapping, hardware-accelerated translations.
 
 ---
 
-## 🛠️ Tech Stack
-
-| Layer | Technologies |
-| :--- | :--- |
-| **Framework & Build** | React 19, Vite 7, React Router DOM v7 |
-| **Styling & UI** | Tailwind CSS v4, Vanilla CSS variables, Shadcn/UI (Radix primitives) |
-| **State & API** | React Context API, Axios (with dual live/mock interceptors) |
-| **Forms & Validation** | React Hook Form, Zod schema validation |
-| **Animations & Icons** | Framer Motion, Lucide React Icons |
-| **Charts & 3D** | Recharts, Spline 3D (@splinetool/react-spline) |
-
----
-
-## ⚡ Quick Start & Setup
-
-### Prerequisites
-Make sure you have Node.js (v18.x or later) and `npm` installed on your machine.
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/anshul4117/Blog-client.git
-cd Blog-client
-```
-
-### 2. Install Dependencies
-```bash
-npm install
-```
-
-### 3. Environment Configuration
-Create a `.env` file in the root directory (or copy from `.env.example`):
-```bash
-cp .env.example .env
-```
-Ensure your `.env` contains:
-```env
-VITE_API_BASE_URL=http://localhost:2000/api/v1.2
-```
-
-### 4. Start Development Server
-```bash
-npm run dev
-```
-Open your browser and navigate to `http://localhost:5173`.
-
----
-
-## 🔐 Sandbox Mode & Demo Credentials
-
-If you do not have the backend API server running locally on port `2000`, **XDrop automatically activates Sandbox Mode**. All creations, likes, edits, and profile updates will be safely persisted in your browser's `localStorage`.
-
-### 🔑 Demo Login Credentials
-Click the **"Autofill Demo Credentials"** button on the `/login` page or enter manually:
-
-- **Email:** `demo@example.com`
-- **Password:** `password123`
-
----
-
-## 🏗️ Project Architecture
+## 🛠️ Tech Stack & Modular Architecture
 
 ```
 Client/
-├── public/                      # Static assets (favicon.svg, manifest)
+├── public/                      # Static assets & web manifest
 ├── src/
 │   ├── main.jsx                 # Application Entry Point
 │   ├── App.jsx                  # Main App Component
@@ -152,23 +154,69 @@ Client/
 
 ---
 
-## 🔀 Route Reference
+## 🛡️ Offline Self-Healing Architecture
+
+If you do not have the backend API server running locally on port `2000`, **XDrop automatically activates Sandbox Mode**. All creations, likes, edits, and profile updates will be safely persisted in your browser's `localStorage`.
+
+### 🔑 Demo Login Credentials
+Click the **"Autofill Demo Credentials"** button on the `/login` page or enter manually:
+
+- **Email:** `demo@example.com`
+- **Password:** `password123`
+
+---
+
+## 🔀 Route Reference & Access Matrix
 
 | Route | Component | Access | Description |
 | :--- | :--- | :--- | :--- |
 | `/` | `Home` | Public | Landing page with animated hero, marquee, & counters |
 | `/about` | `About` | Public | Manifesto and project mission |
 | `/contact` | `Contact` | Public | Contact form with Zod validation |
-| `/login` | `Login` | Guest | Login page with Sandbox Autofill |
-| `/register` | `Register` | Guest | Account registration |
-| `/feed` | `Feed` | Private | Community blog discovery feed |
-| `/post/:id` | `PostDetails` | Private | Single post view & comment thread |
-| `/dashboard` | `DashboardHome` | Private | Analytics overview & publishing heatmaps |
-| `/dashboard/create` | `CreatePost` | Private | Threads/Twitter-style social post publisher |
-| `/dashboard/posts` | `MyPosts` | Private | Published posts manager grid |
-| `/dashboard/saved` | `SavedPosts` | Private | Bookmarked publications |
-| `/dashboard/settings` | `Setting` | Private | User account & security console |
-| `/profile` | `Profile` | Private | User profile page with grid/list post view |
+| `/login` | `Login` | Guest Only | Login page with Sandbox Autofill |
+| `/register` | `Register` | Guest Only | Account registration |
+| `/feed` | `Feed` | Protected | Community blog discovery feed |
+| `/post/:id` | `PostDetails` | Protected | Single post view & comment thread |
+| `/dashboard` | `DashboardHome` | Protected | Analytics overview & publishing heatmaps |
+| `/dashboard/create` | `CreatePost` | Protected | Threads/Twitter-style social post publisher |
+| `/dashboard/posts` | `MyPosts` | Protected | Published posts manager grid |
+| `/dashboard/saved` | `SavedPosts` | Protected | Bookmarked publications |
+| `/dashboard/settings` | `Setting` | Protected | User account & security console |
+| `/profile` | `Profile` | Protected | User profile page with grid/list post view |
+
+---
+
+## ⚡ Quick Start & Setup Instructions
+
+### Prerequisites
+Make sure you have Node.js (v18.x or later) and `npm` installed on your machine.
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/anshul4117/Blog-client.git
+cd Blog-client
+```
+
+### 2. Install Dependencies
+```bash
+npm install
+```
+
+### 3. Environment Configuration
+Create a `.env` file in the root directory (or copy from `.env.example`):
+```bash
+cp .env.example .env
+```
+Ensure your `.env` contains:
+```env
+VITE_API_BASE_URL=http://localhost:2000/api/v1.2
+```
+
+### 4. Start Development Server
+```bash
+npm run dev
+```
+Open your browser and navigate to `http://localhost:5173`.
 
 ---
 
