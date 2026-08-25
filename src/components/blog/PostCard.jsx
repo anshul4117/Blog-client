@@ -556,6 +556,7 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                             <div className="flex items-center gap-1.5">
                                 <button
                                     onClick={handleLike}
+                                    aria-label="Like post"
                                     className={`hover:text-pink-500 transition-colors ${liked ? "text-pink-500" : ""}`}
                                 >
                                     <Heart size={20} fill={liked ? "currentColor" : "none"} />
@@ -569,18 +570,21 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                             </div>
                             <button
                                 onClick={handleCommentClick}
+                                aria-label="View comments"
                                 className={`flex items-center gap-2 hover:text-blue-400 transition-colors ${showCommentsPanel ? "text-blue-400" : ""}`}
                             >
                                 <MessageCircle size={20} fill={showCommentsPanel ? "currentColor" : "none"} /> <span className="text-sm font-bold">{commentCount}</span>
                             </button>
                             <button
                                 onClick={handleSaveToggle}
+                                aria-label="Bookmark post"
                                 className={`flex items-center gap-2 hover:text-primary transition-colors ${saved ? "text-primary" : ""}`}
                             >
                                 <Bookmark size={20} fill={saved ? "currentColor" : "none"} />
                             </button>
                             <button
                                 onClick={handleShare}
+                                aria-label="Share post"
                                 className="flex items-center gap-2 hover:text-primary transition-colors"
                             >
                                 <Share size={20} />
@@ -940,6 +944,7 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                     <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/20 text-muted-foreground">
                         <button
                             onClick={handleCommentClick}
+                            aria-label="View comments"
                             className={`flex items-center gap-2 group/btn hover:text-blue-500 transition-colors text-xs font-bold uppercase tracking-wider ${showCommentsPanel ? "text-blue-500" : ""}`}
                         >
                             <div className="p-2 rounded-full group-hover/btn:bg-blue-500/10 group-active/btn:scale-90 transition-all">
@@ -951,6 +956,7 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                         <div className="flex items-center gap-1 group/btn hover:text-pink-500 transition-colors text-xs font-bold uppercase tracking-wider">
                             <button
                                 onClick={handleLike}
+                                aria-label="Like post"
                                 className={`flex items-center ${liked ? "text-pink-500" : ""}`}
                             >
                                 <div className="p-2 rounded-full hover:bg-pink-500/10 group-active/btn:scale-90 transition-all">
@@ -967,6 +973,7 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
 
                         <button
                             onClick={handleSaveToggle}
+                            aria-label="Bookmark post"
                             className={`flex items-center gap-2 group/btn hover:text-primary transition-colors text-xs font-bold uppercase tracking-wider ${saved ? "text-primary" : ""}`}
                         >
                             <div className="p-2 rounded-full group-hover/btn:bg-primary/10 group-active/btn:scale-90 transition-all">
@@ -976,6 +983,7 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
 
                         <button 
                             onClick={handleShare}
+                            aria-label="Share post"
                             className="flex items-center gap-2 group/btn hover:text-primary transition-colors text-xs font-bold uppercase tracking-wider"
                         >
                             <div className="p-2 rounded-full group-hover/btn:bg-primary/10 group-active/btn:scale-90 transition-all">
