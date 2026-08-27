@@ -7,12 +7,14 @@ import API from '../../../lib/secureApi.js';
 import { useNavigate, useParams } from "react-router-dom";
 import PageTransition from "@/components/layout/PageTransition.jsx";
 import BackgroundMesh from "@/components/ui/BackgroundMesh.jsx";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { 
-  ImagePlus, Sparkles, Save, ArrowLeft, Loader2, Hash, FileText, Globe, Layers, Bold, Italic, Quote, Code, List, Eye
+  ImagePlus, Sparkles, Save, ArrowLeft, Loader2, Hash, FileText, Globe, Layers, 
+  Bold, Italic, Quote, Code, List, Eye, Heading1, Heading2, Link2, Activity, RotateCcw
 } from "lucide-react";
 import PostCard from "@/components/blog/PostCard";
 import { useAuth } from "@/context/AuthContext";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 
@@ -30,17 +32,20 @@ export default function EditPost() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [coverImage, setCoverImage] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
   const [showTagsInput, setShowTagsInput] = useState(false);
   const [tagsList, setTagsList] = useState([]);
   const [tagInput, setTagInput] = useState("");
   const [showSidebar, setShowSidebar] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
   const contentRef = useRef(null);
 
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
     reset,
     setValue,
   } = useForm({
@@ -53,11 +58,13 @@ export default function EditPost() {
 
   const watchedValues = useWatch({ control });
 
-  // Fetch existing post data and populate the form
-  useEffect(() => {
+  // Fetch existing post data and populate form
+  const fetchPost = () => {
+    setLoading(true);
+    setNotFound(false);
     API.get(`/blogs/post/${id}`)
       .then((res) => {
-        const post = res.data.blog;
+        const post = res.data.blog || res.data?.data?.blog || res.data;
         if (post) {
           reset({
             title: post.title || "",
@@ -83,17 +90,50 @@ export default function EditPost() {
         setNotFound(true);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchPost();
   }, [id, reset]);
+
+  // Image Upload Handlers
+  const handleImageFile = (file) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload a valid image file.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setCoverImage(reader.result);
+      toast.success("Cover image updated ✨");
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCoverImage(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
+    handleImageFile(file);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    handleImageFile(file);
   };
 
   const triggerFileInput = () => {
@@ -101,13 +141,17 @@ export default function EditPost() {
   };
 
   const removeCoverImage = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setCoverImage(null);
     const input = document.getElementById("coverImageInput");
     if (input) input.value = "";
+    toast.success("Cover image removed");
   };
 
+  // Tag Handlers
   const handleAddTag = (e) => {
     if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
@@ -123,7 +167,7 @@ export default function EditPost() {
     setTagsList(tagsList.filter((_, idx) => idx !== indexToRemove));
   };
 
-  // Markdown helper
+  // Markdown Formatting Helper
   const insertMarkdown = (syntax, placeholder = "text") => {
     const textarea = contentRef.current;
     if (!textarea) return;
@@ -142,6 +186,8 @@ export default function EditPost() {
       replacement = `**${selectedText || placeholder}**`;
     } else if (syntax === "italic") {
       replacement = `*${selectedText || placeholder}*`;
+    } else if (syntax === "link") {
+      replacement = `[${selectedText || "Link Title"}](https://example.com)`;
     } else if (syntax === "quote") {
       replacement = `\n> ${selectedText || placeholder}\n`;
     } else if (syntax === "code") {
@@ -161,6 +207,7 @@ export default function EditPost() {
     }, 0);
   };
 
+  // Submit Handler
   const onSubmit = async (data) => {
     try {
       const formattedData = {
@@ -177,16 +224,7 @@ export default function EditPost() {
     }
   };
 
-  const previewPost = {
-    _id: id,
-    title: watchedValues.title || "Post Title Preview",
-    content: watchedValues.content || "Your updated story will appear here...",
-    author: user,
-    createdAt: new Date().toISOString(),
-    image: coverImage || { url: "" },
-    tags: tagsList
-  };
-
+  // Readability & Stats calculations
   const getReadabilityScore = () => {
     const text = watchedValues.content || "";
     const words = text.split(/\s+/).filter(x => x.length > 0).length;
@@ -200,60 +238,110 @@ export default function EditPost() {
 
   const readabilityScore = getReadabilityScore();
   const wordsCount = (watchedValues.content || "").split(/\s+/).filter(x => x.length > 0).length || 0;
-  const readingTime = Math.ceil(wordsCount / 200) || 0;
+  const readingTime = Math.max(1, Math.ceil(wordsCount / 200));
 
-  // Character limit percent
   const charLimit = 280;
   const currentChars = (watchedValues.content || "").length;
   const charPercent = Math.min(100, (currentChars / charLimit) * 100);
-
-  const radius = 22;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (readabilityScore / 100) * circumference;
 
   const charRadius = 10;
   const charCircumference = 2 * Math.PI * charRadius;
   const charDashoffset = charCircumference - (charPercent / 100) * charCircumference;
 
+  // Preview Post Object
+  const previewPost = {
+    _id: id,
+    title: watchedValues.title || "Post Title Preview",
+    content: watchedValues.content || "Your updated story will appear here...",
+    author: user || { name: "Demo User", username: "demouser" },
+    createdAt: new Date().toISOString(),
+    image: coverImage || null,
+    tags: tagsList,
+    likes: [],
+    likeCount: 0,
+    commentCount: 0
+  };
+
   const { ref: hookFormContentRef, ...contentRest } = register("content");
 
   if (loading) {
     return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent shadow-lg shadow-primary/20"></div>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent shadow-lg shadow-primary/20"></div>
+        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Loading Signal Data...</p>
       </div>
     );
   }
 
   if (notFound) {
     return (
-      <div className="flex flex-col items-center justify-center h-[50vh]">
-        <p className="text-muted-foreground font-bold text-xl">404: Signal Not Found ❌</p>
-        <Button variant="ghost" className="mt-4 rounded-xl" onClick={() => navigate(-1)}>Go Back</Button>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+        <div className="p-8 sm:p-12 text-center glass-panel rounded-[36px] border-primary/15 bg-primary/5 max-w-md w-full space-y-5 shadow-2xl">
+          <div className="h-16 w-16 bg-primary/10 text-primary rounded-3xl flex items-center justify-center mx-auto border border-primary/20">
+            <Activity size={32} />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-2xl font-black text-foreground">Signal Not Found</h3>
+            <p className="text-xs text-muted-foreground/80 leading-relaxed font-medium">
+              The publication you are trying to edit could not be loaded.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Button
+              onClick={fetchPost}
+              className="h-11 px-5 rounded-2xl bg-primary text-primary-foreground font-bold text-xs uppercase tracking-wider gap-2 shadow-lg shadow-primary/20 cursor-pointer"
+            >
+              <RotateCcw size={15} /> Retry
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/dashboard/posts")}
+              className="h-11 px-5 rounded-2xl font-bold text-xs uppercase tracking-wider border-primary/20 hover:bg-primary/5 cursor-pointer"
+            >
+              Back to Posts
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <PageTransition className="relative min-h-screen w-full flex items-center justify-center py-10 px-4 max-w-4xl mx-auto overflow-hidden">
+    <PageTransition className="relative min-h-screen w-full flex items-center justify-center py-6 sm:py-10 px-3 sm:px-4 max-w-4xl mx-auto overflow-hidden">
       <BackgroundMesh />
       
-      {/* Threads/Twitter style Composer Card */}
-      <div className="max-w-[640px] w-full rounded-[32px] bg-background/50 backdrop-blur-2xl border border-primary/15 p-6 sm:p-8 shadow-2xl relative">
+      {/* Primary Publisher Container */}
+      <div className="max-w-[680px] w-full rounded-[32px] bg-background/60 backdrop-blur-2xl border border-primary/15 p-5 sm:p-8 shadow-2xl relative">
         
-        {/* Back and Page Actions */}
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-primary/5">
+        {/* Navigation & Header Bar */}
+        <div className="flex items-center justify-between mb-6 pb-4 border-b border-primary/10 gap-2 flex-wrap">
           <Button 
             variant="ghost" 
             onClick={() => navigate(-1)} 
-            className="h-8 px-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-primary/10 gap-1.5"
+            className="h-8 px-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-primary/10 gap-1.5 cursor-pointer"
           >
-            <ArrowLeft size={12} /> Back
+            <ArrowLeft size={13} /> Back
           </Button>
 
-          <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-amber-500 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full">
-            <Globe size={11} /> Edit Mode
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-amber-500 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full">
+              <Globe size={11} /> Editing Mode
+            </span>
+            <span className="text-[9px] font-bold text-muted-foreground/60 hidden sm:inline">
+              {isDirty ? "• Unsaved changes" : "• Synced"}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsPreviewOpen(true)}
+              className="h-8 px-3 rounded-xl border-primary/20 text-xs font-extrabold gap-1.5 hover:bg-primary/10 cursor-pointer"
+            >
+              <Eye size={14} /> Preview
+            </Button>
+          </div>
         </div>
 
         {/* Input file uploader */}
@@ -268,7 +356,7 @@ export default function EditPost() {
         {/* Form Body */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           
-          {/* Header row: Profile details */}
+          {/* Author info header */}
           <div className="flex items-start gap-3.5">
             <div className="h-11 w-11 rounded-full overflow-hidden border border-primary/15 shrink-0 shadow-inner">
               <img 
@@ -282,7 +370,7 @@ export default function EditPost() {
                 <span className="text-sm font-black text-foreground truncate">{user?.name || "Demo User"}</span>
                 <span className="text-[11px] text-muted-foreground/60 font-semibold truncate">@{user?.username || "demouser"}</span>
               </div>
-              <p className="text-[9px] text-primary/70 font-black uppercase tracking-widest mt-0.5">Edit Publication Signal</p>
+              <p className="text-[9px] text-primary/70 font-black uppercase tracking-widest mt-0.5">Editing Existing Broadcast</p>
             </div>
           </div>
 
@@ -292,7 +380,7 @@ export default function EditPost() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Give it a title..."
+                placeholder="Publication title..."
                 className="w-full bg-transparent border-none text-xl sm:text-2xl font-black placeholder-muted-foreground/35 focus:outline-none focus-visible:ring-0 focus:ring-0 outline-none p-0 text-foreground"
                 {...register("title")}
               />
@@ -301,9 +389,9 @@ export default function EditPost() {
               )}
             </div>
 
-            {/* Tags Composer */}
+            {/* Tags Pill Manager */}
             {(showTagsInput || tagsList.length > 0) && (
-              <div className="flex flex-wrap gap-1.5 items-center p-2.5 rounded-2xl bg-muted/10 border border-primary/5 focus-within:border-primary/10 transition-all">
+              <div className="flex flex-wrap gap-1.5 items-center p-2.5 rounded-2xl bg-muted/10 border border-primary/10 focus-within:border-primary/20 transition-all">
                 {tagsList.map((tag, idx) => (
                   <span 
                     key={idx} 
@@ -313,6 +401,7 @@ export default function EditPost() {
                     <button 
                       type="button" 
                       onClick={() => handleRemoveTag(idx)} 
+                      aria-label="Remove tag"
                       className="text-primary/60 hover:text-red-500 transition-colors cursor-pointer text-[10px] ml-1"
                     >
                       ✕
@@ -324,8 +413,8 @@ export default function EditPost() {
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={handleAddTag}
-                  placeholder="Add hashtag..."
-                  className="flex-1 min-w-[90px] bg-transparent border-none text-[11px] font-bold text-foreground outline-none placeholder-muted-foreground/35 p-0"
+                  placeholder="Add hashtag (Enter or comma)..."
+                  className="flex-1 min-w-[120px] bg-transparent border-none text-[11px] font-bold text-foreground outline-none placeholder-muted-foreground/40 p-0"
                 />
               </div>
             )}
@@ -334,9 +423,9 @@ export default function EditPost() {
             <div className="relative">
               <textarea
                 id="content"
-                placeholder="What's happening? Start typing details or drop markdown blocks..."
-                rows={8}
-                className="w-full bg-transparent border-none text-sm sm:text-base placeholder-muted-foreground/20 focus:outline-none focus-visible:ring-0 focus:ring-0 outline-none leading-relaxed p-0 text-foreground/90 resize-none no-scrollbar"
+                placeholder="Edit content or format with Markdown..."
+                rows={9}
+                className="w-full bg-transparent border-none text-sm sm:text-base placeholder-muted-foreground/25 focus:outline-none focus-visible:ring-0 focus:ring-0 outline-none leading-relaxed p-0 text-foreground/90 resize-none no-scrollbar"
                 {...contentRest}
                 ref={(e) => {
                   hookFormContentRef(e);
@@ -348,33 +437,60 @@ export default function EditPost() {
               )}
             </div>
 
-            {/* Cover Image attachment preview */}
-            {coverImage && (
-              <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-primary/10 group shadow-md">
-                <img src={coverImage} alt="Attachment" className="w-full h-full object-cover" />
-                <button 
-                  type="button" 
-                  onClick={removeCoverImage} 
-                  className="absolute top-2.5 right-2.5 h-7 w-7 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center transition-all border border-white/10 shadow-lg cursor-pointer text-xs"
-                >
-                  ✕
-                </button>
+            {/* Drag & Drop Cover Image Attachment Area */}
+            {coverImage ? (
+              <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-primary/15 group shadow-md">
+                <img src={coverImage} alt="Cover attachment" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <Button 
+                    type="button" 
+                    size="sm" 
+                    onClick={triggerFileInput} 
+                    className="h-8 px-3 rounded-xl bg-white/20 backdrop-blur-md text-white border border-white/30 hover:bg-white/30 text-xs font-bold"
+                  >
+                    Replace Image
+                  </Button>
+                  <Button 
+                    type="button" 
+                    size="sm" 
+                    onClick={removeCoverImage} 
+                    className="h-8 px-3 rounded-xl bg-red-500/80 backdrop-blur-md text-white border border-red-500 hover:bg-red-600 text-xs font-bold"
+                  >
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div 
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={triggerFileInput}
+                className={cn(
+                  "border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-1.5",
+                  isDragging ? "border-primary bg-primary/10" : "border-primary/15 hover:border-primary/30 hover:bg-muted/10"
+                )}
+              >
+                <ImagePlus size={20} className="text-primary/60" />
+                <p className="text-xs font-bold text-foreground">Attach Cover Media</p>
+                <p className="text-[10px] text-muted-foreground/60 font-medium">Click or drag & drop image file here</p>
               </div>
             )}
 
-            {/* Bottom Actions Row */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-primary/5">
+            {/* Bottom Actions & Markdown Toolbar Row */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-primary/10">
               
-              {/* Media & Tags triggers + Formatting tools */}
+              {/* Media & Formatting Toolbar */}
               <div className="flex flex-wrap items-center gap-1">
                 
                 <button 
                   type="button" 
                   onClick={triggerFileInput} 
                   title="Attach Cover Image"
+                  aria-label="Attach cover image"
                   className={cn(
-                    "h-8 w-8 rounded-full flex items-center justify-center transition-all hover:bg-primary/10 border cursor-pointer",
-                    coverImage ? "text-primary border-primary/20 bg-primary/5" : "text-muted-foreground border-transparent"
+                    "h-8 w-8 rounded-full flex items-center justify-center transition-all border cursor-pointer",
+                    coverImage ? "text-primary border-primary/20 bg-primary/10" : "text-muted-foreground border-transparent hover:bg-primary/10"
                   )}
                 >
                   <ImagePlus size={14} />
@@ -384,19 +500,23 @@ export default function EditPost() {
                   type="button" 
                   onClick={() => setShowTagsInput(!showTagsInput)} 
                   title="Add Tag pills"
+                  aria-label="Add tags"
                   className={cn(
-                    "h-8 w-8 rounded-full flex items-center justify-center transition-all hover:bg-primary/10 border cursor-pointer",
-                    showTagsInput || tagsList.length > 0 ? "text-primary border-primary/20 bg-primary/5" : "text-muted-foreground border-transparent"
+                    "h-8 w-8 rounded-full flex items-center justify-center transition-all border cursor-pointer",
+                    showTagsInput || tagsList.length > 0 ? "text-primary border-primary/20 bg-primary/10" : "text-muted-foreground border-transparent hover:bg-primary/10"
                   )}
                 >
                   <Hash size={14} />
                 </button>
 
-                <div className="h-4 w-[1px] bg-primary/10 mx-1" />
+                <div className="h-4 w-[1px] bg-primary/15 mx-1" />
 
                 {[
                   { label: "Bold", syntax: "bold", icon: <Bold size={13} /> },
                   { label: "Italic", syntax: "italic", icon: <Italic size={13} /> },
+                  { label: "Heading 1", syntax: "h1", icon: <Heading1 size={13} /> },
+                  { label: "Heading 2", syntax: "h2", icon: <Heading2 size={13} /> },
+                  { label: "Link", syntax: "link", icon: <Link2 size={13} /> },
                   { label: "Quote", syntax: "quote", icon: <Quote size={13} /> },
                   { label: "Code", syntax: "code", icon: <Code size={13} /> },
                   { label: "List", syntax: "list", icon: <List size={13} /> },
@@ -406,28 +526,27 @@ export default function EditPost() {
                     type="button"
                     onClick={() => insertMarkdown(tool.syntax)}
                     title={tool.label}
-                    className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors border border-transparent hover:border-primary/5 cursor-pointer"
+                    aria-label={tool.label}
+                    className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors border border-transparent hover:border-primary/10 cursor-pointer"
                   >
                     {tool.icon}
                   </button>
                 ))}
               </div>
 
-              {/* Character stats, sidebar toggle and Post controls */}
+              {/* Character Stats & Submission Controls */}
               <div className="flex items-center justify-between sm:justify-end gap-3.5">
                 
                 <div className="flex items-center gap-2">
-                  {/* Circle character progress indicator */}
-                  <div className="relative flex items-center justify-center shrink-0 w-6 h-6">
+                  {/* Circular character progress SVG */}
+                  <div className="relative flex items-center justify-center shrink-0 w-6 h-6" title={`${currentChars}/${charLimit} chars`}>
                     <svg className="w-full h-full transform -rotate-90">
-                      <circle cx="12" cy="12" r={charRadius} className="text-muted/10" strokeWidth="2" stroke="currentColor" fill="transparent" />
+                      <circle cx="12" cy="12" r={charRadius} className="text-muted/20" strokeWidth="2" stroke="currentColor" fill="transparent" />
                       <motion.circle 
                         cx="12" 
                         cy="12" 
                         r={charRadius} 
-                        className={cn(
-                          charPercent >= 90 ? "text-red-500" : "text-primary"
-                        )}
+                        className={cn(charPercent >= 90 ? "text-red-500" : "text-primary")}
                         strokeWidth="2" 
                         stroke="currentColor" 
                         fill="transparent" 
@@ -442,12 +561,12 @@ export default function EditPost() {
                   <button
                     type="button"
                     onClick={() => setShowSidebar(!showSidebar)}
-                    title="Toggle Insights and Live Preview"
+                    title="Toggle Edit Insights"
                     className={cn(
                       "h-8 px-2.5 rounded-xl border flex items-center gap-1 text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer",
                       showSidebar 
                         ? "bg-primary/10 border-primary/20 text-primary" 
-                        : "bg-muted/10 border-primary/5 text-muted-foreground hover:text-foreground hover:border-primary/10"
+                        : "bg-muted/10 border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/20"
                     )}
                   >
                     <Layers size={13} /> Insights
@@ -456,14 +575,14 @@ export default function EditPost() {
 
                 <div className="flex items-center gap-2">
                   <Button 
-                    onClick={handleSubmit(onSubmit)}
+                    type="submit"
                     disabled={isSubmitting} 
                     className="h-9 px-5 rounded-full bg-primary text-primary-foreground font-black text-[11px] uppercase tracking-widest hover:bg-primary/90 transition-all shadow-md shadow-primary/20 flex items-center gap-1.5 cursor-pointer"
                   >
                     {isSubmitting ? (
                       <><Loader2 size={11} className="animate-spin" /> Updating...</>
                     ) : (
-                      <><Save size={11} /> Save</>
+                      <><Save size={11} /> Save Changes</>
                     )}
                   </Button>
                 </div>
@@ -478,33 +597,31 @@ export default function EditPost() {
 
       </div>
 
-      {/* Slide-out Glass Side Drawer (Collapsible drafts and metrics info) */}
+      {/* Slide-out Glass Side Drawer / Mobile Sheet */}
       <div className={cn(
-        "fixed top-0 right-0 h-full w-[310px] bg-background/95 backdrop-blur-2xl border-l border-primary/10 z-50 p-6 shadow-2xl transition-transform duration-300 ease-out flex flex-col justify-start space-y-6",
+        "fixed top-0 right-0 h-full w-full sm:w-[320px] bg-background/95 backdrop-blur-2xl border-l border-primary/10 z-50 p-6 shadow-2xl transition-transform duration-300 ease-out flex flex-col justify-start space-y-6",
         showSidebar ? "translate-x-0" : "translate-x-full"
       )}>
         {/* Drawer Header */}
-        <div className="flex items-center justify-between pb-3.5 border-b border-primary/5 shrink-0">
+        <div className="flex items-center justify-between pb-3.5 border-b border-primary/10 shrink-0">
           <span className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-1.5">
-            <Sparkles size={13} className="animate-pulse" /> Edit Insights
+            <Sparkles size={13} className="animate-pulse" /> Publication Metrics
           </span>
           <button 
             type="button"
             onClick={() => setShowSidebar(false)} 
-            className="text-[10px] font-black uppercase tracking-wider text-muted-foreground hover:text-foreground px-2.5 py-1 rounded-lg hover:bg-primary/5 transition-colors cursor-pointer"
+            className="text-[10px] font-black uppercase tracking-wider text-muted-foreground hover:text-foreground px-2.5 py-1 rounded-lg hover:bg-primary/10 transition-colors cursor-pointer"
           >
             Close ✕
           </button>
         </div>
 
-        {/* Analytics Info (Circular gauge) */}
-        <div className="p-4 rounded-2xl bg-muted/10 border border-primary/5 space-y-4">
+        {/* Analytics Quality Meter */}
+        <div className="p-4 rounded-2xl bg-muted/10 border border-primary/10 space-y-4">
           <div className="flex items-center gap-3">
-            
-            {/* SVG circle */}
             <div className="relative flex items-center justify-center shrink-0 w-12 h-12">
               <svg className="w-full h-full transform -rotate-90">
-                <circle cx="24" cy="24" r="18" className="text-muted/10" strokeWidth="3" stroke="currentColor" fill="transparent" />
+                <circle cx="24" cy="24" r="18" className="text-muted/20" strokeWidth="3" stroke="currentColor" fill="transparent" />
                 <motion.circle 
                   cx="24" 
                   cy="24" 
@@ -530,13 +647,13 @@ export default function EditPost() {
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-center">
-            <div className="p-2.5 rounded-xl bg-background/30 border border-primary/5">
-              <p className="text-[8px] font-black uppercase tracking-wider text-muted-foreground/50">Words</p>
+            <div className="p-2.5 rounded-xl bg-background/30 border border-primary/10">
+              <p className="text-[8px] font-black uppercase tracking-wider text-muted-foreground/50">Word Count</p>
               <p className="text-xs font-black text-foreground mt-0.5 font-mono">{wordsCount}</p>
             </div>
-            <div className="p-2.5 rounded-xl bg-background/30 border border-primary/5">
+            <div className="p-2.5 rounded-xl bg-background/30 border border-primary/10">
               <p className="text-[8px] font-black uppercase tracking-wider text-muted-foreground/50">Reading Est.</p>
-              <p className="text-xs font-black text-foreground mt-0.5 font-mono">{readingTime}m</p>
+              <p className="text-xs font-black text-foreground mt-0.5 font-mono">{readingTime} min</p>
             </div>
           </div>
         </div>
@@ -548,13 +665,29 @@ export default function EditPost() {
             <Eye size={12} className="text-primary" />
           </div>
           <div className="scale-90 origin-top overflow-y-auto pr-1 no-scrollbar flex-1">
-            <AnimatePresence mode="wait">
-              <PostCard post={previewPost} index={1} />
-            </AnimatePresence>
+            <PostCard post={previewPost} index={1} />
           </div>
         </div>
 
       </div>
+
+      {/* Live Preview Modal */}
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="glass-panel border-primary/15 max-w-2xl w-[95%] rounded-[32px] p-6 bg-background/95 backdrop-blur-2xl">
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-lg font-black tracking-tight flex items-center gap-2">
+              <Eye size={18} className="text-primary" /> Updated Publication Preview
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              This preview shows how your edited publication will render across the network.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-2 overflow-y-auto max-h-[60vh]">
+            <PostCard post={previewPost} index={0} />
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </PageTransition>
   );
