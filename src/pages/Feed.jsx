@@ -127,45 +127,10 @@ export default function Feed() {
                 <main className="flex-1 max-w-2xl h-full flex flex-col border-x border-primary/10 bg-background/30 backdrop-blur-md overflow-hidden">
                     
                     {/* Header & Controls Bar */}
-                    <div className="sticky top-0 z-20 glass-panel border-x-0 border-t-0 border-b border-primary/10 p-4 sm:p-6 space-y-4 bg-background/80 backdrop-blur-xl">
+                    <div className="sticky top-0 z-20 glass-panel border-x-0 border-t-0 border-b border-primary/10 p-3 sm:p-4 bg-background/80 backdrop-blur-xl flex items-center justify-between gap-3">
                         
-                        {/* Title & Subtitle */}
-                        <div className="flex items-center justify-between gap-4">
-                            <div>
-                                <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground flex items-center gap-2">
-                                    Broadcast Discovery <Sparkles size={18} className="text-primary animate-pulse" />
-                                </h1>
-                                <p className="text-xs text-muted-foreground/80 font-medium">Explore stories, technical signals, and creator broadcasts.</p>
-                            </div>
-
-                            <Link to="/dashboard/create" className="shrink-0">
-                                <Button className="h-9 px-4 rounded-xl text-xs font-black uppercase tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md shadow-primary/20 gap-1.5 cursor-pointer">
-                                    <PlusCircle size={14} /> <span className="hidden sm:inline">New Signal</span>
-                                </Button>
-                            </Link>
-                        </div>
-
-                        {/* Search Bar (Mobile & Desktop) */}
-                        <div className="relative group">
-                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                            <Input
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Filter by title, hashtag, or author..."
-                                className="pl-10 pr-9 rounded-2xl bg-muted/20 border-primary/10 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:bg-background h-10 text-xs font-bold transition-all"
-                            />
-                            {searchQuery && (
-                                <button 
-                                    onClick={() => setSearchQuery("")} 
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-xs"
-                                >
-                                    <X size={14} />
-                                </button>
-                            )}
-                        </div>
-
                         {/* Category Navigation Pills */}
-                        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1">
+                        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
                             {[
                                 { id: "for-you", label: "For You", icon: Rss },
                                 { id: "following", label: "Following", icon: UserCheck }
@@ -189,6 +154,13 @@ export default function Feed() {
                                 );
                             })}
                         </div>
+
+                        {/* New Signal CTA Button */}
+                        <Link to="/dashboard/create" className="shrink-0">
+                            <Button className="h-9 px-4 rounded-xl text-xs font-black uppercase tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md shadow-primary/20 gap-1.5 cursor-pointer">
+                                <PlusCircle size={14} /> <span>New Signal</span>
+                            </Button>
+                        </Link>
                     </div>
 
                     {/* Feed Content Scroll Container */}
