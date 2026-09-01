@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Search, Sparkles, FileText, ArrowRight, CornerDownLeft, Heart, MessageCircle,
-  User, Settings, Shield, Lock, Ban, HelpCircle, Sun, UserCog
+  User, Settings, Shield, Lock, Ban, HelpCircle, Sun, UserCog, X, Compass, PlusCircle
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 const SYSTEM_ACTIONS = [
@@ -95,7 +95,7 @@ export default function SpotlightSearch() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Listen to custom window event to open spotlight search (from sidebar click)
+  // Listen to custom window event to open spotlight search
   useEffect(() => {
     const handleOpen = () => setOpen(true);
     window.addEventListener("open-spotlight-search", handleOpen);
@@ -119,7 +119,7 @@ export default function SpotlightSearch() {
       const drafts = JSON.parse(localStorage.getItem("mock_db_drafts") || "[]");
       const mockUsers = JSON.parse(localStorage.getItem("mock_db_users") || "[]");
 
-      const queryLower = query.toLowerCase();
+      const queryLower = query.toLowerCase().trim();
 
       // 1. Filter Blogs (For You)
       const matchedBlogs = blogs.filter(b => 
@@ -235,55 +235,75 @@ export default function SpotlightSearch() {
   const tabs = [
     { id: "for_you", label: "For You", icon: Sparkles, dataKey: "forYou" },
     { id: "users", label: "Users", icon: User, dataKey: "users" },
-    { id: "more", label: "Drafts & More", icon: FileText, dataKey: "more" }
+    { id: "more", label: "Drafts & Settings", icon: FileText, dataKey: "more" }
   ];
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-3xl rounded-3xl border-primary/10 glass-panel shadow-2xl p-0 overflow-hidden font-sans z-[150] fixed top-[20%] translate-y-0">
+      <DialogContent className="max-w-3xl w-[92vw] sm:w-full rounded-2xl sm:rounded-3xl border border-primary/20 glass-panel shadow-2xl p-0 overflow-hidden font-sans z-[150] top-[15%] sm:top-[20%] translate-y-0 flex flex-col gap-0 [&>button:last-child]:hidden">
+        <DialogTitle className="sr-only">Spotlight Search</DialogTitle>
+        <DialogDescription className="sr-only">Search publications, creators, drafts, and system settings across XDrop.</DialogDescription>
         
         {/* Search Header Input */}
-        <div className="flex items-center gap-3 px-5 py-4.5 border-b border-primary/10 relative">
-          <Search size={22} className="text-muted-foreground shrink-0" />
+        <div className="flex items-center gap-2.5 sm:gap-3 px-4 sm:px-5 py-3.5 sm:py-4 border-b border-primary/10 relative bg-background/50">
+          <Search size={20} className="text-primary shrink-0" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleInputKeyDown}
-            placeholder="Search blogs, authors, drafts or system settings..."
-            className="flex-1 bg-transparent border-none text-foreground outline-none text-base font-bold placeholder-muted-foreground/50 w-full"
+            placeholder="Search blogs, authors, drafts or settings..."
+            className="flex-1 bg-transparent border-none text-foreground outline-none text-sm sm:text-base font-bold placeholder-muted-foreground/50 w-full min-w-0 pr-1"
             autoFocus
           />
-          <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-muted-foreground/45 bg-muted/30 border border-primary/5 px-2 py-1 rounded-lg">
-            ESC
-          </div>
+          
+          {/* Clear input button when query is present */}
+          {query.trim() !== "" && (
+            <button 
+              onClick={() => setQuery("")}
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors shrink-0 flex items-center gap-1 cursor-pointer"
+              title="Clear input"
+            >
+              <X size={15} />
+            </button>
+          )}
+
+          {/* Dedicated ESC Close Button */}
+          <button
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-muted-foreground/80 bg-primary/10 hover:bg-primary/20 border border-primary/15 px-2 py-1 rounded-md font-mono shrink-0 transition-colors cursor-pointer"
+            title="Close modal (ESC)"
+          >
+            <span>ESC</span>
+          </button>
         </div>
 
-        {/* Tab Selectors (Always visible, showing counts when querying) */}
-        <div className="flex gap-2 border-b border-primary/10 px-4 py-2.5 bg-primary/[0.01]">
+        {/* Tab Selectors */}
+        <div className="flex items-center gap-1.5 sm:gap-2 border-b border-primary/10 px-3 sm:px-4 py-2 bg-primary/[0.02] overflow-x-auto no-scrollbar">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             const count = searchResults[tab.dataKey]?.length || 0;
+            const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center gap-2 border border-transparent",
+                  "px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shrink-0 border",
                   isActive
-                    ? "bg-primary/20 text-primary border-primary/10 shadow-sm shadow-primary/5"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/15"
+                    ? "bg-primary text-primary-foreground border-transparent shadow-md shadow-primary/20"
+                    : "bg-muted/15 border-primary/5 text-muted-foreground hover:text-foreground hover:bg-primary/10"
                 )}
               >
-                <tab.icon size={13} />
+                <Icon size={13} />
                 <span>{tab.label}</span>
                 {query.trim() !== "" && (
                   <span className={cn(
-                    "ml-1.5 px-1.5 py-0.25 rounded-full text-[9px] font-bold tracking-normal border font-mono",
+                    "ml-1 px-1.5 py-0.25 rounded-full text-[9px] font-bold font-mono border",
                     isActive 
-                      ? "bg-primary/30 border-primary/20 text-primary" 
-                      : "bg-muted/30 border-primary/5 text-muted-foreground/70"
+                      ? "bg-primary-foreground/20 border-primary-foreground/30 text-primary-foreground" 
+                      : "bg-muted/30 border-primary/10 text-muted-foreground"
                   )}>
                     {count}
                   </span>
@@ -294,17 +314,17 @@ export default function SpotlightSearch() {
         </div>
 
         {/* Scrollable Results Area */}
-        <div className="p-4 max-h-[380px] overflow-y-auto no-scrollbar">
+        <div className="p-3 sm:p-4 max-h-[55vh] sm:max-h-[400px] overflow-y-auto no-scrollbar">
           {query.trim() === "" ? (
             /* Quick actions / landing view */
-            <div className="space-y-4 py-2">
-              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/60 px-2">Quick Destinations</p>
-              <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-3 py-1">
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/70 px-1">Quick Destinations</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {[
                   { title: "Explore Feed", path: "/feed", desc: "Discover latest broadcasts", icon: Sparkles },
-                  { title: "Create Post", path: "/dashboard/create", desc: "Share your thoughts", icon: FileText },
+                  { title: "Create Post", path: "/dashboard/create", desc: "Share your thoughts", icon: PlusCircle },
                   { title: "My Profile", path: "/profile", desc: "Configure your identity", icon: User },
-                  { title: "Help Desk", path: "/dashboard/help", desc: "Read FAQs and guides", icon: HelpCircle }
+                  { title: "Help Center", path: "/dashboard/help", desc: "Read FAQs and guides", icon: HelpCircle }
                 ].map((dest) => (
                   <div
                     key={dest.path}
@@ -312,33 +332,43 @@ export default function SpotlightSearch() {
                       setOpen(false);
                       navigate(dest.path);
                     }}
-                    className="flex items-center gap-3.5 p-3.5 rounded-2xl border border-primary/5 hover:border-primary/20 bg-muted/5 hover:bg-primary/5 transition-all cursor-pointer group"
+                    className="flex items-center gap-3 p-3 rounded-2xl border border-primary/10 hover:border-primary/30 bg-muted/10 hover:bg-primary/10 transition-all cursor-pointer group"
                   >
-                    <div className="p-2.5 rounded-xl bg-primary/10 text-primary shrink-0 group-hover:scale-105 transition-transform duration-300">
+                    <div className="p-2.5 rounded-xl bg-primary/15 text-primary shrink-0 group-hover:scale-105 transition-transform duration-300">
                       <dest.icon size={16} />
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-black text-foreground">{dest.title}</p>
-                      <p className="text-[10px] text-muted-foreground truncate mt-0.5">{dest.desc}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">{dest.title}</p>
+                      <p className="text-[10px] text-muted-foreground/80 truncate mt-0.5 font-medium">{dest.desc}</p>
                     </div>
+                    <ArrowRight size={14} className="text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
                   </div>
                 ))}
               </div>
             </div>
           ) : activeList.length === 0 ? (
             /* Empty State for current tab */
-            <div className="text-center py-16 text-muted-foreground/60 space-y-2">
-              <p className="font-bold text-xs text-foreground uppercase tracking-widest">No matching results</p>
-              <p className="text-[11px] max-w-xs mx-auto">
-                No matches found in "{tabs.find(t => t.id === activeTab)?.label}" for "{query}".
+            <div className="text-center py-12 px-4 text-muted-foreground/60 space-y-2">
+              <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto border border-primary/20">
+                <Compass size={22} />
+              </div>
+              <p className="font-extrabold text-sm text-foreground uppercase tracking-wider pt-1">No matching signals</p>
+              <p className="text-xs max-w-xs mx-auto leading-relaxed font-medium">
+                No results found in "{tabs.find(t => t.id === activeTab)?.label}" matching "{query}".
               </p>
             </div>
           ) : (
             /* Results listing */
             <div className="space-y-2">
-              <p className="text-[9px] font-black uppercase tracking-wider text-primary/60 mb-2 px-1">
-                Matches Found ({activeList.length})
-              </p>
+              <div className="flex items-center justify-between px-1 mb-2">
+                <p className="text-[9px] font-black uppercase tracking-wider text-primary/70 font-mono">
+                  {tabs.find(t => t.id === activeTab)?.label} ({activeList.length})
+                </p>
+                <p className="text-[9px] font-bold text-muted-foreground/50 hidden sm:block font-mono">
+                  Use ↑ ↓ to navigate, Enter to select
+                </p>
+              </div>
+
               {activeList.map((item, idx) => {
                 const isSelected = idx === selectedIndex;
                 return (
@@ -347,62 +377,62 @@ export default function SpotlightSearch() {
                     onClick={() => handleSelect(item)}
                     onMouseEnter={() => setSelectedIndex(idx)}
                     className={cn(
-                      "flex items-center justify-between p-3.5 rounded-2xl border transition-all cursor-pointer group text-left",
+                      "flex items-center justify-between p-3 rounded-2xl border transition-all cursor-pointer group text-left gap-3 relative overflow-hidden",
                       isSelected
-                        ? "border-primary bg-primary/5 shadow-md shadow-primary/5"
-                        : "border-transparent hover:border-primary/10 hover:bg-muted/15"
+                        ? "border-primary bg-primary/10 shadow-md shadow-primary/5"
+                        : "border-primary/5 hover:border-primary/20 hover:bg-muted/15"
                     )}
                   >
                     {/* Render according to Category */}
                     {activeTab === "for_you" && (
-                      <div className="flex items-start gap-4 min-w-0 flex-1">
+                      <div className="flex items-start gap-3 min-w-0 flex-1">
                         {item.image && (
                           <img 
-                            src={item.image} 
+                            src={typeof item.image === "string" ? item.image : item.image?.url} 
                             alt={item.title} 
-                            className="w-12 h-12 object-cover rounded-xl border border-primary/10 shrink-0 mt-0.5" 
+                            className="w-11 h-11 sm:w-12 sm:h-12 object-cover rounded-xl border border-primary/15 shrink-0 mt-0.5" 
                           />
                         )}
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-extrabold text-sm text-foreground truncate max-w-[280px]">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="font-bold sm:font-extrabold text-xs sm:text-sm text-foreground truncate group-hover:text-primary transition-colors flex-1">
                               {item.title}
                             </span>
                             {item.tags && (
-                              <span className="text-[9px] font-bold text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-md uppercase tracking-wider shrink-0 font-mono">
-                                {Array.isArray(item.tags) ? item.tags[0] : item.tags.split(',')[0]}
+                              <span className="text-[9px] font-bold text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-md uppercase tracking-wider shrink-0 font-mono hidden sm:inline-block">
+                                {Array.isArray(item.tags) ? item.tags[0] : String(item.tags).split(',')[0]}
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-muted-foreground line-clamp-1 leading-relaxed mt-0.5">
+                          <p className="text-[11px] sm:text-xs text-muted-foreground/80 line-clamp-1 leading-relaxed mt-0.5 font-medium">
                             {item.content}
                           </p>
-                          <div className="flex items-center gap-3 mt-1.5 text-[9px] text-muted-foreground/60 font-bold uppercase tracking-wider font-mono">
-                            <span className="flex items-center gap-1"><Heart size={10} className="text-rose-500/80" /> {item.likes || 0}</span>
-                            <span className="flex items-center gap-1"><MessageCircle size={10} className="text-blue-500/80" /> {item.comments || 0}</span>
-                            <span>• by {item.author?.name || item.userId?.name || "Author"}</span>
+                          <div className="flex flex-wrap items-center gap-3 mt-1 text-[9px] sm:text-[10px] text-muted-foreground/60 font-semibold font-mono">
+                            <span className="flex items-center gap-1"><Heart size={10} className="text-rose-500" /> {item.likes || 0}</span>
+                            <span className="flex items-center gap-1"><MessageCircle size={10} className="text-blue-500" /> {item.comments || 0}</span>
+                            <span>• by {item.author?.name || item.userId?.name || "Creator"}</span>
                           </div>
                         </div>
                       </div>
                     )}
 
                     {activeTab === "users" && (
-                      <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
                         <img 
                           src={item.profilePicture || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=250&q=80"} 
                           alt={item.name} 
-                          className="w-11 h-11 object-cover rounded-full border border-primary/10 shrink-0" 
+                          className="w-10 h-10 sm:w-11 sm:h-11 object-cover rounded-full border border-primary/15 shrink-0" 
                         />
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-baseline gap-1.5">
-                            <span className="font-extrabold text-sm text-foreground">
+                          <div className="flex items-baseline gap-1.5 min-w-0">
+                            <span className="font-bold sm:font-extrabold text-xs sm:text-sm text-foreground truncate">
                               {item.name}
                             </span>
-                            <span className="text-xs text-muted-foreground/60 font-mono">
+                            <span className="text-[11px] text-muted-foreground/60 font-mono shrink-0">
                               @{item.username}
                             </span>
                           </div>
-                          <p className="text-xs text-muted-foreground line-clamp-1 leading-normal mt-0.5">
+                          <p className="text-[11px] sm:text-xs text-muted-foreground line-clamp-1 mt-0.5 font-medium">
                             {item.profession || item.bio || "Creator on XDrop"}
                           </p>
                         </div>
@@ -410,45 +440,45 @@ export default function SpotlightSearch() {
                     )}
 
                     {activeTab === "more" && (
-                      <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
                         <div className={cn(
                           "p-2.5 rounded-xl shrink-0 transition-colors border",
                           item.category === "draft"
-                            ? "bg-amber-500/10 text-amber-500 border-amber-500/15"
-                            : "bg-primary/10 text-primary border-primary/15"
+                            ? "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                            : "bg-primary/10 text-primary border-primary/20"
                         )}>
                           {item.category === "draft" ? <FileText size={16} /> : getSystemIcon(item.type)}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-extrabold text-sm text-foreground truncate max-w-[280px]">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="font-bold sm:font-extrabold text-xs sm:text-sm text-foreground truncate flex-1">
                               {item.title}
                             </span>
                             <span className={cn(
                               "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border shrink-0 font-mono",
                               item.category === "draft"
-                                ? "bg-amber-500/20 text-amber-500 border-amber-500/20"
-                                : "bg-primary/20 text-primary border-primary/20"
+                                ? "bg-amber-500/20 text-amber-500 border-amber-500/30"
+                                : "bg-primary/20 text-primary border-primary/30"
                             )}>
                               {item.category === "draft" ? "Draft" : "Setting"}
                             </span>
                           </div>
-                          <p className="text-xs text-muted-foreground line-clamp-1 leading-normal mt-0.5">
+                          <p className="text-[11px] sm:text-xs text-muted-foreground line-clamp-1 mt-0.5 font-medium">
                             {item.content}
                           </p>
                         </div>
                       </div>
                     )}
 
-                    {/* Actions and indicators */}
-                    <div className="flex items-center gap-2 shrink-0 ml-4">
+                    {/* Right action indicator */}
+                    <div className="flex items-center gap-1.5 shrink-0 ml-2">
                       {isSelected ? (
-                        <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-primary animate-pulse">
-                          <span>Open</span>
+                        <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-primary bg-primary/10 px-2 py-1 rounded-lg border border-primary/20">
+                          <span className="hidden sm:inline">Select</span>
                           <CornerDownLeft size={10} className="stroke-[3]" />
                         </div>
                       ) : (
-                        <ArrowRight size={14} className="text-muted-foreground/30 group-hover:text-muted-foreground transition-colors" />
+                        <ArrowRight size={14} className="text-muted-foreground/30 group-hover:text-primary transition-colors" />
                       )}
                     </div>
                   </div>
