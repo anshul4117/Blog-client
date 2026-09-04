@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useAuth } from "../../../context/AuthContext.jsx";
 import toast from "react-hot-toast";
 import secureAPI from "@/lib/secureApi";
@@ -14,8 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { 
   User, Lock, Shield, Activity, LogOut, Compass, Trash2, Edit, Fingerprint, 
   Globe, Github, Twitter, Chrome, CloudDownload, Share2, Key, Sparkles, CheckCircle2, 
-  AlertTriangle, AlertCircle, Laptop, Smartphone, FileDown, ArrowLeft, X, Layers,
-  ChevronRight, Check, CheckSquare
+  AlertTriangle, AlertCircle, Laptop, Smartphone, FileDown, ArrowLeft, Layers
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -63,7 +62,7 @@ export default function AccountCenter() {
     
     const timer = setTimeout(() => {
       if (mounted) setIsLoading(false);
-    }, 400);
+    }, 350);
     
     // Fetch profile
     secureAPI.get("/users/profile")
@@ -211,13 +210,37 @@ export default function AccountCenter() {
     { id: "data", label: "Data & Privacy", icon: FileDown, badge: `${exportsList.length} Files` },
     { id: "sessions", label: "Active Sessions", icon: Activity, badge: "3 Devices" },
     { id: "danger", label: "Danger Zone", icon: AlertTriangle, badge: "Warning" },
-    { id: "all", label: "View All Sections", icon: Layers, badge: "Full Workspace" }
+    { id: "all", label: "View All Sections", icon: Layers, badge: "Full View" }
   ];
 
   return (
     <PageTransition className="w-full space-y-6 font-sans pb-28 sm:pb-32 min-w-0">
       
-      {/* 1. Account Identity Hero Header */}
+      {/* Navigation Top Header */}
+      <div className="flex items-center justify-between gap-4">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate(-1)} 
+          className="gap-2 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-primary/10 text-foreground hover:text-primary transition-all cursor-pointer border border-primary/10"
+        >
+          <ArrowLeft size={16} /> <span>Back</span>
+        </Button>
+        
+        <div className="flex items-center gap-3">
+          <Link to="/dashboard/settings/security">
+            <Button variant="outline" className="gap-2 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 text-foreground hover:bg-primary/10 hidden sm:flex">
+              <Lock size={14} /> Security Settings
+            </Button>
+          </Link>
+          <Link to="/feed">
+            <Button className="gap-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90">
+              <Compass size={16} /> Explore Feed
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      {/* 1. Account Identity Hero Header Surface */}
       <div className="p-6 sm:p-7 rounded-[32px] glass-panel border border-primary/15 bg-gradient-to-r from-primary/10 via-background to-primary/5 relative overflow-hidden shadow-2xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 relative z-10">
           
@@ -247,7 +270,7 @@ export default function AccountCenter() {
                 <span className="truncate">{profile?.email || "demo@example.com"}</span>
               </div>
 
-              <p className="text-[11px] text-muted-foreground/70 font-semibold font-mono">Member Since: {joinDate}</p>
+              <p className="text-[11px] text-muted-foreground font-semibold font-mono">Member Since: {joinDate}</p>
             </div>
           </div>
 
@@ -260,7 +283,7 @@ export default function AccountCenter() {
             <Button 
               variant="outline"
               onClick={() => navigate("/profile")}
-              className="w-full h-10 px-4 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 hover:bg-primary/5 gap-2 cursor-pointer"
+              className="w-full h-10 px-4 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 text-foreground hover:bg-primary/10 gap-2 cursor-pointer"
             >
               <User size={14} /> View Card
             </Button>
@@ -349,7 +372,7 @@ export default function AccountCenter() {
                         "text-[9px] font-bold px-2 py-0.5 rounded-md font-mono shrink-0 border",
                         isActive 
                           ? "bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30" 
-                          : "bg-muted/20 text-muted-foreground/80 border-primary/10"
+                          : "bg-muted/20 text-muted-foreground border-primary/10"
                       )}>
                         {cat.badge}
                       </span>
@@ -359,20 +382,20 @@ export default function AccountCenter() {
               </div>
             </Card>
 
-            {/* Compact Security Score Gauge Widget */}
+            {/* Security Score Health Gauge Widget */}
             <Card className="rounded-[32px] glass-card border border-primary/15 shadow-xl p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Shield size={16} className="text-primary" />
-                  <h3 className="text-[10px] font-black uppercase tracking-widest text-primary font-mono">Security Health Score</h3>
+                  <h3 className="text-[10px] font-black uppercase tracking-widest text-primary font-mono">Security Health Index</h3>
                 </div>
-                <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[9px] font-black uppercase font-mono border border-emerald-500/20">92%</span>
+                <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase font-mono border border-emerald-500/20">92%</span>
               </div>
 
               <div className="w-full h-2 bg-muted/30 rounded-full overflow-hidden">
                 <motion.div initial={{ width: 0 }} animate={{ width: "92%" }} transition={{ duration: 1.5 }} className="h-full bg-primary" />
               </div>
-              <p className="text-[10px] text-muted-foreground/80 font-medium leading-relaxed">OAuth encryption & 2FA active across all sessions.</p>
+              <p className="text-[10px] text-muted-foreground font-medium leading-relaxed">2FA & OAuth key encryption active across all sessions.</p>
             </Card>
 
           </aside>
@@ -390,35 +413,35 @@ export default function AccountCenter() {
                         <User size={18} className="text-primary" /> Profile & Account Overview
                       </CardTitle>
                       <CardDescription className="text-xs text-muted-foreground font-medium mt-0.5">
-                        Your central account attributes, resonance statistics, and membership clearance.
+                        Your account attributes, resonance statistics, and membership clearance.
                       </CardDescription>
                     </div>
                     <Link to="/dashboard/settings/profile">
-                      <Button variant="outline" className="h-8 text-[10px] font-black uppercase tracking-wider px-3 rounded-xl border-primary/20 hover:bg-primary/10">
-                        Edit Information
+                      <Button variant="outline" className="h-8 text-[10px] font-black uppercase tracking-wider px-3 rounded-xl border-primary/20 text-foreground hover:bg-primary/10">
+                        Edit Info
                       </Button>
                     </Link>
                   </div>
                 </CardHeader>
 
                 <CardContent className="p-6 space-y-6">
-                  {/* Account Metadata Summary */}
+                  {/* Account Metadata Summary Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="p-4 rounded-2xl bg-muted/10 border border-primary/10 space-y-1">
-                      <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/60 font-mono">Full Name</p>
+                      <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground font-mono">Full Name</p>
                       <p className="text-sm font-extrabold text-foreground truncate">{profile?.name || "Demo User"}</p>
                     </div>
                     <div className="p-4 rounded-2xl bg-muted/10 border border-primary/10 space-y-1">
-                      <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/60 font-mono">Handle Name</p>
+                      <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground font-mono">Handle Name</p>
                       <p className="text-sm font-extrabold text-primary font-mono truncate">@{profile?.username || "demouser"}</p>
                     </div>
                     <div className="p-4 rounded-2xl bg-muted/10 border border-primary/10 space-y-1">
-                      <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/60 font-mono">Primary Email</p>
+                      <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground font-mono">Primary Email</p>
                       <p className="text-sm font-extrabold text-foreground truncate">{profile?.email || "demo@example.com"}</p>
                     </div>
                     <div className="p-4 rounded-2xl bg-muted/10 border border-primary/10 space-y-1">
-                      <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground/60 font-mono">Clearance Status</p>
-                      <p className="text-sm font-extrabold text-emerald-500 font-mono flex items-center gap-1">
+                      <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground font-mono">Clearance Status</p>
+                      <p className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 font-mono flex items-center gap-1">
                         <CheckCircle2 size={14} /> Verified Account
                       </p>
                     </div>
@@ -430,27 +453,27 @@ export default function AccountCenter() {
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       <div className="p-3.5 bg-primary/5 rounded-2xl border border-primary/10 text-center hover:bg-primary/10 transition-colors">
                         <span className="text-2xl font-black text-foreground font-mono">{postsCount}</span>
-                        <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/70 mt-0.5">Publications</p>
+                        <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground mt-0.5">Publications</p>
                       </div>
                       <div className="p-3.5 bg-primary/5 rounded-2xl border border-primary/10 text-center hover:bg-primary/10 transition-colors">
                         <span className="text-2xl font-black text-foreground font-mono">{draftsCount}</span>
-                        <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/70 mt-0.5">Active Drafts</p>
+                        <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground mt-0.5">Active Drafts</p>
                       </div>
                       <div className="p-3.5 bg-primary/5 rounded-2xl border border-primary/10 text-center hover:bg-primary/10 transition-colors">
                         <span className="text-2xl font-black text-foreground font-mono">{savedCount}</span>
-                        <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/70 mt-0.5">Saved Posts</p>
+                        <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground mt-0.5">Saved Posts</p>
                       </div>
                       <div className="p-3.5 bg-primary/5 rounded-2xl border border-primary/10 text-center hover:bg-primary/10 transition-colors">
                         <span className="text-2xl font-black text-foreground font-mono">12.8K</span>
-                        <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/70 mt-0.5">Total Reach</p>
+                        <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground mt-0.5">Total Reach</p>
                       </div>
                       <div className="p-3.5 bg-primary/5 rounded-2xl border border-primary/10 text-center hover:bg-primary/10 transition-colors">
                         <span className="text-xl font-black text-foreground font-mono">{1417 + followersCount}</span>
-                        <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/70 mt-0.5">Audience</p>
+                        <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground mt-0.5">Audience</p>
                       </div>
                       <div className="p-3.5 bg-primary/5 rounded-2xl border border-primary/10 text-center hover:bg-primary/10 transition-colors">
                         <span className="text-xl font-black text-foreground font-mono">{677 + followingCount}</span>
-                        <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground/70 mt-0.5">Following</p>
+                        <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground mt-0.5">Following</p>
                       </div>
                     </div>
                   </div>
@@ -472,7 +495,7 @@ export default function AccountCenter() {
                   </div>
                   <Button 
                     onClick={() => setActiveModal("reset-security")}
-                    className="h-8 text-[10px] font-extrabold uppercase tracking-wider px-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 cursor-pointer shrink-0"
+                    className="h-8 text-[10px] font-extrabold uppercase tracking-wider px-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 cursor-pointer shrink-0"
                   >
                     Reset Defaults
                   </Button>
@@ -482,12 +505,12 @@ export default function AccountCenter() {
                   <div className="p-4 rounded-2xl bg-muted/10 border border-primary/10 flex justify-between items-center gap-3 hover:border-primary/25 transition-all">
                     <div>
                       <h4 className="font-extrabold text-sm text-foreground">Account Password</h4>
-                      <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">Last updated 3 months ago</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">Updated 3 months ago</p>
                     </div>
                     <Button 
                       onClick={() => navigate("/dashboard/settings/security")}
                       variant="outline" 
-                      className="h-8 text-[10px] font-black uppercase tracking-wider px-3.5 rounded-xl border-primary/20 hover:bg-primary/10 shrink-0 cursor-pointer"
+                      className="h-8 text-[10px] font-black uppercase tracking-wider px-3.5 rounded-xl border-primary/20 text-foreground hover:bg-primary/10 shrink-0 cursor-pointer"
                     >
                       Configure
                     </Button>
@@ -501,7 +524,7 @@ export default function AccountCenter() {
                     <Button 
                       onClick={() => navigate("/dashboard/settings/security")}
                       variant="outline" 
-                      className="h-8 text-[10px] font-black uppercase tracking-wider px-3.5 rounded-xl border-primary/20 hover:bg-primary/10 shrink-0 cursor-pointer"
+                      className="h-8 text-[10px] font-black uppercase tracking-wider px-3.5 rounded-xl border-primary/20 text-foreground hover:bg-primary/10 shrink-0 cursor-pointer"
                     >
                       Configure
                     </Button>
@@ -515,7 +538,7 @@ export default function AccountCenter() {
                     <Button 
                       onClick={() => navigate("/dashboard/settings/security")}
                       variant="outline" 
-                      className="h-8 text-[10px] font-black uppercase tracking-wider px-3.5 rounded-xl border-primary/20 hover:bg-primary/10 shrink-0 cursor-pointer"
+                      className="h-8 text-[10px] font-black uppercase tracking-wider px-3.5 rounded-xl border-primary/20 text-foreground hover:bg-primary/10 shrink-0 cursor-pointer"
                     >
                       Configure
                     </Button>
@@ -529,7 +552,7 @@ export default function AccountCenter() {
                     <Button 
                       onClick={() => navigate("/dashboard/settings/security")}
                       variant="outline" 
-                      className="h-8 text-[10px] font-black uppercase tracking-wider px-3.5 rounded-xl border-primary/20 hover:bg-primary/10 shrink-0 cursor-pointer"
+                      className="h-8 text-[10px] font-black uppercase tracking-wider px-3.5 rounded-xl border-primary/20 text-foreground hover:bg-primary/10 shrink-0 cursor-pointer"
                     >
                       Configure
                     </Button>
@@ -557,7 +580,7 @@ export default function AccountCenter() {
                       <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0"><Github size={20} /></div>
                       <div className="min-w-0">
                         <h4 className="font-extrabold text-xs text-foreground truncate">GitHub OAuth</h4>
-                        <span className={cn("inline-block text-[10px] font-bold mt-0.5 font-mono", connections.github ? "text-emerald-500" : "text-muted-foreground/60")}>
+                        <span className={cn("inline-block text-[10px] font-bold mt-0.5 font-mono", connections.github ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground")}>
                           {connections.github ? "🟢 Connected" : "Disconnected"}
                         </span>
                       </div>
@@ -578,7 +601,7 @@ export default function AccountCenter() {
                       <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0"><Chrome size={20} /></div>
                       <div className="min-w-0">
                         <h4 className="font-extrabold text-xs text-foreground truncate">Google Identity</h4>
-                        <span className={cn("inline-block text-[10px] font-bold mt-0.5 font-mono", connections.google ? "text-emerald-500" : "text-muted-foreground/60")}>
+                        <span className={cn("inline-block text-[10px] font-bold mt-0.5 font-mono", connections.google ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground")}>
                           {connections.google ? "🟢 Connected" : "Disconnected"}
                         </span>
                       </div>
@@ -599,7 +622,7 @@ export default function AccountCenter() {
                       <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0"><Twitter size={20} /></div>
                       <div className="min-w-0">
                         <h4 className="font-extrabold text-xs text-foreground truncate">X / Twitter Signal</h4>
-                        <span className={cn("inline-block text-[10px] font-bold mt-0.5 font-mono", connections.twitter ? "text-emerald-500" : "text-muted-foreground/60")}>
+                        <span className={cn("inline-block text-[10px] font-bold mt-0.5 font-mono", connections.twitter ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground")}>
                           {connections.twitter ? "🟢 Connected" : "Disconnected"}
                         </span>
                       </div>
@@ -620,7 +643,7 @@ export default function AccountCenter() {
                       <div className="p-3 rounded-xl bg-primary/10 text-primary shrink-0"><Globe size={20} /></div>
                       <div className="min-w-0">
                         <h4 className="font-extrabold text-xs text-foreground truncate">Custom Domain</h4>
-                        <span className={cn("inline-block text-[10px] font-bold mt-0.5 font-mono", connections.website ? "text-emerald-500" : "text-muted-foreground/60")}>
+                        <span className={cn("inline-block text-[10px] font-bold mt-0.5 font-mono", connections.website ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground")}>
                           {connections.website ? "🟢 Connected" : "Disconnected"}
                         </span>
                       </div>
@@ -658,7 +681,7 @@ export default function AccountCenter() {
                         <h4 className="font-extrabold text-sm text-foreground flex items-center gap-2">
                           <CloudDownload size={16} className="text-primary" /> Full Log Archive
                         </h4>
-                        <p className="text-xs text-muted-foreground/80 mt-2 leading-relaxed font-medium">Download JSON snapshot of user profile and logs.</p>
+                        <p className="text-xs text-muted-foreground mt-2 leading-relaxed font-medium">Download JSON snapshot of user profile and logs.</p>
                       </div>
                       <Button 
                         onClick={() => handleSimulatedExport("Download User Data", "json")}
@@ -673,7 +696,7 @@ export default function AccountCenter() {
                         <h4 className="font-extrabold text-sm text-foreground flex items-center gap-2">
                           <Share2 size={16} className="text-primary" /> Export Posts
                         </h4>
-                        <p className="text-xs text-muted-foreground/80 mt-2 leading-relaxed font-medium">Export publication history as Markdown files.</p>
+                        <p className="text-xs text-muted-foreground mt-2 leading-relaxed font-medium">Export publication history as Markdown files.</p>
                       </div>
                       <Button 
                         onClick={() => handleSimulatedExport("Export Publications", "zip")}
@@ -688,7 +711,7 @@ export default function AccountCenter() {
                         <h4 className="font-extrabold text-sm text-foreground flex items-center gap-2">
                           <Sparkles size={16} className="text-primary" /> Drafts Backup
                         </h4>
-                        <p className="text-xs text-muted-foreground/80 mt-2 leading-relaxed font-medium">Backup composition drafts from local database.</p>
+                        <p className="text-xs text-muted-foreground mt-2 leading-relaxed font-medium">Backup composition drafts from local database.</p>
                       </div>
                       <Button 
                         onClick={() => handleSimulatedExport("Export Drafts", "zip")}
@@ -711,13 +734,13 @@ export default function AccountCenter() {
                               <div className="p-2.5 rounded-xl bg-primary/15 text-primary shrink-0"><FileDown size={16} /></div>
                               <div className="min-w-0">
                                 <p className="text-xs font-extrabold text-foreground truncate font-mono">{exp.filename}</p>
-                                <p className="text-[10px] text-muted-foreground/70 font-semibold font-mono">{exp.size} • Compiled: {exp.date}</p>
+                                <p className="text-[10px] text-muted-foreground font-semibold font-mono">{exp.size} • Compiled: {exp.date}</p>
                               </div>
                             </div>
                             <Button
                               onClick={() => handleDeleteExportRequest(exp)}
                               variant="ghost"
-                              className="h-8 w-8 p-0 rounded-xl hover:bg-red-500/10 text-muted-foreground hover:text-red-500 shrink-0 cursor-pointer"
+                              className="h-8 w-8 p-0 rounded-xl hover:bg-red-500/10 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 shrink-0 cursor-pointer"
                               title="Delete archive"
                             >
                               <Trash2 size={15} />
@@ -753,12 +776,12 @@ export default function AccountCenter() {
                       <div className="flex items-center justify-between gap-2 flex-wrap">
                         <p className="font-extrabold text-sm text-foreground flex items-center gap-2">
                           MacBook Pro M3 Max 
-                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[9px] font-black uppercase tracking-wider border border-emerald-500/20 font-mono">Current Device</span>
+                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase tracking-wider border border-emerald-500/20 font-mono">Current Device</span>
                         </p>
-                        <span className="text-[10px] font-bold text-emerald-500 font-mono">🟢 Active Now</span>
+                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 font-mono">🟢 Active Now</span>
                       </div>
                       <p className="text-xs text-muted-foreground font-medium">Chrome Browser • Neo-Tokyo, Earth</p>
-                      <p className="text-[10px] text-muted-foreground/60 font-semibold font-mono">IP Address: 192.168.1.14</p>
+                      <p className="text-[10px] text-muted-foreground font-semibold font-mono">IP Address: 192.168.1.14</p>
                     </div>
                   </div>
 
@@ -770,10 +793,10 @@ export default function AccountCenter() {
                     <div className="space-y-1 min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2 flex-wrap">
                         <p className="font-extrabold text-sm text-foreground">iPhone 15 Pro</p>
-                        <span className="text-[10px] font-semibold text-muted-foreground/60 font-mono">4 hours ago</span>
+                        <span className="text-[10px] font-semibold text-muted-foreground font-mono">4 hours ago</span>
                       </div>
                       <p className="text-xs text-muted-foreground font-medium">Safari Mobile • Kyoto, Japan</p>
-                      <p className="text-[10px] text-muted-foreground/60 font-semibold font-mono">IP Address: 192.168.1.28</p>
+                      <p className="text-[10px] text-muted-foreground font-semibold font-mono">IP Address: 192.168.1.28</p>
                     </div>
                   </div>
 
@@ -784,10 +807,10 @@ export default function AccountCenter() {
                     <div className="space-y-1 min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2 flex-wrap">
                         <p className="font-extrabold text-sm text-foreground">iPad Air 5th Gen</p>
-                        <span className="text-[10px] font-semibold text-muted-foreground/60 font-mono">2 days ago</span>
+                        <span className="text-[10px] font-semibold text-muted-foreground font-mono">2 days ago</span>
                       </div>
                       <p className="text-xs text-muted-foreground font-medium">Safari Browser • London, UK</p>
-                      <p className="text-[10px] text-muted-foreground/60 font-semibold font-mono">IP Address: 84.21.33.109</p>
+                      <p className="text-[10px] text-muted-foreground font-semibold font-mono">IP Address: 84.21.33.109</p>
                     </div>
                   </div>
                 </CardContent>
@@ -796,9 +819,9 @@ export default function AccountCenter() {
 
             {/* Section F: Danger Zone */}
             {(activeTab === "danger" || activeTab === "all") && (
-              <Card className="rounded-[32px] glass-panel border border-red-500/25 bg-red-500/5 shadow-2xl overflow-hidden min-w-0">
+              <Card className="rounded-[32px] glass-panel border border-red-500/25 bg-red-500/5 dark:bg-red-500/10 shadow-2xl overflow-hidden min-w-0">
                 <CardHeader className="bg-red-500/10 border-b border-red-500/15 py-5">
-                  <CardTitle className="text-base font-extrabold text-red-500 flex items-center gap-2">
+                  <CardTitle className="text-base font-extrabold text-red-600 dark:text-red-400 flex items-center gap-2">
                     <AlertTriangle size={18} /> Danger Authorization Zone
                   </CardTitle>
                   <CardDescription className="text-xs text-muted-foreground font-medium mt-0.5">
@@ -816,19 +839,19 @@ export default function AccountCenter() {
                     <Button
                       onClick={() => setActiveModal("logout-all")}
                       variant="outline"
-                      className="flex-1 sm:flex-none h-11 text-xs font-bold uppercase tracking-wider px-4 rounded-xl border-red-500/30 hover:bg-red-500/15 text-red-500 cursor-pointer"
+                      className="flex-1 sm:flex-none h-11 text-xs font-bold uppercase tracking-wider px-4 rounded-xl border-red-500/30 hover:bg-red-500/15 text-red-600 dark:text-red-400 cursor-pointer"
                     >
                       Logout All
                     </Button>
                     <Button
                       onClick={() => setActiveModal("deactivate")}
-                      className="flex-1 sm:flex-none h-11 text-xs font-bold uppercase tracking-wider px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white cursor-pointer"
+                      className="flex-1 sm:flex-none h-11 text-xs font-bold uppercase tracking-wider px-4 rounded-xl bg-amber-600 dark:bg-amber-700 hover:bg-amber-700 dark:hover:bg-amber-600 text-amber-50 shadow-md shadow-amber-500/20 cursor-pointer"
                     >
                       Deactivate
                     </Button>
                     <Button
                       onClick={() => setActiveModal("delete")}
-                      className="flex-1 sm:flex-none h-11 text-xs font-bold uppercase tracking-wider px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/25 cursor-pointer"
+                      className="flex-1 sm:flex-none h-11 text-xs font-bold uppercase tracking-wider px-4 rounded-xl bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 text-red-50 shadow-md shadow-red-500/25 cursor-pointer"
                     >
                       Delete Account
                     </Button>
@@ -841,14 +864,14 @@ export default function AccountCenter() {
         </div>
       )}
 
-      {/* 5. Confirmation Modals Panel (100% Contained & Portal Covered) */}
+      {/* 5. Confirmation Modals Panel (Theme-Consistent Radix Portal) */}
       <Dialog open={!!activeModal} onOpenChange={() => { setActiveModal(null); setDeleteConfirmText(""); }}>
         
         {/* Disconnect Integration Modal */}
         {activeModal === "disconnect" && (
-          <DialogContent className="glass-panel border border-primary/20 max-w-md w-[92vw] sm:w-full rounded-3xl p-6 bg-background/95 backdrop-blur-xl shadow-2xl [&>button:last-child]:hidden">
+          <DialogContent className="glass-panel border border-primary/20 max-w-md w-[92vw] sm:w-full rounded-3xl p-6 bg-background/95 text-foreground backdrop-blur-xl shadow-2xl [&>button:last-child]:hidden">
             <DialogHeader className="mb-4 space-y-2">
-              <DialogTitle className="text-xl font-extrabold tracking-tight flex items-center gap-2">
+              <DialogTitle className="text-xl font-extrabold tracking-tight flex items-center gap-2 text-foreground">
                 <AlertCircle size={20} className="text-red-500" /> Disconnect Integration Node?
               </DialogTitle>
               <DialogDescription className="text-muted-foreground font-medium text-xs leading-relaxed">
@@ -859,13 +882,13 @@ export default function AccountCenter() {
               <Button
                 variant="outline"
                 onClick={() => { setActiveModal(null); setPendingDisconnectKey(""); }}
-                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 hover:bg-primary/10"
+                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 text-foreground hover:bg-primary/10"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleConfirmDisconnect}
-                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-600 hover:bg-red-700 text-white"
+                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 text-red-50 shadow-md shadow-red-500/25"
               >
                 Disconnect
               </Button>
@@ -875,9 +898,9 @@ export default function AccountCenter() {
 
         {/* Delete Export Archive Modal */}
         {activeModal === "delete-export" && (
-          <DialogContent className="glass-panel border border-primary/20 max-w-md w-[92vw] sm:w-full rounded-3xl p-6 bg-background/95 backdrop-blur-xl shadow-2xl [&>button:last-child]:hidden">
+          <DialogContent className="glass-panel border border-primary/20 max-w-md w-[92vw] sm:w-full rounded-3xl p-6 bg-background/95 text-foreground backdrop-blur-xl shadow-2xl [&>button:last-child]:hidden">
             <DialogHeader className="mb-4 space-y-2">
-              <DialogTitle className="text-xl font-extrabold tracking-tight flex items-center gap-2">
+              <DialogTitle className="text-xl font-extrabold tracking-tight flex items-center gap-2 text-foreground">
                 <Trash2 size={20} className="text-red-500" /> Delete Archive File?
               </DialogTitle>
               <DialogDescription className="text-muted-foreground font-medium text-xs leading-relaxed">
@@ -888,13 +911,13 @@ export default function AccountCenter() {
               <Button
                 variant="outline"
                 onClick={() => { setActiveModal(null); setPendingDeleteExport(null); }}
-                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 hover:bg-primary/10"
+                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 text-foreground hover:bg-primary/10"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleConfirmDeleteExport}
-                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-600 hover:bg-red-700 text-white"
+                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 text-red-50 shadow-md shadow-red-500/25"
               >
                 Delete Archive
               </Button>
@@ -904,9 +927,9 @@ export default function AccountCenter() {
 
         {/* Reset Security Settings Modal */}
         {activeModal === "reset-security" && (
-          <DialogContent className="glass-panel border border-primary/20 max-w-md w-[92vw] sm:w-full rounded-3xl p-6 bg-background/95 backdrop-blur-xl shadow-2xl [&>button:last-child]:hidden">
+          <DialogContent className="glass-panel border border-primary/20 max-w-md w-[92vw] sm:w-full rounded-3xl p-6 bg-background/95 text-foreground backdrop-blur-xl shadow-2xl [&>button:last-child]:hidden">
             <DialogHeader className="mb-4 space-y-2">
-              <DialogTitle className="text-xl font-extrabold tracking-tight flex items-center gap-2">
+              <DialogTitle className="text-xl font-extrabold tracking-tight flex items-center gap-2 text-foreground">
                 <Shield size={20} className="text-primary" /> Reset Security Defaults?
               </DialogTitle>
               <DialogDescription className="text-muted-foreground font-medium text-xs leading-relaxed">
@@ -917,7 +940,7 @@ export default function AccountCenter() {
               <Button
                 variant="outline"
                 onClick={() => setActiveModal(null)}
-                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 hover:bg-primary/10"
+                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 text-foreground hover:bg-primary/10"
               >
                 Cancel
               </Button>
@@ -933,9 +956,9 @@ export default function AccountCenter() {
 
         {/* Logout All Devices Modal */}
         {activeModal === "logout-all" && (
-          <DialogContent className="glass-panel border border-primary/20 max-w-md w-[92vw] sm:w-full rounded-3xl p-6 bg-background/95 backdrop-blur-xl shadow-2xl [&>button:last-child]:hidden">
+          <DialogContent className="glass-panel border border-primary/20 max-w-md w-[92vw] sm:w-full rounded-3xl p-6 bg-background/95 text-foreground backdrop-blur-xl shadow-2xl [&>button:last-child]:hidden">
             <DialogHeader className="mb-4 space-y-2">
-              <DialogTitle className="text-xl font-extrabold tracking-tight flex items-center gap-2">
+              <DialogTitle className="text-xl font-extrabold tracking-tight flex items-center gap-2 text-foreground">
                 <LogOut size={20} className="text-red-500" /> Terminate All Other Sessions?
               </DialogTitle>
               <DialogDescription className="text-muted-foreground font-medium text-xs leading-relaxed">
@@ -946,13 +969,13 @@ export default function AccountCenter() {
               <Button
                 variant="outline"
                 onClick={() => setActiveModal(null)}
-                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 hover:bg-primary/10"
+                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 text-foreground hover:bg-primary/10"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleConfirmLogoutAll}
-                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-600 hover:bg-red-700 text-white"
+                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 text-red-50 shadow-md shadow-red-500/25"
               >
                 Confirm Logout
               </Button>
@@ -962,9 +985,9 @@ export default function AccountCenter() {
 
         {/* Deactivate Account Modal */}
         {activeModal === "deactivate" && (
-          <DialogContent className="glass-panel border border-primary/20 max-w-md w-[92vw] sm:w-full rounded-3xl p-6 bg-background/95 backdrop-blur-xl shadow-2xl [&>button:last-child]:hidden">
+          <DialogContent className="glass-panel border border-primary/20 max-w-md w-[92vw] sm:w-full rounded-3xl p-6 bg-background/95 text-foreground backdrop-blur-xl shadow-2xl [&>button:last-child]:hidden">
             <DialogHeader className="mb-4 space-y-2">
-              <DialogTitle className="text-xl font-extrabold tracking-tight flex items-center gap-2">
+              <DialogTitle className="text-xl font-extrabold tracking-tight flex items-center gap-2 text-foreground">
                 <AlertCircle size={20} className="text-amber-500" /> Deactivate Creator Profile?
               </DialogTitle>
               <DialogDescription className="text-muted-foreground font-medium text-xs leading-relaxed">
@@ -975,13 +998,13 @@ export default function AccountCenter() {
               <Button
                 variant="outline"
                 onClick={() => setActiveModal(null)}
-                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 hover:bg-primary/10"
+                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 text-foreground hover:bg-primary/10"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleConfirmDeactivate}
-                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider bg-amber-600 hover:bg-amber-700 text-white"
+                className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider bg-amber-600 dark:bg-amber-700 hover:bg-amber-700 dark:hover:bg-amber-600 text-amber-50 shadow-md shadow-amber-500/20"
               >
                 Deactivate
               </Button>
@@ -991,9 +1014,9 @@ export default function AccountCenter() {
 
         {/* Delete Account Modal */}
         {activeModal === "delete" && (
-          <DialogContent className="glass-panel border border-red-500/25 max-w-md w-[92vw] sm:w-full rounded-3xl p-6 bg-background/95 backdrop-blur-xl shadow-2xl [&>button:last-child]:hidden">
+          <DialogContent className="glass-panel border border-red-500/25 max-w-md w-[92vw] sm:w-full rounded-3xl p-6 bg-background/95 text-foreground backdrop-blur-xl shadow-2xl [&>button:last-child]:hidden">
             <DialogHeader className="mb-4 space-y-2">
-              <DialogTitle className="text-xl font-extrabold tracking-tight flex items-center gap-2 text-red-500">
+              <DialogTitle className="text-xl font-extrabold tracking-tight flex items-center gap-2 text-red-600 dark:text-red-400">
                 <AlertTriangle size={20} /> Permanent Account Wiping
               </DialogTitle>
               <DialogDescription className="text-muted-foreground font-medium text-xs leading-relaxed">
@@ -1003,14 +1026,14 @@ export default function AccountCenter() {
             
             <div className="space-y-4 mt-2">
               <div className="space-y-2 text-left">
-                <Label htmlFor="delete-input" className="text-[10px] font-black uppercase tracking-widest text-red-500">Type DELETE to unlock button</Label>
+                <Label htmlFor="delete-input" className="text-[10px] font-black uppercase tracking-widest text-red-600 dark:text-red-400">Type DELETE to unlock button</Label>
                 <Input
                   id="delete-input"
                   type="text"
                   placeholder="DELETE"
                   value={deleteConfirmText}
                   onChange={(e) => setDeleteConfirmText(e.target.value)}
-                  className="h-12 bg-muted/20 border-red-500/25 focus:border-red-500/60 focus:ring-4 focus:ring-red-500/10 transition-all rounded-xl text-foreground font-extrabold uppercase tracking-widest text-center"
+                  className="h-12 bg-muted/20 border-red-500/25 text-foreground placeholder-muted-foreground/50 focus:border-red-500/60 focus:ring-4 focus:ring-red-500/10 transition-all rounded-xl font-extrabold uppercase tracking-widest text-center"
                 />
               </div>
 
@@ -1018,14 +1041,14 @@ export default function AccountCenter() {
                 <Button
                   variant="outline"
                   onClick={() => { setActiveModal(null); setDeleteConfirmText(""); }}
-                  className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 hover:bg-primary/10"
+                  className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 text-foreground hover:bg-primary/10"
                 >
                   Cancel
                 </Button>
                 <Button
                   disabled={deleteConfirmText !== "DELETE"}
                   onClick={handleConfirmDelete}
-                  className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-600 hover:bg-red-700 text-white disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-red-500/25"
+                  className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 text-red-50 disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-red-500/25"
                 >
                   Confirm Delete
                 </Button>
