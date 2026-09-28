@@ -40,7 +40,7 @@ export default function About() {
               {/* Mobile stacked view (No absolute overflows or 3D overlaps) */}
               <div className="lg:hidden flex flex-col gap-6 w-full max-w-sm mx-auto px-4 z-20 relative">
                 {/* Mobile Card 1: Feed Card */}
-                <div className="w-full p-5 sm:p-6 rounded-[2rem] bg-background/55 backdrop-blur-xl border border-white/10 shadow-lg text-left">
+                <div className="w-full p-5 sm:p-6 rounded-[2rem] glass-card border border-primary/15 shadow-lg text-left">
                   <div className="flex items-center gap-3 mb-4">
                     <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=80" className="h-8 w-8 rounded-full object-cover border border-primary/20" alt="avatar" />
                     <div>
@@ -65,9 +65,9 @@ export default function About() {
                 </div>
 
                 {/* Mobile Card 2: Creator Profile Card */}
-                <div className="w-full rounded-[2rem] overflow-hidden bg-background/55 backdrop-blur-xl border border-white/10 shadow-lg text-left">
-                  <div className="h-16 bg-gradient-to-r from-primary via-primary/80 to-secondary/80 opacity-90 relative flex items-end justify-end p-2">
-                    <span className="px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[8px] font-bold text-white uppercase tracking-wider">Top Writer</span>
+                <div className="w-full rounded-[2rem] overflow-hidden glass-card border border-primary/15 shadow-lg text-left">
+                  <div className="h-16 bg-gradient-to-r from-primary/30 via-primary/20 to-secondary/30 relative flex items-end justify-end p-2">
+                    <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/25 backdrop-blur-md text-[8px] font-black uppercase tracking-wider font-mono">Top Writer</span>
                   </div>
                   <div className="px-5 pb-5 -mt-8 relative z-10 flex flex-col items-center text-center">
                     <div className="h-16 w-16 rounded-2xl overflow-hidden border-4 border-background bg-muted shadow-lg mb-2">
@@ -96,13 +96,13 @@ export default function About() {
                 </div>
 
                 {/* Mobile Card 3: Stories Told Card */}
-                <div className="w-full p-6 rounded-[2rem] bg-primary text-primary-foreground shadow-lg text-center">
-                  <div className="text-4xl font-black mb-1">4.2M+</div>
-                  <div className="text-sm opacity-80 font-medium">Stories Told</div>
+                <div className="w-full p-6 rounded-[2rem] glass-card border border-primary/20 shadow-lg text-center">
+                  <div className="text-4xl font-black mb-1 text-primary">4.2M+</div>
+                  <div className="text-sm text-muted-foreground font-medium">Stories Told</div>
                 </div>
 
                 {/* Mobile Card 4: Felix Card */}
-                <div className="w-full flex items-center gap-3 p-4 pr-6 rounded-full bg-background/60 backdrop-blur-xl border border-white/10 shadow-lg text-left">
+                <div className="w-full flex items-center gap-3 p-4 pr-6 rounded-full glass-card border border-primary/15 shadow-lg text-left">
                   <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary shrink-0">
                     <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Felix" alt="User" />
                   </div>
@@ -120,7 +120,7 @@ export default function About() {
                   className="absolute top-[2%] left-[2%] md:top-[6%] md:left-[6%] lg:left-[10%] z-20 scale-[0.65] xs:scale-[0.72] sm:scale-80 md:scale-95 lg:scale-100 transform-gpu origin-top-left"
                   delay={0}
                 >
-                  <div className="w-[310px] sm:w-[350px] md:w-[380px] p-5 sm:p-6 rounded-[2rem] bg-background/55 backdrop-blur-xl border border-white/10 shadow-2xl flex flex-col justify-between text-left transition-all duration-300 hover:border-primary/30">
+                  <div className="w-[310px] sm:w-[350px] md:w-[380px] p-5 sm:p-6 rounded-[2rem] glass-card border border-primary/15 shadow-2xl flex flex-col justify-between text-left transition-all duration-300 hover:border-primary/30">
                     <div>
                       <div className="flex items-center gap-3 mb-4">
                         <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=80" className="h-8 w-8 rounded-full object-cover border border-primary/20" alt="avatar" />
@@ -154,9 +154,9 @@ export default function About() {
                   delay={1.5}
                   duration={6}
                 >
-                  <div className="w-[280px] sm:w-[310px] md:w-[330px] rounded-[2rem] overflow-hidden bg-background/55 backdrop-blur-xl border border-white/10 shadow-2xl text-left transition-all duration-300 hover:border-primary/30">
-                    <div className="h-20 bg-gradient-to-r from-primary via-primary/80 to-secondary/80 opacity-90 relative flex items-end justify-end p-2">
-                      <span className="px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[8px] font-bold text-white uppercase tracking-wider">Top Writer</span>
+                  <div className="w-[280px] sm:w-[310px] md:w-[330px] rounded-[2rem] overflow-hidden glass-card border border-primary/15 shadow-2xl text-left transition-all duration-300 hover:border-primary/30">
+                    <div className="h-20 bg-gradient-to-r from-primary/30 via-primary/20 to-secondary/30 relative flex items-end justify-end p-2">
+                      <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/25 backdrop-blur-md text-[8px] font-black uppercase tracking-wider font-mono">Top Writer</span>
                     </div>
                     <div className="px-5 pb-5 -mt-10 relative z-10 flex flex-col items-center text-center">
                       <div className="h-20 w-20 rounded-2xl overflow-hidden border-4 border-background bg-muted shadow-lg mb-2">
@@ -184,7 +184,7 @@ export default function About() {
                         </div>
                       </div>
                       
-                      <Button variant="outline" size="sm" className="w-full rounded-full text-xs font-bold py-1.5 h-8 border-primary/20 hover:bg-primary hover:text-white transition-colors">
+                      <Button variant="outline" size="sm" className="w-full rounded-full text-xs font-bold py-1.5 h-8 border-primary/20 hover:bg-primary hover:text-primary-foreground transition-colors">
                         View Profile
                       </Button>
                     </div>
@@ -193,13 +193,13 @@ export default function About() {
 
                 {/* Floating Card 3: Stats */}
                 <FloatCard
-                  className="absolute bottom-[20%] left-[2%] md:bottom-[15%] md:left-[20%] lg:left-[25%] z-30 scale-[0.65] xs:scale-[0.72] sm:scale-80 md:scale-95 lg:scale-100 transform-gpu origin-bottom-left"
+                  className="absolute bottom-[2%] left-[2%] md:bottom-[15%] md:left-[20%] lg:left-[25%] z-30 scale-[0.65] xs:scale-[0.72] sm:scale-80 md:scale-95 lg:scale-100 transform-gpu origin-bottom-left"
                   delay={0.5}
                   duration={7}
                 >
-                  <div className="w-48 p-5 rounded-3xl bg-primary/90 backdrop-blur-md text-primary-foreground shadow-xl -rotate-3 text-left">
-                    <div className="text-4xl font-black mb-1">4.2M+</div>
-                    <div className="text-sm opacity-80 font-medium">Stories Told</div>
+                  <div className="w-48 p-5 rounded-3xl glass-card border border-primary/20 backdrop-blur-md shadow-xl -rotate-3 text-left">
+                    <div className="text-4xl font-black mb-1 text-primary">4.2M+</div>
+                    <div className="text-sm text-muted-foreground font-medium">Stories Told</div>
                   </div>
                 </FloatCard>
 
@@ -208,7 +208,7 @@ export default function About() {
                   className="absolute bottom-[2%] right-[2%] md:bottom-[10%] md:right-[20%] lg:right-[25%] z-20 scale-[0.65] xs:scale-[0.72] sm:scale-80 md:scale-95 lg:scale-100 transform-gpu origin-bottom-right"
                   delay={2}
                 >
-                  <div className="flex items-center gap-3 p-4 pr-8 rounded-full bg-background/60 backdrop-blur-md border border-white/20 shadow-xl text-left">
+                  <div className="flex items-center gap-3 p-4 pr-8 rounded-full glass-card border border-primary/15 backdrop-blur-md shadow-xl text-left">
                     <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary shrink-0">
                       <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Felix" alt="User" />
                     </div>
