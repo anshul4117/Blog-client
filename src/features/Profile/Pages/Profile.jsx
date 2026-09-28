@@ -14,8 +14,10 @@ import {
   MapPin, Calendar, Edit, Award, LayoutGrid, List, ArrowLeft, 
   Compass, X, Share2, Github, Twitter, Globe, Link as LinkIcon, 
   Sparkles, ImagePlus, UserPlus, UserCheck, ShieldCheck, 
-  TrendingUp, FileText
+  TrendingUp, FileText, Settings, Bookmark, HelpCircle, LogOut,
+  Lock, UserX, Eye, BarChart2, ChevronRight, Moon, Sun, Sliders
 } from "lucide-react";
+import { useTheme } from "@/components/theme-provider";
 
 const MOCK_SYSTEM_USERS = [
   {
@@ -61,7 +63,8 @@ const MOCK_SYSTEM_USERS = [
 ];
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const targetUserId = searchParams.get("userId");
@@ -75,15 +78,23 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState("posts");
   const [isGridView, setIsGridView] = useState(true);
   const [showFollowDialog, setShowFollowDialog] = useState(null); // "followers" | "following" | null
+  const [showSettingsDrawer, setShowSettingsDrawer] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   // Cover image banner state
   const [profileCover, setProfileCover] = useState(() => {
     return localStorage.getItem(`profile_cover_${targetUserId || "me"}`) || null;
   });
 
+  const handleLogout = () => {
+    logout();
+    toast.success("Logged out successfully. See you soon! 👋");
+    navigate("/login");
+  };
+
   // Lock body scroll when dialogs are open
   useEffect(() => {
-    if (showFollowDialog || showImageModal) {
+    if (showFollowDialog || showImageModal || showSettingsDrawer || showLogoutDialog) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -91,7 +102,7 @@ export default function Profile() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [showFollowDialog, showImageModal]);
+  }, [showFollowDialog, showImageModal, showSettingsDrawer, showLogoutDialog]);
 
   // Followers & Following state management
   const [followerIds, setFollowerIds] = useState(() => {
@@ -310,6 +321,15 @@ export default function Profile() {
           </div>
 
           <div className="flex items-center gap-2">
+            {isOwnProfile && (
+              <Button 
+                variant="outline" 
+                onClick={() => setShowSettingsDrawer(true)}
+                className="gap-2 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 text-foreground hover:bg-primary/10 cursor-pointer"
+              >
+                <Settings size={15} className="text-primary" /> <span>Settings & Hub</span>
+              </Button>
+            )}
             <Button 
               variant="outline" 
               onClick={handleShareProfile}
@@ -457,6 +477,95 @@ export default function Profile() {
               </div>
 
             </div>
+
+            {/* INSTAGRAM-STYLE PROFESSIONAL CREATOR DASHBOARD OVERVIEW */}
+            {isOwnProfile && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-muted/20 border border-primary/20 shadow-md space-y-3.5 my-2">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-primary text-primary-foreground shadow-sm">
+                      <BarChart2 size={20} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-foreground">
+                          Professional Dashboard
+                        </h3>
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-mono font-bold border border-emerald-500/25">
+                          Creator Tier
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground font-medium">
+                        12.8K account reach & signal insights in the last 30 days
+                      </p>
+                    </div>
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowSettingsDrawer(true)}
+                    className="h-8 px-3 rounded-xl text-[11px] font-extrabold uppercase tracking-wider text-primary hover:bg-primary/15 transition-all gap-1 cursor-pointer"
+                  >
+                    <span>Settings & Hub</span> <ChevronRight size={14} />
+                  </Button>
+                </div>
+
+                {/* Quick Shortcuts Grid (Saved, Analytics, Account Center, Help & Support) */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                  <Link to="/dashboard/saved" className="group">
+                    <div className="p-3 rounded-xl bg-background/80 hover:bg-background border border-primary/15 hover:border-primary/30 transition-all flex items-center justify-between">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <Bookmark size={15} className="text-primary group-hover:scale-110 transition-transform shrink-0" />
+                        <div className="text-left min-w-0">
+                          <span className="block text-[9px] font-black uppercase tracking-widest text-muted-foreground font-mono">Bookmarked</span>
+                          <span className="text-xs font-bold text-foreground truncate block">Saved Posts</span>
+                        </div>
+                      </div>
+                      <ChevronRight size={14} className="text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                    </div>
+                  </Link>
+
+                  <Link to="/dashboard" className="group">
+                    <div className="p-3 rounded-xl bg-background/80 hover:bg-background border border-primary/15 hover:border-primary/30 transition-all flex items-center justify-between">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <TrendingUp size={15} className="text-primary group-hover:scale-110 transition-transform shrink-0" />
+                        <div className="text-left min-w-0">
+                          <span className="block text-[9px] font-black uppercase tracking-widest text-muted-foreground font-mono">Metrics</span>
+                          <span className="text-xs font-bold text-foreground truncate block">Analytics</span>
+                        </div>
+                      </div>
+                      <ChevronRight size={14} className="text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                    </div>
+                  </Link>
+
+                  <Link to="/dashboard/settings/account-center" className="group">
+                    <div className="p-3 rounded-xl bg-background/80 hover:bg-background border border-primary/15 hover:border-primary/30 transition-all flex items-center justify-between">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <ShieldCheck size={15} className="text-primary group-hover:scale-110 transition-transform shrink-0" />
+                        <div className="text-left min-w-0">
+                          <span className="block text-[9px] font-black uppercase tracking-widest text-muted-foreground font-mono">Identity</span>
+                          <span className="text-xs font-bold text-foreground truncate block">Account Hub</span>
+                        </div>
+                      </div>
+                      <ChevronRight size={14} className="text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                    </div>
+                  </Link>
+
+                  <Link to="/dashboard/help" className="group">
+                    <div className="p-3 rounded-xl bg-background/80 hover:bg-background border border-primary/15 hover:border-primary/30 transition-all flex items-center justify-between">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <HelpCircle size={15} className="text-primary group-hover:scale-110 transition-transform shrink-0" />
+                        <div className="text-left min-w-0">
+                          <span className="block text-[9px] font-black uppercase tracking-widest text-muted-foreground font-mono">Support</span>
+                          <span className="text-xs font-bold text-foreground truncate block">Help & FAQ</span>
+                        </div>
+                      </div>
+                      <ChevronRight size={14} className="text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            )}
 
             {/* 2. INTEGRATED SOCIAL RESONANCE & STATS BAR */}
             <div className="pt-6 border-t border-primary/10 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
@@ -841,6 +950,294 @@ export default function Profile() {
                   {showFollowDialog === "following" && followingIds.length === 0 && (
                     <p className="text-center text-xs text-muted-foreground italic py-8">No outbound following links active.</p>
                   )}
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* 7. SETTINGS & CREATOR HUB SLIDE-OVER DRAWER */}
+        <AnimatePresence>
+          {showSettingsDrawer && (
+            <div className="fixed inset-0 z-50 flex justify-end">
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowSettingsDrawer(false)}
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+              />
+
+              {/* Drawer Panel */}
+              <motion.div
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "spring", damping: 25, stiffness: 250 }}
+                className="relative w-full max-w-md h-full bg-background border-l border-primary/20 shadow-2xl z-10 flex flex-col overflow-hidden"
+              >
+                {/* Drawer Header */}
+                <div className="p-5 border-b border-primary/15 flex items-center justify-between bg-muted/10 shrink-0">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 rounded-xl bg-primary/15 text-primary">
+                      <Settings size={18} />
+                    </div>
+                    <div>
+                      <h3 className="font-extrabold text-base text-foreground tracking-tight">Settings & Creator Hub</h3>
+                      <p className="text-[10px] text-muted-foreground font-mono uppercase font-bold">Preferences & Navigation</p>
+                    </div>
+                  </div>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setShowSettingsDrawer(false)}
+                    className="rounded-xl hover:bg-primary/10 text-muted-foreground hover:text-foreground h-9 w-9 cursor-pointer"
+                  >
+                    <X size={18} />
+                  </Button>
+                </div>
+
+                {/* Drawer Content */}
+                <div className="flex-1 overflow-y-auto p-5 space-y-6 no-scrollbar">
+                  
+                  {/* Quick Creator Tools */}
+                  <div className="space-y-2.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-primary font-mono">Quick Shortcuts</p>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <Link 
+                        to="/dashboard/saved" 
+                        onClick={() => setShowSettingsDrawer(false)}
+                        className="p-3.5 rounded-2xl bg-muted/10 border border-primary/10 hover:border-primary/25 hover:bg-primary/5 transition-all flex flex-col justify-between gap-3 group"
+                      >
+                        <div className="flex items-center justify-between">
+                          <Bookmark size={18} className="text-primary group-hover:scale-110 transition-transform" />
+                          <span className="px-2 py-0.5 rounded-full bg-primary/15 text-primary text-[9px] font-mono font-bold">Saved</span>
+                        </div>
+                        <div>
+                          <span className="block font-extrabold text-xs text-foreground">Saved Posts</span>
+                          <span className="text-[10px] text-muted-foreground font-medium">Bookmarked articles</span>
+                        </div>
+                      </Link>
+
+                      <Link 
+                        to="/dashboard/help" 
+                        onClick={() => setShowSettingsDrawer(false)}
+                        className="p-3.5 rounded-2xl bg-muted/10 border border-primary/10 hover:border-primary/25 hover:bg-primary/5 transition-all flex flex-col justify-between gap-3 group"
+                      >
+                        <div className="flex items-center justify-between">
+                          <HelpCircle size={18} className="text-primary group-hover:scale-110 transition-transform" />
+                          <span className="px-2 py-0.5 rounded-full bg-secondary/15 text-secondary text-[9px] font-mono font-bold">Help</span>
+                        </div>
+                        <div>
+                          <span className="block font-extrabold text-xs text-foreground">Help & Support</span>
+                          <span className="text-[10px] text-muted-foreground font-medium">FAQs & Contact</span>
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Settings Hierarchy */}
+                  <div className="space-y-2.5">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-primary font-mono">Settings & Security</p>
+                    <div className="space-y-1.5">
+                      
+                      <Link 
+                        to="/dashboard/settings/account-center" 
+                        onClick={() => setShowSettingsDrawer(false)}
+                        className="flex items-center justify-between p-3.5 rounded-2xl bg-muted/10 border border-primary/10 hover:border-primary/20 hover:bg-primary/5 transition-all group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                            <ShieldCheck size={16} />
+                          </div>
+                          <div>
+                            <span className="block text-xs font-bold text-foreground group-hover:text-primary transition-colors">Account Center</span>
+                            <span className="text-[10px] text-muted-foreground">Manage profile, email, and identity</span>
+                          </div>
+                        </div>
+                        <ChevronRight size={16} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                      </Link>
+
+                      <Link 
+                        to="/dashboard/settings/security" 
+                        onClick={() => setShowSettingsDrawer(false)}
+                        className="flex items-center justify-between p-3.5 rounded-2xl bg-muted/10 border border-primary/10 hover:border-primary/20 hover:bg-primary/5 transition-all group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                            <Lock size={16} />
+                          </div>
+                          <div>
+                            <span className="block text-xs font-bold text-foreground group-hover:text-primary transition-colors">Security & Passwords</span>
+                            <span className="text-[10px] text-muted-foreground">2FA, passwords, and sessions</span>
+                          </div>
+                        </div>
+                        <ChevronRight size={16} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                      </Link>
+
+                      <Link 
+                        to="/dashboard/settings/privacy" 
+                        onClick={() => setShowSettingsDrawer(false)}
+                        className="flex items-center justify-between p-3.5 rounded-2xl bg-muted/10 border border-primary/10 hover:border-primary/20 hover:bg-primary/5 transition-all group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                            <Eye size={16} />
+                          </div>
+                          <div>
+                            <span className="block text-xs font-bold text-foreground group-hover:text-primary transition-colors">Privacy & Data</span>
+                            <span className="text-[10px] text-muted-foreground">Visibility and data controls</span>
+                          </div>
+                        </div>
+                        <ChevronRight size={16} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                      </Link>
+
+                      <Link 
+                        to="/dashboard/settings/blocked" 
+                        onClick={() => setShowSettingsDrawer(false)}
+                        className="flex items-center justify-between p-3.5 rounded-2xl bg-muted/10 border border-primary/10 hover:border-primary/20 hover:bg-primary/5 transition-all group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                            <UserX size={16} />
+                          </div>
+                          <div>
+                            <span className="block text-xs font-bold text-foreground group-hover:text-primary transition-colors">Blocked Accounts</span>
+                            <span className="text-[10px] text-muted-foreground">Manage blocked users</span>
+                          </div>
+                        </div>
+                        <ChevronRight size={16} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                      </Link>
+
+                      <Link 
+                        to="/dashboard/settings/appearance" 
+                        onClick={() => setShowSettingsDrawer(false)}
+                        className="flex items-center justify-between p-3.5 rounded-2xl bg-muted/10 border border-primary/10 hover:border-primary/20 hover:bg-primary/5 transition-all group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                            <Sliders size={16} />
+                          </div>
+                          <div>
+                            <span className="block text-xs font-bold text-foreground group-hover:text-primary transition-colors">Appearance & Theme</span>
+                            <span className="text-[10px] text-muted-foreground">Theme mode & visual preferences</span>
+                          </div>
+                        </div>
+                        <ChevronRight size={16} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                      </Link>
+
+                    </div>
+                  </div>
+
+                  {/* Theme Mode Quick Switcher */}
+                  <div className="p-4 rounded-2xl bg-muted/10 border border-primary/10 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-extrabold text-foreground flex items-center gap-2">
+                        {theme === "dark" ? <Moon size={15} className="text-primary" /> : <Sun size={15} className="text-primary" />}
+                        Appearance Mode
+                      </span>
+                      <span className="text-[10px] font-mono uppercase font-bold text-primary px-2 py-0.5 rounded-md bg-primary/10">
+                        {theme}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-background border border-primary/10">
+                      <button
+                        type="button"
+                        onClick={() => setTheme("light")}
+                        className={cn(
+                          "py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                          theme === "light" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        Light
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTheme("dark")}
+                        className={cn(
+                          "py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                          theme === "dark" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        Dark
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTheme("system")}
+                        className={cn(
+                          "py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                          theme === "system" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        System
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Drawer Footer: Logout Action */}
+                <div className="p-4 border-t border-primary/15 bg-muted/10 shrink-0">
+                  <Button
+                    onClick={() => {
+                      setShowSettingsDrawer(false);
+                      setShowLogoutDialog(true);
+                    }}
+                    className="w-full h-11 rounded-2xl bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all"
+                  >
+                    <LogOut size={16} /> Log Out of XDrop
+                  </Button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* 8. LOGOUT CONFIRMATION DIALOG MODAL */}
+        <AnimatePresence>
+          {showLogoutDialog && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowLogoutDialog(false)}
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              />
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                transition={{ type: "spring", duration: 0.3 }}
+                className="relative w-full max-w-sm rounded-[32px] glass-panel border border-red-500/25 bg-background/95 p-6 shadow-2xl z-10 space-y-4 text-center"
+              >
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/10 text-red-500 border border-red-500/20">
+                  <LogOut size={26} />
+                </div>
+
+                <div className="space-y-1">
+                  <h3 className="text-lg font-black text-foreground">Log out of your account?</h3>
+                  <p className="text-xs text-muted-foreground font-medium leading-relaxed">
+                    You will need to re-authenticate with your credentials or demo login to access your creator dashboard.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowLogoutDialog(false)}
+                    className="flex-1 rounded-xl h-10 text-xs font-bold border-primary/20 text-foreground hover:bg-primary/10 cursor-pointer"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleLogout}
+                    className="flex-1 rounded-xl h-10 text-xs font-black uppercase tracking-wider bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-600/20 cursor-pointer"
+                  >
+                    Confirm Logout
+                  </Button>
                 </div>
               </motion.div>
             </div>
