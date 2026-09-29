@@ -322,13 +322,14 @@ export default function Profile() {
 
           <div className="flex items-center gap-2">
             {isOwnProfile && (
-              <Button 
-                variant="outline" 
-                onClick={() => setShowSettingsDrawer(true)}
-                className="gap-2 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 text-foreground hover:bg-primary/10 cursor-pointer"
-              >
-                <Settings size={15} className="text-primary" /> <span>Settings & Hub</span>
-              </Button>
+              <Link to="/dashboard/settings">
+                <Button 
+                  variant="outline" 
+                  className="gap-2 rounded-xl text-xs font-bold uppercase tracking-wider border-primary/20 text-foreground hover:bg-primary/10 cursor-pointer"
+                >
+                  <Settings size={15} className="text-primary" /> <span>Settings & Hub</span>
+                </Button>
+              </Link>
             )}
             <Button 
               variant="outline" 
@@ -501,13 +502,14 @@ export default function Profile() {
                     </div>
                   </div>
 
-                  <Button
-                    variant="ghost"
-                    onClick={() => setShowSettingsDrawer(true)}
-                    className="h-8 px-3 rounded-xl text-[11px] font-extrabold uppercase tracking-wider text-primary hover:bg-primary/15 transition-all gap-1 cursor-pointer"
-                  >
-                    <span>Settings & Hub</span> <ChevronRight size={14} />
-                  </Button>
+                  <Link to="/dashboard/settings">
+                    <Button
+                      variant="ghost"
+                      className="h-8 px-3 rounded-xl text-[11px] font-extrabold uppercase tracking-wider text-primary hover:bg-primary/15 transition-all gap-1 cursor-pointer"
+                    >
+                      <span>Settings & Hub</span> <ChevronRight size={14} />
+                    </Button>
+                  </Link>
                 </div>
 
                 {/* Quick Shortcuts Grid (Saved, Analytics, Account Center, Help & Support) */}
