@@ -253,6 +253,7 @@ export default function CreatePost() {
       localStorage.setItem("mock_db_drafts", JSON.stringify(updatedDrafts));
       fetchDrafts();
       toast.success("Draft saved successfully! 📝");
+      navigate("/feed");
     } catch (err) {
       console.error("Error saving draft:", err);
       toast.error("Failed to save draft. ❌");
@@ -799,7 +800,7 @@ export default function CreatePost() {
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto no-scrollbar py-1 w-full min-w-0">
-            <PostCard post={previewPost} index={0} />
+            <PostCard post={previewPost} index={0} isPreview={true} />
           </div>
         </DialogContent>
       </Dialog>

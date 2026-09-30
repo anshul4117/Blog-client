@@ -54,6 +54,15 @@ function ReadMoreText({ text = "", limit = 18, className = "" }) {
     );
 }
 
+function formatTitle(title, limit = 15) {
+    if (!title) return "";
+    const words = String(title).trim().split(/\s+/).filter(Boolean);
+    if (words.length > limit) {
+        return words.slice(0, limit).join(" ") + "...";
+    }
+    return title;
+}
+
 export default function PostCard({ post, index = 0, isGrid = false, isPreview = false }) {
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -403,6 +412,7 @@ export default function PostCard({ post, index = 0, isGrid = false, isPreview = 
     };
 
     const renderCommentsPanel = (isOverlay = false) => {
+        if (isPreview) return null;
         return (
             <div className={`space-y-4 ${isOverlay ? "h-full flex flex-col" : ""}`}>
                 {/* New Comment Input */}
@@ -575,8 +585,8 @@ export default function PostCard({ post, index = 0, isGrid = false, isPreview = 
                     </div>
 
                     <Link to={`/post/${post._id}`}>
-                        <h3 className="text-3xl md:text-4xl font-extrabold text-white mb-4 leading-tight group-hover:text-primary transition-colors">
-                            {post.title}
+                        <h3 className="text-3xl md:text-4xl font-extrabold text-white mb-4 leading-snug group-hover:text-primary transition-colors break-words whitespace-normal">
+                            {formatTitle(post.title, 15)}
                         </h3>
                     </Link>
 
@@ -677,7 +687,11 @@ export default function PostCard({ post, index = 0, isGrid = false, isPreview = 
                 {/* Header */}
                 <div className="flex items-center justify-between mb-3 shrink-0">
                     <div className="flex items-center gap-3.5 min-w-0">
-                        <Link to={`/profile/${post.userId?._id || post.author?._id || ""}`} className="shrink-0">
+                        <Link 
+                            to={isPreview ? "#" : `/profile/${post.userId?._id || post.author?._id || ""}`} 
+                            onClick={(e) => isPreview && e.preventDefault()}
+                            className={cn("shrink-0", isPreview && "cursor-default")}
+                        >
                             <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-border/40 group-hover:border-primary/50 transition-colors">
                                 <img
                                     src={post.userId?.profilePicture || post.author?.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
@@ -687,7 +701,11 @@ export default function PostCard({ post, index = 0, isGrid = false, isPreview = 
                             </div>
                         </Link>
                         <div className="flex flex-col min-w-0">
-                            <Link to={`/profile/${post.userId?._id || post.author?._id || ""}`} className="font-bold text-foreground text-sm truncate hover:text-primary transition-colors leading-snug">
+                            <Link 
+                                to={isPreview ? "#" : `/profile/${post.userId?._id || post.author?._id || ""}`} 
+                                onClick={(e) => isPreview && e.preventDefault()}
+                                className={cn("font-bold text-foreground text-sm truncate leading-snug", isPreview ? "cursor-default" : "hover:text-primary transition-colors")}
+                            >
                                 {authorName}
                             </Link>
                             <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 leading-none mt-0.5">{timeAgo}</span>
@@ -695,7 +713,7 @@ export default function PostCard({ post, index = 0, isGrid = false, isPreview = 
                     </div>
 
                     <div className="flex items-center gap-1 shrink-0">
-                        {showFollowButton && (
+                        {!isPreview && showFollowButton && (
                             <button
                                 onClick={handleFollow}
                                 className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full transition-all shrink-0 ${
@@ -707,61 +725,71 @@ export default function PostCard({ post, index = 0, isGrid = false, isPreview = 
                                 {followed ? "Following" : "Follow"}
                             </button>
                         )}
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <button 
-                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} 
-                                    className="text-muted-foreground hover:text-primary p-1.5 rounded-full hover:bg-primary/10 transition-all focus:outline-none"
-                                >
-                                    <MoreHorizontal size={16} />
-                                </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48 glass-panel mt-1 rounded-xl p-1 border-primary/20">
-                                <DropdownMenuItem 
-                                    onClick={handleCopyLink} 
-                                    className="rounded-lg font-bold cursor-pointer hover:bg-primary/10 focus:bg-primary/10 text-xs py-2 px-3"
-                                >
-                                    Copy Link
-                                </DropdownMenuItem>
-                                <DropdownMenuItem 
-                                    onClick={handleSaveToggle} 
-                                    className="rounded-lg font-bold cursor-pointer hover:bg-primary/10 focus:bg-primary/10 text-xs py-2 px-3"
-                                >
-                                    {saved ? "Unsaved" : "Saved"}
-                                </DropdownMenuItem>
-                                {String(currentUserId) === String(postUserId) && (
-                                    <>
-                                        <DropdownMenuSeparator className="bg-primary/10 my-1" />
-                                        <DropdownMenuItem 
-                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/dashboard/edit/${post._id}`); }} 
-                                            className="rounded-lg font-bold cursor-pointer hover:bg-primary/10 focus:bg-primary/10 text-xs py-2 px-3"
-                                        >
-                                            Edit Post
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem 
-                                            onClick={handleDeletePost} 
-                                            className="rounded-lg font-bold cursor-pointer text-red-500 hover:bg-red-500/10 focus:bg-red-500/10 text-xs py-2 px-3"
-                                        >
-                                            Delete Post
-                                        </DropdownMenuItem>
-                                    </>
-                                )}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        {!isPreview && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <button 
+                                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} 
+                                        className="text-muted-foreground hover:text-primary p-1.5 rounded-full hover:bg-primary/10 transition-all focus:outline-none"
+                                    >
+                                        <MoreHorizontal size={16} />
+                                    </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48 glass-panel mt-1 rounded-xl p-1 border-primary/20">
+                                    <DropdownMenuItem 
+                                        onClick={handleCopyLink} 
+                                        className="rounded-lg font-bold cursor-pointer hover:bg-primary/10 focus:bg-primary/10 text-xs py-2 px-3"
+                                    >
+                                        Copy Link
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem 
+                                        onClick={handleSaveToggle} 
+                                        className="rounded-lg font-bold cursor-pointer hover:bg-primary/10 focus:bg-primary/10 text-xs py-2 px-3"
+                                    >
+                                        {saved ? "Unsaved" : "Saved"}
+                                    </DropdownMenuItem>
+                                    {String(currentUserId) === String(postUserId) && (
+                                        <>
+                                            <DropdownMenuSeparator className="bg-primary/10 my-1" />
+                                            <DropdownMenuItem 
+                                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/dashboard/edit/${post._id}`); }} 
+                                                className="rounded-lg font-bold cursor-pointer hover:bg-primary/10 focus:bg-primary/10 text-xs py-2 px-3"
+                                            >
+                                                Edit Post
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem 
+                                                onClick={handleDeletePost} 
+                                                className="rounded-lg font-bold cursor-pointer text-red-500 hover:bg-red-500/10 focus:bg-red-500/10 text-xs py-2 px-3"
+                                            >
+                                                Delete Post
+                                            </DropdownMenuItem>
+                                        </>
+                                    )}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
                     </div>
                 </div>
 
                 {/* Content Area */}
                 <div className="flex-1 flex flex-col justify-start overflow-hidden min-w-0">
-                    <Link to={`/post/${post._id}`} className="block">
-                        <h3 className="text-[17px] font-extrabold mb-1.5 text-foreground group-hover:text-primary transition-colors leading-tight line-clamp-2">
-                            {post.title}
+                    <Link 
+                        to={isPreview ? "#" : `/post/${post._id}`} 
+                        onClick={(e) => isPreview && e.preventDefault()}
+                        className={cn("block", isPreview && "cursor-default")}
+                    >
+                        <h3 className={cn("text-[17px] font-extrabold mb-1.5 text-foreground leading-snug break-words whitespace-normal line-clamp-3", !isPreview && "group-hover:text-primary transition-colors")}>
+                            {formatTitle(post.title, 15)}
                         </h3>
                         <div className="h-[1px] w-8 bg-primary/30 mb-2.5 group-hover:w-full transition-all duration-500" />
                     </Link>
 
                     {/* Image / Placeholder */}
-                    <Link to={`/post/${post._id}`} className="block relative w-full h-[140px] rounded-2xl overflow-hidden border border-border/40 bg-muted/20 shrink-0 mb-3 group-hover:shadow-md transition-all duration-300">
+                    <Link 
+                        to={isPreview ? "#" : `/post/${post._id}`} 
+                        onClick={(e) => isPreview && e.preventDefault()}
+                        className={cn("block relative w-full h-[140px] rounded-2xl overflow-hidden border border-border/40 bg-muted/20 shrink-0 mb-3 group-hover:shadow-md transition-all duration-300", isPreview && "cursor-default")}
+                    >
                         {post.image?.url || post.coverImage || (post.image && typeof post.image === 'string') ? (
                             <OptimizedImage
                                 src={post.image?.url || post.coverImage || post.image}
@@ -887,7 +915,11 @@ export default function PostCard({ post, index = 0, isGrid = false, isPreview = 
                     {/* Header */}
                     <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2 text-[14px] min-w-0">
-                            <Link to={`/profile/${post.userId?._id || post.author?._id || ""}`} className="font-bold text-foreground hover:text-primary transition-colors truncate">
+                            <Link 
+                                to={isPreview ? "#" : `/profile/${post.userId?._id || post.author?._id || ""}`} 
+                                onClick={(e) => isPreview && e.preventDefault()}
+                                className={cn("font-bold text-foreground truncate", isPreview ? "cursor-default" : "hover:text-primary transition-colors")}
+                            >
                                 {authorName}
                             </Link>
                             {showFollowButton && (
@@ -909,56 +941,62 @@ export default function PostCard({ post, index = 0, isGrid = false, isPreview = 
                             <span className="text-muted-foreground/60 text-xs">{timeAgo}</span>
                         </div>
                         
-                        {/* Interactive Options Menu (Three Dots) */}
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <button 
-                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} 
-                                    className="text-muted-foreground hover:text-primary p-1.5 rounded-full hover:bg-primary/10 transition-all focus:outline-none"
-                                >
-                                    <MoreHorizontal size={18} />
-                                </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48 glass-panel mt-1 rounded-xl p-1 border-primary/20">
-                                <DropdownMenuItem 
-                                    onClick={handleCopyLink} 
-                                    className="rounded-lg font-bold cursor-pointer hover:bg-primary/10 focus:bg-primary/10 text-xs py-2 px-3"
-                                >
-                                    Copy Link
-                                </DropdownMenuItem>
-                                <DropdownMenuItem 
-                                    onClick={handleSaveToggle} 
-                                    className="rounded-lg font-bold cursor-pointer hover:bg-primary/10 focus:bg-primary/10 text-xs py-2 px-3"
-                                >
-                                    {saved ? "Unsaved" : "Saved"}
-                                </DropdownMenuItem>
-                                {String(currentUserId) === String(postUserId) && (
-                                    <>
-                                        <DropdownMenuSeparator className="bg-primary/10 my-1" />
-                                        <DropdownMenuItem 
-                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/dashboard/edit/${post._id}`); }} 
-                                            className="rounded-lg font-bold cursor-pointer hover:bg-primary/10 focus:bg-primary/10 text-xs py-2 px-3"
-                                        >
-                                            Edit Post
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem 
-                                            onClick={handleDeletePost} 
-                                            className="rounded-lg font-bold cursor-pointer text-red-500 hover:bg-red-500/10 focus:bg-red-500/10 text-xs py-2 px-3"
-                                        >
-                                            Delete Post
-                                        </DropdownMenuItem>
-                                    </>
-                                )}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        {/* Interactive Options Menu (Three Dots) - Hidden in Preview */}
+                        {!isPreview && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <button 
+                                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} 
+                                        className="text-muted-foreground hover:text-primary p-1.5 rounded-full hover:bg-primary/10 transition-all focus:outline-none"
+                                    >
+                                        <MoreHorizontal size={18} />
+                                    </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48 glass-panel mt-1 rounded-xl p-1 border-primary/20">
+                                    <DropdownMenuItem 
+                                        onClick={handleCopyLink} 
+                                        className="rounded-lg font-bold cursor-pointer hover:bg-primary/10 focus:bg-primary/10 text-xs py-2 px-3"
+                                    >
+                                        Copy Link
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem 
+                                        onClick={handleSaveToggle} 
+                                        className="rounded-lg font-bold cursor-pointer hover:bg-primary/10 focus:bg-primary/10 text-xs py-2 px-3"
+                                    >
+                                        {saved ? "Unsaved" : "Saved"}
+                                    </DropdownMenuItem>
+                                    {String(currentUserId) === String(postUserId) && (
+                                        <>
+                                            <DropdownMenuSeparator className="bg-primary/10 my-1" />
+                                            <DropdownMenuItem 
+                                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/dashboard/edit/${post._id}`); }} 
+                                                className="rounded-lg font-bold cursor-pointer hover:bg-primary/10 focus:bg-primary/10 text-xs py-2 px-3"
+                                            >
+                                                Edit Post
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem 
+                                                onClick={handleDeletePost} 
+                                                className="rounded-lg font-bold cursor-pointer text-red-500 hover:bg-red-500/10 focus:bg-red-500/10 text-xs py-2 px-3"
+                                            >
+                                                Delete Post
+                                            </DropdownMenuItem>
+                                        </>
+                                    )}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
                     </div>
 
                     {/* Post Content */}
                     <div>
                         {post.title && (
-                            <Link to={`/post/${post._id}`} className="block">
-                                <h3 className="text-xl font-extrabold mb-2 text-foreground group-hover:text-primary transition-colors leading-tight line-clamp-2">
-                                    {post.title}
+                            <Link 
+                                to={isPreview ? "#" : `/post/${post._id}`} 
+                                onClick={(e) => isPreview && e.preventDefault()}
+                                className={cn("block", isPreview && "cursor-default")}
+                            >
+                                <h3 className={cn("text-xl font-extrabold mb-2 text-foreground leading-snug break-words whitespace-normal line-clamp-3", !isPreview && "group-hover:text-primary transition-colors")}>
+                                    {formatTitle(post.title, 15)}
                                 </h3>
                                 <div className="h-[1px] w-12 bg-primary/30 mb-3 group-hover:w-full transition-all duration-500" />
                             </Link>
@@ -986,32 +1024,34 @@ export default function PostCard({ post, index = 0, isGrid = false, isPreview = 
                         ))}
                     </div>
 
-                    {/* Action Bar */}
-                    <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/20 text-muted-foreground">
+                    {/* Action Bar — Static & Non-interactive in Preview Mode */}
+                    <div className={cn("flex items-center justify-between mt-6 pt-4 border-t border-border/20 text-muted-foreground", isPreview && "pointer-events-none opacity-85")}>
                         <button
                             onClick={handleCommentClick}
                             aria-label="View comments"
-                            className={`flex items-center gap-2 group/btn hover:text-blue-500 transition-colors text-xs font-bold uppercase tracking-wider ${showCommentsPanel ? "text-blue-500" : ""}`}
+                            tabIndex={isPreview ? -1 : 0}
+                            className={`flex items-center gap-2 transition-colors text-xs font-bold uppercase tracking-wider ${showCommentsPanel ? "text-blue-500" : ""}`}
                         >
-                            <div className="p-2 rounded-full group-hover/btn:bg-blue-500/10 group-active/btn:scale-90 transition-all">
+                            <div className="p-2 rounded-full">
                                 <MessageCircle size={18} fill={showCommentsPanel ? "currentColor" : "none"} />
                             </div>
                             <span>{commentCount}</span>
                         </button>
 
-                        <div className="flex items-center gap-1 group/btn hover:text-pink-500 transition-colors text-xs font-bold uppercase tracking-wider">
+                        <div className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider">
                             <button
                                 onClick={handleLike}
                                 aria-label="Like post"
+                                tabIndex={isPreview ? -1 : 0}
                                 className={`flex items-center ${liked ? "text-pink-500" : ""}`}
                             >
-                                <div className="p-2 rounded-full hover:bg-pink-500/10 group-active/btn:scale-90 transition-all">
+                                <div className="p-2 rounded-full">
                                     <Heart size={18} fill={liked ? "currentColor" : "none"} />
                                 </div>
                             </button>
                             <span 
                                 onClick={handleOpenLikesModal}
-                                className="hover:underline cursor-pointer font-bold px-1.5"
+                                className={cn("font-bold px-1.5", !isPreview && "hover:underline cursor-pointer")}
                             >
                                 {likeCount}
                             </span>
@@ -1020,9 +1060,10 @@ export default function PostCard({ post, index = 0, isGrid = false, isPreview = 
                         <button
                             onClick={handleSaveToggle}
                             aria-label="Bookmark post"
-                            className={`flex items-center gap-2 group/btn hover:text-primary transition-colors text-xs font-bold uppercase tracking-wider ${saved ? "text-primary" : ""}`}
+                            tabIndex={isPreview ? -1 : 0}
+                            className={`flex items-center gap-2 transition-colors text-xs font-bold uppercase tracking-wider ${saved ? "text-primary" : ""}`}
                         >
-                            <div className="p-2 rounded-full group-hover/btn:bg-primary/10 group-active/btn:scale-90 transition-all">
+                            <div className="p-2 rounded-full">
                                 <Bookmark size={18} fill={saved ? "currentColor" : "none"} />
                             </div>
                         </button>
@@ -1030,16 +1071,17 @@ export default function PostCard({ post, index = 0, isGrid = false, isPreview = 
                         <button 
                             onClick={handleShare}
                             aria-label="Share post"
-                            className="flex items-center gap-2 group/btn hover:text-primary transition-colors text-xs font-bold uppercase tracking-wider"
+                            tabIndex={isPreview ? -1 : 0}
+                            className="flex items-center gap-2 transition-colors text-xs font-bold uppercase tracking-wider"
                         >
-                            <div className="p-2 rounded-full group-hover/btn:bg-primary/10 group-active/btn:scale-90 transition-all">
+                            <div className="p-2 rounded-full">
                                 <Share size={18} />
                             </div>
                         </button>
                     </div>
 
-                    {/* Regular Card Collapsible Comments Panel */}
-                    {showCommentsPanel && (
+                    {/* Regular Card Collapsible Comments Panel (Disabled in Preview) */}
+                    {!isPreview && showCommentsPanel && (
                         <motion.div
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
