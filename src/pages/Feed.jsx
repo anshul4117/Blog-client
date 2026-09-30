@@ -5,7 +5,7 @@ import PostCard from "../components/blog/PostCard.jsx";
 import API from "../lib/secureApi.js";
 import { 
     Search, Sparkles, TrendingUp, Activity, RotateCcw, 
-    Compass, UserCheck, PlusCircle, X, Rss 
+    Compass, UserCheck, PlusCircle, Plus, X, Rss 
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -155,10 +155,12 @@ export default function Feed() {
                             })}
                         </div>
 
-                        {/* New Signal CTA Button */}
-                        <Link to="/dashboard/create" className="shrink-0">
-                            <Button className="h-9 px-4 rounded-xl text-xs font-black uppercase tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md shadow-primary/20 gap-1.5 cursor-pointer">
-                                <PlusCircle size={14} /> <span>New Signal</span>
+                        {/* New Signal CTA Button — Compact + Icon on Mobile, Full text on Desktop */}
+                        <Link to="/dashboard/create" className="shrink-0" title="Create New Signal">
+                            <Button className="h-9 w-9 p-0 sm:w-auto sm:px-4 rounded-xl text-xs font-black uppercase tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md shadow-primary/20 gap-1.5 cursor-pointer flex items-center justify-center">
+                                <Plus size={18} className="sm:hidden" />
+                                <PlusCircle size={14} className="hidden sm:inline-block" />
+                                <span className="hidden sm:inline">New Signal</span>
                             </Button>
                         </Link>
                     </div>
