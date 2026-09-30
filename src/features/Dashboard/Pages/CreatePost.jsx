@@ -791,17 +791,14 @@ export default function CreatePost() {
 
       {/* Live Preview Modal */}
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="glass-panel border-primary/15 max-w-2xl w-[95%] rounded-[32px] p-6 bg-background/95 backdrop-blur-2xl">
-          <DialogHeader className="mb-4">
-            <DialogTitle className="text-lg font-black tracking-tight flex items-center gap-2">
+        <DialogContent className="max-w-2xl w-[96vw] sm:w-[95%] rounded-[28px] sm:rounded-[32px] p-3 sm:p-5 bg-background border border-primary/20 shadow-2xl backdrop-blur-2xl text-foreground font-sans max-h-[92vh] flex flex-col overflow-hidden">
+          <DialogHeader className="mb-2 shrink-0 border-b border-primary/10 pb-2 text-left">
+            <DialogTitle className="text-sm sm:text-lg font-black tracking-tight text-foreground flex items-center gap-2">
               <Eye size={18} className="text-primary" /> Live Publication Preview
             </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
-              This preview shows how your publication signal will render across the network.
-            </DialogDescription>
           </DialogHeader>
 
-          <div className="py-2 overflow-y-auto max-h-[60vh]">
+          <div className="flex-1 overflow-y-auto no-scrollbar py-1 w-full min-w-0">
             <PostCard post={previewPost} index={0} />
           </div>
         </DialogContent>

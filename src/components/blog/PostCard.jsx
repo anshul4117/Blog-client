@@ -820,13 +820,13 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: (index % 5) * 0.08, type: "spring" }}
-            className="p-6 mb-4 mx-4 rounded-[24px] glass-card group transition-all duration-300"
+            className="p-3.5 sm:p-6 mb-4 sm:mx-4 rounded-[24px] glass-card group transition-all duration-300"
         >
-            <div className="flex gap-4">
+            <div className="flex gap-2.5 sm:gap-4">
                 {/* Avatar Column */}
                 <div className="flex-shrink-0">
                     <Link to={`/profile/${post.userId?._id || post.author?._id || ""}`}>
-                        <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-border/40 group-hover:border-primary/50 transition-colors">
+                        <div className="h-9 w-9 sm:h-11 sm:w-11 rounded-full overflow-hidden border-2 border-border/40 group-hover:border-primary/50 transition-colors">
                             <img
                                 src={post.userId?.profilePicture || post.author?.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
                                 alt={authorName}
