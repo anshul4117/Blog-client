@@ -15,8 +15,46 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
-export default function PostCard({ post, index = 0, isGrid = false }) {
+function ReadMoreText({ text = "", limit = 18, className = "" }) {
+    const [isExpanded, setIsExpanded] = useState(false);
+    
+    if (!text) return null;
+
+    const words = text.split(/\s+/).filter(Boolean);
+    const needsTruncation = words.length > limit;
+
+    if (!needsTruncation) {
+        return <p className={cn("text-muted-foreground leading-relaxed", className)}>{text}</p>;
+    }
+
+    const truncatedText = words.slice(0, limit).join(" ");
+
+    const handleToggle = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsExpanded(prev => !prev);
+    };
+
+    return (
+        <div className={cn("text-muted-foreground leading-relaxed", className)}>
+            <span className="inline text-muted-foreground">
+                {isExpanded ? text : `${truncatedText}...`}
+            </span>
+            {" "}
+            <button
+                type="button"
+                onClick={handleToggle}
+                className="text-primary font-extrabold hover:underline cursor-pointer inline-flex items-center gap-0.5 text-xs ml-1 transition-colors uppercase tracking-wider"
+            >
+                {isExpanded ? "Show Less" : "Read More"}
+            </button>
+        </div>
+    );
+}
+
+export default function PostCard({ post, index = 0, isGrid = false, isPreview = false }) {
     const { user } = useAuth();
     const navigate = useNavigate();
     
@@ -96,6 +134,7 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
     });
 
     const handleFollow = (e) => {
+        if (isPreview) return;
         e.preventDefault();
         e.stopPropagation();
         try {
@@ -118,9 +157,10 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
 
     const currentUserId = user?._id || user?.id || user?.userId;
     const postUserId = post.userId?._id || post.userId || post.author?._id || post.author || "";
-    const showFollowButton = !!user && String(currentUserId) !== String(postUserId) && postUserId !== "";
+    const showFollowButton = !isPreview && !!user && String(currentUserId) !== String(postUserId) && postUserId !== "";
 
     const handleLike = async (e) => {
+        if (isPreview) return;
         e.preventDefault();
         e.stopPropagation();
         try {
@@ -142,6 +182,7 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
     };
 
     const handleOpenLikesModal = async (e) => {
+        if (isPreview) return;
         e.preventDefault();
         e.stopPropagation();
         setIsLikesDialogOpen(true);
@@ -160,6 +201,7 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
     };
 
     const handleToggleFollowInLikes = (e, targetUserId) => {
+        if (isPreview) return;
         e.preventDefault();
         e.stopPropagation();
         try {
@@ -199,6 +241,7 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
     }, [post.userId?._id, post.author?._id]);
 
     const handleSaveToggle = (e) => {
+        if (isPreview) return;
         if (e) {
             e.preventDefault();
             e.stopPropagation();
@@ -220,6 +263,7 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
     };
 
     const handleCommentClick = (e) => {
+        if (isPreview) return;
         e.preventDefault();
         e.stopPropagation();
         setShowCommentsPanel(prev => !prev);
@@ -291,6 +335,7 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
     };
 
     const handleCopyLink = (e) => {
+        if (isPreview) return;
         e.preventDefault();
         e.stopPropagation();
         const postLink = `${window.location.origin}/post/${post._id}`;
@@ -304,12 +349,14 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
     };
 
     const handleDeletePost = (e) => {
+        if (isPreview) return;
         e.preventDefault();
         e.stopPropagation();
         setIsDeleteDialogOpen(true);
     };
 
     const handleConfirmDelete = async () => {
+        if (isPreview) return;
         try {
             await API.delete(`/blogs/del-blog/${post._id}`);
             setIsDeleteDialogOpen(false);
@@ -325,6 +372,7 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
     };
 
     const handleShare = async (e) => {
+        if (isPreview) return;
         e.preventDefault();
         e.stopPropagation();
         const postLink = `${window.location.origin}/post/${post._id}`;
@@ -624,7 +672,7 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: (index % 5) * 0.08, type: "spring" }}
-                className="h-[480px] w-full flex flex-col p-5 rounded-[28px] glass-card border border-primary/5 hover:border-primary/20 shadow-lg hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 group relative justify-between overflow-hidden"
+                className="min-h-[480px] h-auto w-full flex flex-col p-5 rounded-[28px] glass-card border border-primary/5 hover:border-primary/20 shadow-lg hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 group relative justify-between overflow-hidden"
             >
                 {/* Header */}
                 <div className="flex items-center justify-between mb-3 shrink-0">
@@ -728,9 +776,7 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                         )}
                     </Link>
 
-                    <p className="text-xs leading-relaxed text-muted-foreground line-clamp-3 mb-3">
-                        {post.content}
-                    </p>
+                    <ReadMoreText text={post.content} limit={15} className="text-xs mb-3" />
                 </div>
 
                 {/* Tags */}
@@ -908,17 +954,17 @@ export default function PostCard({ post, index = 0, isGrid = false }) {
                     </div>
 
                     {/* Post Content */}
-                    <Link to={`/post/${post._id}`} className="block">
+                    <div>
                         {post.title && (
-                            <h3 className="text-xl font-extrabold mb-2 text-foreground group-hover:text-primary transition-colors leading-tight line-clamp-2">
-                                {post.title}
-                            </h3>
+                            <Link to={`/post/${post._id}`} className="block">
+                                <h3 className="text-xl font-extrabold mb-2 text-foreground group-hover:text-primary transition-colors leading-tight line-clamp-2">
+                                    {post.title}
+                                </h3>
+                                <div className="h-[1px] w-12 bg-primary/30 mb-3 group-hover:w-full transition-all duration-500" />
+                            </Link>
                         )}
-                        <div className="h-[1px] w-12 bg-primary/30 mb-3 group-hover:w-full transition-all duration-500" />
-                        <p className="text-[15px] leading-relaxed text-muted-foreground line-clamp-3">
-                            {post.content}
-                        </p>
-                    </Link>
+                        <ReadMoreText text={post.content} limit={18} className="text-[15px]" />
+                    </div>
 
                     {/* Post Image */}
                     {(post.image?.url || post.coverImage || (post.image && typeof post.image === 'string')) && (
