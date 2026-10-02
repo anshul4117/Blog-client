@@ -214,7 +214,7 @@ export default function AccountCenter() {
   ];
 
   return (
-    <PageTransition className="w-full space-y-6 font-sans pb-28 sm:pb-32 min-w-0">
+    <PageTransition className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 pt-2 pb-28 sm:pb-32 space-y-6 sm:space-y-8 font-sans min-w-0 overflow-x-hidden">
       
       {/* Navigation Top Header */}
       <div className="flex items-center justify-between gap-4">

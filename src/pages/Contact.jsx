@@ -78,7 +78,7 @@ export default function Contact() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-background relative overflow-hidden pt-32 pb-24 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-background relative overflow-hidden pt-24 sm:pt-32 pb-28 sm:pb-32 px-3.5 sm:px-6 lg:px-8">
         <BackgroundMesh />
         <MagneticOrbBackground />
         
@@ -88,18 +88,18 @@ export default function Contact() {
           <div className="absolute bottom-[20%] right-[5%] w-[35vw] h-[35vw] rounded-full bg-secondary/8 blur-[110px] animate-pulse duration-[16s]" />
         </div>
 
-        <PageTransition className="max-w-7xl mx-auto space-y-24 relative z-10">
+        <PageTransition className="max-w-7xl mx-auto space-y-16 sm:space-y-24 relative z-10">
           
           {/* Top Form Section: Grid layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-start">
             
             {/* Left Content Column */}
-            <div className="lg:col-span-5 space-y-8 mt-4 text-left">
+            <div className="lg:col-span-5 space-y-6 sm:space-y-8 mt-2 sm:mt-4 text-left">
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
-                className="text-5xl lg:text-7xl font-black tracking-tighter leading-none text-foreground"
+                className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tighter leading-none text-foreground break-words"
               >
                 Excited to hear <br />
                 <span className="text-gradient">from you</span>

@@ -229,7 +229,7 @@ export default function DashboardHome() {
     }
 
     return (
-        <div className="space-y-8 pb-12 px-2 sm:px-4 md:px-0 max-w-7xl mx-auto">
+        <div className="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 pt-2 pb-28 sm:pb-32 space-y-6 sm:space-y-8 min-w-0 overflow-x-hidden">
             
             {/* 1. CREATOR HEADER — IDENTITY FIRST */}
             <motion.div
@@ -238,8 +238,8 @@ export default function DashboardHome() {
                 transition={{ duration: 0.4 }}
                 className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2 border-b border-primary/10 pb-6"
             >
-                <div className="space-y-1">
-                    <div className="flex items-center gap-2">
+                <div className="space-y-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/15">
                             <Activity size={11} className="animate-pulse" /> Network Pulse: Active
                         </span>
@@ -247,7 +247,7 @@ export default function DashboardHome() {
                             {new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                         </span>
                     </div>
-                    <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-foreground font-display">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-foreground font-display break-words">
                         {getGreeting()}, <span className="text-primary">{userName}</span>
                     </h1>
                     <p className="text-muted-foreground text-xs sm:text-sm font-medium">
@@ -628,7 +628,7 @@ export default function DashboardHome() {
                 </div>
 
                 {/* Streamlined Quick Actions (5 cols) */}
-                <div className="lg:col-span-5 rounded-[32px] border border-primary/15 p-6 bg-background/40 backdrop-blur-md flex items-center justify-between gap-3">
+                <div className="lg:col-span-5 rounded-[32px] border border-primary/15 p-5 sm:p-6 bg-background/40 backdrop-blur-md flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                     <Link to="/dashboard/create" className="flex-1">
                         <Button className="w-full h-10 rounded-xl text-xs font-black uppercase tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/20 cursor-pointer">
                             + Create Post

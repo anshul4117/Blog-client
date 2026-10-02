@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export default function AuthLayout({ title, subtitle, children }) {
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden bg-background px-4 py-12">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden bg-background px-3.5 sm:px-6 py-8 sm:py-12">
       {/* Background gradient orbs */}
       <div className="absolute top-[-15%] right-[-10%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-15%] left-[-10%] w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
@@ -22,7 +22,7 @@ export default function AuthLayout({ title, subtitle, children }) {
         className="w-full max-w-md relative z-10"
       >
         {/* Brand */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           <Link to="/" className="inline-flex items-center gap-2 text-2xl font-black mb-4 group text-foreground">
             <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:rotate-12 transition-transform duration-500 text-white">
               <svg viewBox="0 0 512 512" className="h-5.5 w-5.5 fill-current">
@@ -32,14 +32,14 @@ export default function AuthLayout({ title, subtitle, children }) {
             </div>
             <span>X<span className="text-primary">Drop</span></span>
           </Link>
-          <h2 className="text-3xl font-bold tracking-tight text-foreground">{title}</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">{title}</h2>
           {subtitle && (
-            <p className="text-muted-foreground mt-2">{subtitle}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-2">{subtitle}</p>
           )}
         </div>
 
         {/* Form card */}
-        <div className="bg-background/60 backdrop-blur-xl p-8 rounded-2xl border border-border/50 shadow-2xl">
+        <div className="glass-panel p-5 sm:p-8 rounded-[24px] sm:rounded-[28px] border border-primary/15 shadow-2xl">
           {children}
         </div>
       </motion.div>

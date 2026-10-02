@@ -24,7 +24,7 @@ export default function Settings() {
   };
 
   return (
-    <PageTransition className="max-w-4xl mx-auto py-8 px-4 pb-28 sm:pb-32 font-sans">
+    <PageTransition className="max-w-4xl mx-auto py-4 sm:py-8 px-3.5 sm:px-6 pb-28 sm:pb-32 font-sans min-w-0 overflow-x-hidden">
       {/* Navigation Header */}
       <div className="flex items-center justify-between mb-6">
         <Button 

@@ -80,31 +80,31 @@ export default function MyPosts() {
   };
 
   return (
-    <PageTransition className="space-y-10 pb-20">
+    <PageTransition className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 pt-2 pb-28 sm:pb-32 space-y-8 sm:space-y-10 min-w-0 overflow-x-hidden">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4">
-        <div className="space-y-2">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-2 min-w-0">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">
                 <FileText size={12} /> Resource Manager
             </div>
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tighter">My <span className="text-gradient">Publications</span></h2>
-            <p className="text-muted-foreground text-lg">Managing your digital broadcasts across the network.</p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tighter break-words">My <span className="text-gradient">Publications</span></h2>
+            <p className="text-muted-foreground text-sm sm:text-lg">Managing your digital broadcasts across the network.</p>
         </div>
-        <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
+        <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0">
+            <div className="text-left sm:text-right">
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Active Signals</p>
                 <p className="text-2xl font-black tracking-tighter">{posts.length}</p>
             </div>
             <Link to="/dashboard/create">
-                <Button className="gap-2 h-14 px-8 rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all font-bold group">
-                    <PlusCircle size={20} className="group-hover:rotate-90 transition-transform" /> New Publication
+                <Button className="gap-2 h-11 sm:h-14 px-5 sm:px-8 rounded-xl sm:rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all font-bold text-xs sm:text-base group cursor-pointer">
+                    <PlusCircle size={18} className="group-hover:rotate-90 transition-transform" /> New Publication
                 </Button>
             </Link>
         </div>
       </div>
 
       {/* Tab Switcher */}
-      <div className="flex flex-wrap items-center gap-4 sm:gap-6 border-b border-primary/10 pb-1 px-4">
+      <div className="flex flex-wrap items-center gap-4 sm:gap-6 border-b border-primary/10 pb-1">
         <button 
           onClick={() => setSearchParams({ tab: "publications" })}
           className={`flex items-center gap-2 pb-3 sm:pb-4 font-black uppercase tracking-widest text-[11px] border-b-4 transition-all cursor-pointer ${activeTab === "publications" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
