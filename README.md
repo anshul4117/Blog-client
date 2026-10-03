@@ -9,7 +9,7 @@
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License" />
 </p>
 
-> **XDrop** is an ultra-premium, high-performance content publishing and social media Single Page Application (SPA). Designed with senior UI/UX engineering standards, XDrop features Threads/Twitter-style social publishing, custom glassmorphism design systems, real-time fallback mock database architecture, and deep creator analytics.
+> **XDrop** is a modern social content broadcasting and creator analytics platform built as a high-performance Single Page Application (SPA). Engineered for speed, accessibility, and offline resilience, XDrop delivers a focused social publishing experience, real-time engagement telemetry, responsive glassmorphic UI systems, and zero-downtime offline fallback capabilities.
 
 ---
 
@@ -84,15 +84,19 @@ graph TD
 ## ✨ Core Capabilities & UX Features
 
 ### 🚀 Senior-Grade Publisher Canvas
-- **Threads/Twitter-Style Publisher:** Minimalist centered post composer with integrated avatar header, public broadcast status, hashtag pills, and cover attachment previews.
-- **Collapsible Insights Drawer:** Slide-out inspector containing real-time readability quality metrics (Flesch-Kincaid formula score), word counts, estimated reading time, and local drafts manager.
+- **Threads/Twitter-Style Publisher:** Minimalist centered post composer with integrated avatar header, public broadcast status, hashtag pills, cover attachment previews, and **Live Preview Mode (`isPreview={true}`)** for non-interactive card testing.
+- **Collapsible Insights Drawer:** Slide-out inspector containing real-time readability quality metrics (Flesch-Kincaid formula score), word counts, estimated reading time, and local drafts manager with automatic redirect to the Discover feed (`/feed`) on draft save.
 - **Inline Formatting Tools:** Injection macros for Bold, Italic, Blockquotes, Code blocks, and Lists.
-- **Circular Progress Ring:** Dynamic SVG circular meter tracking character density in real time.
+- **Title & Description Smart Truncation:** Titles automatically formatted to 15 words maximum (`formatTitle`) with multi-line line wrapping; post descriptions capped at 15–18 words with inline `Read More` / `Show Less` in-place expansion.
 
 ### 🤝 Social Interactions & Network Dynamics
 - **Interactive Likes Popover:** Split like-toggling from count triggers. Clicking numeric counts opens a glassmorphic **"Liked by"** modal showing creator avatars, handles, professions, and direct **Follow/Unfollow** toggles.
 - **Global Event Synchronization:** Follow/unfollow actions automatically update creator cards across the feed in real-time via custom browser events.
 - **Interactive User Profiles:** Grid-based post display with a dynamic **Grid/List view switcher**, custom cover photo uploader (persisted in `localStorage`), and audience connection manager.
+
+### 📱 App-Wide Mobile Responsiveness (Reference Standard)
+- **320px – 430px Full Mobile Parity:** Tested and optimized for small mobile viewports (iPhone SE, Galaxy S20, Pixel 7) with zero horizontal overflow.
+- **Bottom Navigation Clearance:** All scrollable containers use `pb-28 sm:pb-32` clearance to ensure floating bottom navigation (`MobileBottomBar`) never covers buttons or primary actions.
 
 ### 🎨 Premium Aesthetics & UI System
 - **Forest Green & Glassmorphism Design:** Solarized-inspired color palette styled with custom CSS variables (`index.css`), smooth backdrop filters, and subtle micro-animations (`framer-motion`).
@@ -108,6 +112,7 @@ To ensure fluid 60fps animation frame rates across low-power mobile devices and 
 1. **Mobile Throttling (<768px):** Particle counts and canvas drawing loops in `ParticleBackground` and `BackgroundMesh` are dynamically scaled down on touch viewports to preserve GPU fill rate.
 2. **Mouse Listener Suppression:** Touch viewports bypass cursor tracking listeners (`CustomCursor` and `GlowCard`) to prevent scroll jank and main thread repaints.
 3. **Marquee Infinite Scroll:** Uses a `w-max` container with `shrink-0` copy layers to guarantee non-wrapping, hardware-accelerated translations.
+4. **Vercel SPA Rewrites:** Production `vercel.json` rewrites redirect all direct sub-route refreshes to `index.html`, eliminating 404 errors on page reloads.
 
 ---
 
@@ -141,13 +146,14 @@ Client/
 │   │   └── layout/              # Navbar, Footer, PageTransition, BackgroundMesh
 │   │
 │   ├── features/                # Domain Feature Modules
-│   │   ├── Auth/                # Login & Register pages
-│   │   ├── Dashboard/           # Creator dashboard, CreatePost, EditPost, MyPosts
-│   │   ├── Profile/             # Profile page, settings sub-pages
+│   │   ├── Auth/                # Login, Register & ForgotPassword pages
+│   │   ├── Dashboard/           # Creator dashboard, CreatePost, EditPost, MyPosts, SavedPosts, NotificationsPage
+│   │   ├── Profile/             # Profile, AccountCenter, Security, Privacy, BlockedUsers, Setting
 │   │   └── Support/             # Help & FAQ page
 │   │
 │   └── pages/                   # Top-level standalone pages (Home, Feed, About, Contact)
 │
+├── vercel.json                  # Production SPA rewrite configuration
 ├── vite.config.js               # Vite bundler configuration
 └── package.json                 # Project dependencies & scripts
 ```
@@ -175,13 +181,19 @@ Click the **"Autofill Demo Credentials"** button on the `/login` page or enter m
 | `/contact` | `Contact` | Public | Contact form with Zod validation |
 | `/login` | `Login` | Guest Only | Login page with Sandbox Autofill |
 | `/register` | `Register` | Guest Only | Account registration |
+| `/forgot-password` | `ForgotPassword` | Guest Only | Password recovery & two-step token validation |
 | `/feed` | `Feed` | Protected | Community blog discovery feed |
 | `/post/:id` | `PostDetails` | Protected | Single post view & comment thread |
 | `/dashboard` | `DashboardHome` | Protected | Analytics overview & publishing heatmaps |
 | `/dashboard/create` | `CreatePost` | Protected | Threads/Twitter-style social post publisher |
-| `/dashboard/posts` | `MyPosts` | Protected | Published posts manager grid |
+| `/dashboard/posts` | `MyPosts` | Protected | Published posts & saved drafts manager |
 | `/dashboard/saved` | `SavedPosts` | Protected | Bookmarked publications |
-| `/dashboard/settings` | `Setting` | Protected | User account & security console |
+| `/dashboard/notifications` | `NotificationsPage` | Protected | Notifications feed & user updates |
+| `/dashboard/settings` | `Setting` | Protected | User account & settings directory |
+| `/dashboard/settings/security` | `Security` | Protected | Password management & 2FA security console |
+| `/dashboard/settings/privacy` | `Privacy` | Protected | Content privacy & data controls |
+| `/dashboard/settings/blocked` | `BlockedUsers` | Protected | Blocked accounts management list |
+| `/dashboard/settings/account-center` | `AccountCenter` | Protected | Advanced SaaS profile analytics & device timeline |
 | `/profile` | `Profile` | Protected | User profile page with grid/list post view |
 
 ---
